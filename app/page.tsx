@@ -1,6 +1,7 @@
 import Image from "next/image";
 import styles from "./page.module.css";
 import FlashCard from "@/components/FlashCard";
+import Modal from "@/components/Modal";
 
 function HelloWorld() {
   console.log("Hello World");
@@ -18,6 +19,9 @@ export default function Home() {
       <div className={styles.content}>
         {/* FlashCard */}
         <FlashCard />
+        <div style={{ marginTop: "2rem" }}>
+          <Modal />
+        </div>
       </div>
     </main>
   );

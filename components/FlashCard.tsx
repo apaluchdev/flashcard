@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Inter, Roboto, Quicksand } from "next/font/google";
 import { useState, useEffect } from "react";
 import React from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
+import ShuffleLoad from "@/components/loading/ShuffleLoad";
 
 // Fonts
 const inter = Inter({ weight: "300", subsets: ["latin"] });
@@ -28,6 +28,7 @@ export default function FlashCard() {
     cards: [],
     cardIndex: 0,
   });
+
   const [isLoading, setLoading] = useState(false);
 
   function NextCard() {
@@ -78,10 +79,10 @@ export default function FlashCard() {
         </p>
       </div>
 
-      <div className={styles.flipCard}>
-        <div className={styles.flipCardInner}>
+      <div className={styles.flashCard}>
+        <div className={styles.flashCardInner}>
           {/* Flashcard Front */}
-          <div className={styles.flipCardFront}>
+          <div className={styles.flashCardFront}>
             <h2 className={styles.question}>
               {cardData.cards.length < 1
                 ? "No cards found..."
@@ -89,7 +90,7 @@ export default function FlashCard() {
             </h2>
           </div>
           {/* Flashcard Back */}
-          <div className={styles.flipCardBack}>
+          <div className={styles.flashCardBack}>
             <h2 className={styles.question}>
               {cardData.cards.length < 1
                 ? "No cards found..."

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import "./globals.css";
 import { Inter, Open_Sans, Quicksand } from "next/font/google";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const inter = Inter({ subsets: ["latin"], weight: "400" });
 const quicksand = Open_Sans({ subsets: ["latin"], weight: "300" });

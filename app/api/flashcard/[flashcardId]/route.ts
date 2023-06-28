@@ -10,8 +10,6 @@ const containerName = process.env.COSMOSDB_CONTAINER_NAME || "";
 // Initialize the Azure Cosmos DB client
 const cosmosClient = new CosmosClient({ endpoint, key });
 
-const databaseId = "<your-database-id>";
-
 // Get the flashcards container
 const container = cosmosClient.database(databaseName).container(containerName);
 
@@ -23,28 +21,17 @@ interface Flashcard {
   // Add more properties as needed
 }
 
-// Endpoint to fetch flashcards
-export async function GET() {
-  const query = "SELECT * FROM c";
-  const { resources } = await container.items.query(query).fetchAll();
+// Endpoint to delete flashcards
+export async function DELETE(req: any) {
+  try {
+    const { id } = req.query;
 
-  let cards = resources;
-  return NextResponse.json({ cards });
-  // let card = resources[0];
-  // return NextResponse.json({ card });
-}
+    await container.item(id).delete();
 
-export async function POST(req: any) {
-  const body = await req.json();
+    return NextResponse.json({ msg: "Deleted Flashcard" });
 
-  const flashcard: Flashcard = {
-    question: body.question,
-    answer: body.answer,
-    topic: "CompTIA Security+",
-    order: 4,
-  };
-
-  const { resource } = await container.items.create(flashcard);
-  console.log("Item added:", resource);
-  return NextResponse.json({ resource });
+    console.log("Successfully deleted Flashcard");
+  } catch (error) {
+    console.error("Error deleting Flashcard:", error);
+  }
 }
