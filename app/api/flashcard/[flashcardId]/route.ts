@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { CosmosClient } from "@azure/cosmos";
 
 //  Get endpoint and key from environment variables
@@ -22,11 +22,12 @@ interface Flashcard {
 }
 
 // Endpoint to delete flashcards
-export async function DELETE(req: any) {
+export async function DELETE(req: NextRequest) {
   try {
-    const { id } = req.query;
-
-    await container.item(id).delete();
+    const apiPath = await req.nextUrl.pathname;
+    const itemId = apiPath.substring(apiPath.lastIndexOf("/") + 1);
+    
+    await container.item(itemId).delete();
 
     return NextResponse.json({ msg: "Deleted Flashcard" });
 

@@ -1,13 +1,22 @@
-import Image from "next/image";
 import styles from "./page.module.css";
-import FlashCard from "@/components/FlashCard";
-import Modal from "@/components/Modal";
+import FlashCard from "@/components/flashcard/FlashCard";
+import Modal from "@/components/modal/Modal";
 
-function HelloWorld() {
-  console.log("Hello World");
-}
+const handleFlashcardDelete = async () => {
+  try {
+    const response = await fetch("/api/flashcard/123", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        // Add any additional headers as needed
+      },
+    });
+  } catch (error) {
+    console.error("An error occurred while deleting the item:", error);
+  }
+};
 
-export default function Home() {
+export default function Page() {
   return (
     <main className={styles.main}>
       {/* Title and topic  */}
@@ -17,11 +26,11 @@ export default function Home() {
       </div>
 
       <div className={styles.content}>
-        {/* FlashCard */}
         <FlashCard />
-        <div style={{ marginTop: "2rem" }}>
-          <Modal />
-        </div>
+        <Modal>
+          <h1>Modal Content goes here...</h1>
+        </Modal>
+        {/* <button onClick={handleFlashcardDelete}>Click me!</button> */}
       </div>
     </main>
   );

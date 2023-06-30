@@ -10,8 +10,6 @@ const containerName = process.env.COSMOSDB_CONTAINER_NAME || "";
 // Initialize the Azure Cosmos DB client
 const cosmosClient = new CosmosClient({ endpoint, key });
 
-const databaseId = "<your-database-id>";
-
 // Get the flashcards container
 const container = cosmosClient.database(databaseName).container(containerName);
 

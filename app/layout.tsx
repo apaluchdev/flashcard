@@ -3,12 +3,11 @@ import "./globals.css";
 import { Inter, Open_Sans, Quicksand } from "next/font/google";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const inter = Inter({ subsets: ["latin"], weight: "400" });
-const quicksand = Open_Sans({ subsets: ["latin"], weight: "300" });
+const openSans = Open_Sans({ subsets: ["latin"], weight: "300" });
 
 export const metadata = {
   title: "FlashCards",
-  description: "Use and share flashcard decks",
+  description: "Use and share Flashcard decks",
 };
 
 export default function RootLayout({
@@ -18,13 +17,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={quicksand.className}>
+      <body className={openSans.className}>
         <header style={{ margin: "5px", color: "#802424", position: "fixed" }}>
-          <Link
-            style={inter.style}
-            href="https://en.wikipedia.org/wiki/Next.js">
-            Sign in
-          </Link>
+          <Link href="https://en.wikipedia.org/wiki/Next.js">Sign in</Link>
         </header>
         {children}
         <footer

@@ -1,13 +1,14 @@
 "use client";
 
-import React from "react";
 import Image from "next/image";
 import styles from "./Modal.module.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
 
-// reactstrap components
+interface ParentComponentProps {
+  children: ReactNode;
+}
 
-function Modal() {
+const Modal: React.FC<ParentComponentProps> = ({ children }) => {
   const [isVisible, setVisibility] = useState(false);
 
   function ToggleVisibility() {
@@ -127,6 +128,6 @@ function Modal() {
       )}
     </div>
   );
-}
+};
 
 export default Modal;

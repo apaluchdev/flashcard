@@ -1,45 +1,18 @@
 "use client";
 
+import Flashcard from "@/types/Flashcard";
 import styles from "./FlashCard.module.css";
-import Image from "next/image";
-import { Inter, Roboto, Quicksand } from "next/font/google";
 import { useState, useEffect } from "react";
-import React from "react";
-import ShuffleLoad from "@/components/loading/ShuffleLoad";
-
-// Fonts
-const inter = Inter({ weight: "300", subsets: ["latin"] });
-const roboto = Roboto({ weight: "400", subsets: ["latin"] });
-const quicksand = Quicksand({ subsets: ["latin"], weight: "400" });
-
-type Card = {
-  id: string;
-  question: string;
-  answer: string;
-  _rid: string;
-  _self: string;
-  _etag: string;
-  _attachments: string;
-  _ts: number;
-};
 
 export default function FlashCard() {
-  const [cardData, setCard] = useState<{ cards: Card[]; cardIndex: number }>({
+  const [isLoading, setLoading] = useState(false);
+  const [cardData, setCard] = useState<{
+    cards: Flashcard[];
+    cardIndex: number;
+  }>({
     cards: [],
     cardIndex: 0,
   });
-
-  const [isLoading, setLoading] = useState(false);
-
-  function NextCard() {
-    if (cardData.cardIndex == cardData.cards.length - 1) return;
-    setCard({ cards: cardData.cards, cardIndex: ++cardData.cardIndex });
-  }
-
-  function PreviousCard() {
-    if (cardData.cardIndex == 0) return;
-    setCard({ cards: cardData.cards, cardIndex: --cardData.cardIndex });
-  }
 
   useEffect(() => {
     setLoading(true);
@@ -54,17 +27,19 @@ export default function FlashCard() {
       });
   }, []);
 
-  if (isLoading || cardData.cards.length < 1 || !cardData)
-    return (
-      <div
-        style={{ marginTop: "2rem" }}
-        className="spinner-border"
-        role="status"></div>
-    );
+  // Next and previous buttons
+  const NextAndPrevButtons = () => {
+    function NextCard() {
+      if (cardData.cardIndex == cardData.cards.length - 1) return;
+      setCard({ cards: cardData.cards, cardIndex: ++cardData.cardIndex });
+    }
 
-  return (
-    <div>
-      {/* Buttons  */}
+    function PreviousCard() {
+      if (cardData.cardIndex == 0) return;
+      setCard({ cards: cardData.cards, cardIndex: --cardData.cardIndex });
+    }
+
+    return (
       <div className={styles.flashCardControl}>
         <div className={styles.buttons}>
           <button onClick={PreviousCard} className={styles.button}>
@@ -78,10 +53,23 @@ export default function FlashCard() {
           {cardData.cardIndex + 1} / {cardData.cards.length}
         </p>
       </div>
+    );
+  };
 
+  if (isLoading || cardData.cards.length < 1 || !cardData)
+    return (
+      <div
+        style={{ marginTop: "2rem" }}
+        className="spinner-border"
+        role="status"></div>
+    );
+
+  return (
+    <div>
+      <NextAndPrevButtons />
       <div className={styles.flashCard}>
         <div className={styles.flashCardInner}>
-          {/* Flashcard Front */}
+          {/* Flashcard Front  */}
           <div className={styles.flashCardFront}>
             <h2 className={styles.question}>
               {cardData.cards.length < 1
