@@ -25,10 +25,11 @@
   border: 1px solid #888;
   width: 50%; /* Could be more or less, depending on screen size */
   max-width: 600px;
-  height: auto;
+  height: 500px;
 }
 
 .flashCardForm {
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: left;
@@ -91,7 +92,7 @@
   text-decoration: none;
   font-size: 16px;
   width: 6em;
-  align-self: flex-end;
+  margin-left: auto;
   /* z-index: 1; */
 }
 

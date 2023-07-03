@@ -1,48 +1,71 @@
-import { NextResponse } from "next/server";
-import { CosmosClient } from "@azure/cosmos";
+import { NextRequest, NextResponse } from "next/server";
+import Flashcard from "@/types/Flashcard";
+import flashcardClient from "@/app/FlashcardClient";
 
-//  Get endpoint and key from environment variables
-const endpoint = process.env.COSMOSDB_ENDPOINT || "";
-const key = process.env.COSMOSDB_KEY || "";
-const databaseName = process.env.COSMOSDB_NAME || "";
-const containerName = process.env.COSMOSDB_CONTAINER_NAME || "";
-
-// Initialize the Azure Cosmos DB client
-const cosmosClient = new CosmosClient({ endpoint, key });
-
-// Get the flashcards container
-const container = cosmosClient.database(databaseName).container(containerName);
-
-interface Flashcard {
-  question: string;
-  answer: string;
-  topic: string;
-  order: number;
-  // Add more properties as needed
-}
-
-// Endpoint to fetch flashcards
-export async function GET() {
-  const query = "SELECT * FROM c";
-  const { resources } = await container.items.query(query).fetchAll();
-
-  let cards = resources;
-  return NextResponse.json({ cards });
-  // let card = resources[0];
-  // return NextResponse.json({ card });
-}
-
+// CREATE
 export async function POST(req: any) {
-  const body = await req.json();
+  try {
+    const body = await req.json();
 
-  const flashcard: Flashcard = {
-    question: body.question,
-    answer: body.answer,
-    topic: "CompTIA Security+",
-    order: 4,
-  };
+    let flashcard: Flashcard = {
+      id: "",
+      question: body.question,
+      answer: body.answer,
+      topicId: body.topicId || "123-456-789",
+      userId: body.userId || "",
+      topic:
+        body.topic ||
+        (await flashcardClient.getTopicByTopicId(body.topicId)) ||
+        "Placeholder topic",
+      order: 0,
+    };
 
-  const { resource } = await container.items.create(flashcard);
-  console.log("Item added:", resource);
-  return NextResponse.json({ resource });
+    let createdCard = await flashcardClient.createItem(flashcard);
+
+    return NextResponse.json({ createdCard });
+  } catch (error) {
+    console.log("Error adding flashcard: " + error);
+  }
+}
+
+// READ
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const topicId = searchParams.get("topicId");
+  const userId = searchParams.get("userId");
+
+  if (!topicId || !userId) return;
+
+  try {
+    let cards = await flashcardClient.getFlashcardsByUserIdAndTopicId(
+      topicId,
+      userId
+    );
+
+    return NextResponse.json({ cards });
+  } catch (error) {
+    return NextResponse.json(
+      { msg: "Error fetching flashcards" },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE
+export async function DELETE(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) return;
+
+    await flashcardClient.deleteItemById(id);
+
+    return NextResponse.json({ msg: "Deleted Flashcard" }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(
+      { msg: "Error deleting flashcard" },
+      { status: 500 }
+    );
+  }
 }

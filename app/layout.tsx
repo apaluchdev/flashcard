@@ -1,12 +1,13 @@
-import Link from "next/link";
 import "./globals.css";
 import { Inter, Open_Sans, Quicksand } from "next/font/google";
 import "bootstrap/dist/css/bootstrap.min.css";
+import Footer from "@/components/footer/Footer";
+import Header from "@/components/header/Header";
 
 const openSans = Open_Sans({ subsets: ["latin"], weight: "300" });
 
 export const metadata = {
-  title: "FlashCards",
+  title: "Flashcards",
   description: "Use and share Flashcard decks",
 };
 
@@ -18,21 +19,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={openSans.className}>
-        <header style={{ margin: "5px", color: "#802424", position: "fixed" }}>
-          <Link href="https://en.wikipedia.org/wiki/Next.js">Sign in</Link>
-        </header>
+        {/* <Header /> */}
         {children}
-        <footer
-          style={{
-            color: "black",
-            position: "fixed",
-            left: "20px",
-            bottom: 0,
-            width: "100%",
-            fontSize: "1.25em",
-          }}>
-          <p>Created by Adrian Paluch</p>
-        </footer>
+        {/* <Footer /> */}
       </body>
     </html>
   );

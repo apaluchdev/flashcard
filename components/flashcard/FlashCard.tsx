@@ -1,97 +1,165 @@
 "use client";
 
 import Flashcard from "@/types/Flashcard";
-import styles from "./FlashCard.module.css";
+import styles from "./Flashcard.module.css";
 import { useState, useEffect } from "react";
+import ButtonModal from "@/components/modal/ButtonModal";
+import TopicTitle from "@/components/topic-title/TopicTitle";
+import AddFlashcard from "@/components/add-flashcard/AddFlashcard";
 
-export default function FlashCard() {
-  const [isLoading, setLoading] = useState(false);
-  const [cardData, setCard] = useState<{
-    cards: Flashcard[];
-    cardIndex: number;
-  }>({
-    cards: [],
-    cardIndex: 0,
-  });
+interface FlashcardProps {
+  userId: string;
+  topicId: string;
+}
+
+const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
+  const [isLoading, setLoading] = useState<boolean>(true);
+  const [topic, setTopic] = useState<string>("");
+  const [cardIndex, setCardIndex] = useState<number>(0);
+  const [cards, setCards] = useState<Flashcard[]>([]);
 
   useEffect(() => {
     setLoading(true);
-    fetch("/api/flashcard")
-      .then((res) => res.json())
-      .then((apiCardData) => {
-        setCard({
-          cards: apiCardData.cards,
-          cardIndex: 0,
-        });
-        setLoading(false);
-      });
+
+    const GetData = async () => {
+      await LoadCards();
+      await GetTopicFromTopicId(topic);
+      setLoading(false);
+    };
+
+    GetData();
   }, []);
 
-  // Next and previous buttons
+  async function GetTopicFromTopicId(topic: string) {
+    await fetch(`/api/flashcard/GetTopicById/${topicId}`)
+      .then((res) => res.json())
+      .then((res) => {
+        setTopic(res.topic);
+      });
+  }
+
+  // Load cards and verify current card index is valid
+  async function LoadCards(index: number = 0) {
+    await fetch(`/api/flashcard?topicId=${topicId}&userId=${userId}`)
+      .then((res) => res.json())
+      .then((results) => {
+        setCards(results.cards);
+        setCardIndex(index < 0 || index >= cards.length ? 0 : index);
+      });
+  }
+
   const NextAndPrevButtons = () => {
     function NextCard() {
-      if (cardData.cardIndex == cardData.cards.length - 1) return;
-      setCard({ cards: cardData.cards, cardIndex: ++cardData.cardIndex });
+      if (cardIndex == cards.length - 1) return;
+      setCardIndex(cardIndex + 1);
     }
 
     function PreviousCard() {
-      if (cardData.cardIndex == 0) return;
-      setCard({ cards: cardData.cards, cardIndex: --cardData.cardIndex });
+      if (cardIndex == 0) return;
+      setCardIndex(cardIndex - 1);
     }
 
     return (
-      <div className={styles.flashCardControl}>
-        <div className={styles.buttons}>
-          <button onClick={PreviousCard} className={styles.button}>
-            Previous
-          </button>
-          <button onClick={NextCard} className={styles.button}>
-            Next
-          </button>
+      <div>
+        <div className={styles.flashCardControl}>
+          <div className={styles.buttons}>
+            <button onClick={PreviousCard} className={styles.button}>
+              Previous
+            </button>
+            <button onClick={NextCard} className={styles.button}>
+              Next
+            </button>
+          </div>
+          <p className={styles.cardCount}>
+            {cardIndex + 1} / {cards.length}
+          </p>
         </div>
-        <p className={styles.cardCount}>
-          {cardData.cardIndex + 1} / {cardData.cards.length}
-        </p>
       </div>
     );
   };
 
-  if (isLoading || cardData.cards.length < 1 || !cardData)
+  // Next and previous buttons
+  const DeleteFlashcardButton = () => {
+    async function deleteFlashcard() {
+      try {
+        await fetch(`/api/flashcard?id=${cards[cardIndex].id}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        LoadCards(cardIndex - 1 < 0 ? 0 : cardIndex - 1);
+      } catch (error) {
+        console.error("An error occurred while deleting the item:", error);
+      }
+    }
+
+    return (
+      <button onClick={deleteFlashcard} className={styles.button}>
+        Delete Flashcard
+      </button>
+    );
+  };
+
+  //Show only spinner if no cards are loaded
+  if (isLoading) {
     return (
       <div
         style={{ marginTop: "2rem" }}
         className="spinner-border"
         role="status"></div>
     );
+  }
+
+  if (cards.length < 1) {
+    return (
+      <div>
+        <TopicTitle topic={topic} />
+        <h1 style={{ marginBottom: "75px" }}>No cards found for topic</h1>
+        <ButtonModal text="Add Flashcard">
+          <AddFlashcard
+            topicId={topicId}
+            userId={userId}
+            onSuccess={() => LoadCards(cards.length)}
+            cards={cards}
+          />
+        </ButtonModal>
+      </div>
+    );
+  }
 
   return (
     <div>
-      <NextAndPrevButtons />
+      <TopicTitle topic={topic} />
+      <div>
+        <NextAndPrevButtons />
+      </div>
       <div className={styles.flashCard}>
         <div className={styles.flashCardInner}>
           {/* Flashcard Front  */}
           <div className={styles.flashCardFront}>
-            <h2 className={styles.question}>
-              {cardData.cards.length < 1
-                ? "No cards found..."
-                : cardData.cards[cardData.cardIndex].question}
-            </h2>
+            <h2 className={styles.question}>{cards[cardIndex].question}</h2>
           </div>
           {/* Flashcard Back */}
           <div className={styles.flashCardBack}>
-            <h2 className={styles.question}>
-              {cardData.cards.length < 1
-                ? "No cards found..."
-                : cardData.cards[cardData.cardIndex].question}
-            </h2>
-            <p className={styles.answer}>
-              {cardData.cards.length < 1
-                ? "No cards found..."
-                : cardData.cards[cardData.cardIndex].answer}
-            </p>
+            <h2 className={styles.question}>{cards[cardIndex].question}</h2>
+            <p className={styles.answer}>{cards[cardIndex].answer}</p>
           </div>
         </div>
       </div>
+      <div className={styles.addDeleteButtons}>
+        <DeleteFlashcardButton />
+        <ButtonModal text="Add Flashcard">
+          <AddFlashcard
+            topicId={topicId}
+            userId={userId}
+            onSuccess={LoadCards}
+            cards={cards}
+          />
+        </ButtonModal>
+      </div>
     </div>
   );
-}
+};
+
+export default Flashcard;

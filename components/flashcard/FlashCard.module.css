@@ -78,15 +78,20 @@
   align-items: flex-end;
 }
 
-/* .cardCount {
-  z-index: 999;
-} */
-
+.addDeleteButtons,
 .buttons {
   display: flex;
   gap: 1em;
   margin-bottom: 1.5em;
   margin-top: 2em;
+}
+
+.addDeleteButtons {
+  justify-content: flex-end;
+}
+
+.addDeleteButtons > button {
+  width: 150px;
 }
 
 .button {
