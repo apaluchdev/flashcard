@@ -1,4 +1,4 @@
-import Flashcard from "@/types/Flashcard";
+import Flashcard from "../types/Flashcard";
 import { CosmosClient } from "@azure/cosmos";
 
 // Configuration

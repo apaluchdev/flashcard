@@ -3,9 +3,9 @@
 import Flashcard from "@/types/Flashcard";
 import styles from "./Flashcard.module.css";
 import { useState, useEffect } from "react";
-import ButtonModal from "@/components/modal/ButtonModal";
-import TopicTitle from "@/components/topic-title/TopicTitle";
-import AddFlashcard from "@/components/add-flashcard/AddFlashcard";
+import ButtonModal from "../modal/ButtonModal";
+import TopicTitle from "../topic-title/TopicTitle";
+import AddFlashcard from "../add-flashcard/AddFlashcard";
 
 interface FlashcardProps {
   userId: string;

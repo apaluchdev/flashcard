@@ -1,6 +1,6 @@
 "use client";
 
-import Flashcard from "@/types/Flashcard";
+import Flashcard from "../../types/Flashcard";
 import styles from "./AddFlashcard.module.css";
 import { useState, useEffect, ReactNode } from "react";
 
