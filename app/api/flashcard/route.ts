@@ -34,12 +34,12 @@ export async function GET(req: NextRequest) {
   const topicId = searchParams.get("topicId");
   const userId = searchParams.get("userId");
 
-  if (!topicId || !userId) return;
+  if (!userId || !topicId) return;
 
   try {
     let cards = await flashcardClient.getFlashcardsByUserIdAndTopicId(
-      topicId,
-      userId
+      userId,
+      topicId
     );
 
     return NextResponse.json({ cards });

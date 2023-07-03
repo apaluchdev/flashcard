@@ -40,7 +40,7 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
 
   // Load cards and verify current card index is valid
   async function LoadCards(index: number = 0) {
-    await fetch(`/api/flashcard?topicId=${topicId}&userId=${userId}`)
+    await fetch(`/api/flashcard?userId=${userId}&topicId=${topicId}`)
       .then((res) => res.json())
       .then((results) => {
         setCards(results.cards);
@@ -114,7 +114,7 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
   if (cards.length < 1) {
     return (
       <div>
-        <TopicTitle topic={topic} />
+        {/* <TopicTitle topic={topic} /> */}
         <h1 style={{ marginBottom: "75px" }}>No cards found for topic</h1>
         <ButtonModal text="Add Flashcard">
           <AddFlashcard

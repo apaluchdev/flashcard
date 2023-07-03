@@ -89,8 +89,6 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
         <div
           id="test"
           className={styles.flashCardForm}
-          // action="/api/flashcard"
-          // method="post"
         >
           {message}
           <label className={styles.label} htmlFor="question">
