@@ -1,8 +1,6 @@
 import "./globals.css";
 import { Inter, Open_Sans, Quicksand } from "next/font/google";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Footer from "@/components/footer/Footer";
-import Header from "@/components/header/Header";
 
 const openSans = Open_Sans({ subsets: ["latin"], weight: "300" });
 
@@ -18,11 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={openSans.className}>
-        {/* <Header /> */}
-        {children}
-        <Footer />
-      </body>
+      <body className={openSans.className}>{children}</body>
     </html>
   );
 }
