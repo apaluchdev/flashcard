@@ -1,8 +1,8 @@
 "use client";
 
-import Flashcard from "../../types/Flashcard";
+import Flashcard from "@/types/Flashcard";
 import styles from "./AddFlashcard.module.css";
-import { useState, useEffect, ReactNode } from "react";
+import { useState } from "react";
 
 interface AddFlashcardProps {
   topicId: string;
@@ -34,7 +34,7 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
   const handlePost = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("/api/flashcard", {
+      const response = await fetch(`${process.env.BASE_URL}/api/flashcard`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -86,10 +86,7 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
           <LoadingSpinner />
         </div>
       ) : (
-        <div
-          id="test"
-          className={styles.flashCardForm}
-        >
+        <div id="test" className={styles.flashCardForm}>
           {message}
           <label className={styles.label} htmlFor="question">
             <div>Question:</div>

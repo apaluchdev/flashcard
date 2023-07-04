@@ -1,5 +1,4 @@
 import { NextResponse, NextRequest } from "next/server";
-import Flashcard from "@/types/Flashcard";
 import flashcardClient from "@/app/FlashcardClient";
 
 // Must be a better way to retrieve dynamic parameters, TODO search through documenation some more later.
