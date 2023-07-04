@@ -2,10 +2,10 @@ import Flashcard from "../types/Flashcard";
 import { CosmosClient } from "@azure/cosmos";
 
 // Configuration
-const endpoint = process.env.COSMOSDB_ENDPOINT || "";
-const key = process.env.COSMOSDB_KEY || "";
-const databaseName = process.env.COSMOSDB_NAME || "";
-const containerName = process.env.COSMOSDB_CONTAINER_NAME || "";
+const endpoint = process.env.COSMOSDB_ENDPOINT || "CosmosEndpointNotFound";
+const key = process.env.COSMOSDB_KEY || "CosmosKeyNotFound";
+const databaseName = process.env.COSMOSDB_NAME || "databaseNull";
+const containerName = process.env.COSMOSDB_CONTAINER_NAME || "containerNull";
 
 // Cosmos DB client
 const client = new CosmosClient({ endpoint, key });
