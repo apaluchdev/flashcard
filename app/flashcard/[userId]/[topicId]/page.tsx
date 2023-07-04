@@ -1,4 +1,4 @@
-import Flashcard from "@/components/flashcard/Flashcard";
+//import Flashcard from "../../components/flashcard/Flashcard";
 import styles from "./page.module.css";
 
 interface PageProps {
@@ -8,7 +8,8 @@ interface PageProps {
 export default async function Page({ params: { userId, topicId } }: PageProps) {
   return (
     <main className={styles.main}>
-      <Flashcard userId={userId} topicId={topicId} />
+      HI
+      {/* <Flashcard userId={userId} topicId={topicId} /> */}
     </main>
   );
 }
