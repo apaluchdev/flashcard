@@ -31,7 +31,7 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
   }, []);
 
   async function GetTopicFromTopicId(topic: string) {
-    await fetch(`${process.env.BASE_URL}/api/flashcard/GetTopicById/${topicId}`)
+    await fetch(`/api/flashcard/GetTopicById/${topicId}`)
       .then((res) => res.json())
       .then((res) => {
         setTopic(res.topic);
@@ -40,9 +40,7 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
 
   // Load cards and verify current card index is valid
   async function LoadCards(index: number = 0) {
-    await fetch(
-      `${process.env.BASE_URL}/api/flashcard?userId=${userId}&topicId=${topicId}`
-    )
+    await fetch(`/api/flashcard?userId=${userId}&topicId=${topicId}`)
       .then((res) => res.json())
       .then((results) => {
         setCards(results.cards);
@@ -84,15 +82,12 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
   const DeleteFlashcardButton = () => {
     async function deleteFlashcard() {
       try {
-        await fetch(
-          `${process.env.BASE_URL}/api/flashcard?id=${cards[cardIndex].id}`,
-          {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        await fetch(`/api/flashcard?id=${cards[cardIndex].id}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
         LoadCards(cardIndex - 1 < 0 ? 0 : cardIndex - 1);
       } catch (error) {
         console.error("An error occurred while deleting the item:", error);

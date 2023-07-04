@@ -34,7 +34,7 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
   const handlePost = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`${process.env.BASE_URL}/api/flashcard`, {
+      const response = await fetch(`/api/flashcard`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
