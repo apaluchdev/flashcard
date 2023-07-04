@@ -31,7 +31,7 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
   }, []);
 
   async function GetTopicFromTopicId(topic: string) {
-    await fetch(`/api/flashcard/GetTopicById/${topicId}`)
+    await fetch(`/api/flashcard/topic?topicId=${topicId}`)
       .then((res) => res.json())
       .then((res) => {
         setTopic(res.topic);

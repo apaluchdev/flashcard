@@ -1,15 +1,14 @@
 import { NextResponse, NextRequest } from "next/server";
 import flashcardClient from "@/app/FlashcardClient";
 
-// Must be a better way to retrieve dynamic parameters, TODO search through documenation some more later.
 export async function GET(req: NextRequest) {
-  let path = await req.nextUrl.pathname;
-  const substrings = path.split("/");
+  const { searchParams } = new URL(req.url);
+  const topicId = searchParams.get("topicId");
+
+  if (!topicId) return;
 
   try {
-    let topic = await flashcardClient.getTopicByTopicId(
-      substrings[substrings.length - 1]
-    );
+    let topic = await flashcardClient.getTopicByTopicId(topicId);
     return NextResponse.json({ topic });
   } catch (error) {
     console.error("Error fetching flashcards", error);
