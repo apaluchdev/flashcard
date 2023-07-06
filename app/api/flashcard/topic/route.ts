@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import flashcardClient from "@/app/FlashcardClient";
+import flashcardClient from "@/lib/FlashcardClient";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);

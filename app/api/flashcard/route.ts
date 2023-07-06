@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Flashcard from "@/types/Flashcard";
-import flashcardClient from "@/app/FlashcardClient";
+import flashcardClient from "@/lib/FlashcardClient";
 
 // CREATE
 export async function POST(req: any) {

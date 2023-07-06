@@ -4,7 +4,7 @@ const next = require("next");
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
-const port = process.env.WEBSITES_PORT || process.env.PORT || 8080;
+const port = process.env.WEBSITES_PORT || process.env.PORT || 3000;
 
 console.log(`VAR WEBSITES_PORT: ${process.env.WEBSITES_PORT}`);
 console.log(`VAR PORT: ${process.env.PORT}`);

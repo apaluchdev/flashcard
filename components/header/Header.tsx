@@ -4,7 +4,10 @@ import styles from "./Header.module.css";
 export default function Header() {
   return (
     <header className={styles.header}>
-      <Link href="https://en.wikipedia.org/wiki/Next.js">Sign in</Link>
+      <div className={styles.links}>
+        <Link href="/">Home</Link>
+        {/* <Link href="/">Sign in</Link> */}
+      </div>
     </header>
   );
 }
