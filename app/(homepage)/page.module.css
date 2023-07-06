@@ -14,6 +14,18 @@
   align-items: center;
 }
 
+/* Define the initial state of the <h1> tag */
+.title {
+  font-size: 64px;
+  color: "#000000";
+  opacity: 0;
+}
+
+/* Apply the animation to the <h1> tag */
+.title {
+  animation: fade-in 1s ease-in-out forwards;
+}
+
 .button {
   background-color: #286ae4; /* Green */
   border: none;
@@ -45,4 +57,16 @@
 .button:active {
   transform: scale(0.95); /* Adjust the scale factor as needed */
   background-color: #1b4da8; /* Replace with your desired color */
+}
+
+/* Define the animation */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    scale: 0.8;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
 }

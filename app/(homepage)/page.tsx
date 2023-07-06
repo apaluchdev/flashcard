@@ -9,9 +9,7 @@ export default function Page() {
   return (
     <main className={styles.main}>
       <div className={styles.content}>
-        <h1 style={{ fontSize: 64, color: "#000000" }}>
-          Welcome to Flashcards!
-        </h1>
+        <h1 className={styles.title}>Welcome to Flashcards!</h1>
         <div className={styles.buttons}>
           <ButtonModal text="Add Flashcard">
             <div>
