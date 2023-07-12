@@ -58,6 +58,7 @@
   -webkit-backface-visibility: hidden; /* Safari */
   backface-visibility: hidden;
   z-index: -99999;
+  overflow: auto;
 }
 
 /* Style the front side (fallback if image is missing) */
