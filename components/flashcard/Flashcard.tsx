@@ -14,6 +14,7 @@ interface FlashcardProps {
 
 const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
   const [isLoading, setLoading] = useState<boolean>(true);
+  const [isFlipped, setFlipped] = useState<boolean>(false);
   const [topic, setTopic] = useState<string>("");
   const [cardIndex, setCardIndex] = useState<number>(0);
   const [cards, setCards] = useState<Flashcard[]>([]);
@@ -36,6 +37,10 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
       .then((res) => {
         setTopic(res.topic);
       });
+  }
+
+  function HandleFlip() {
+    setFlipped(!isFlipped);
   }
 
   // Load cards and verify current card index is valid
@@ -135,12 +140,14 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
         <NextAndPrevButtons />
       </div>
       <div className={styles.flashCard}>
-        <div className={styles.flashCardInner}>
-          {/* Flashcard Front  */}
+        <div
+          onClick={HandleFlip}
+          className={`${styles.flashCardInner} ${
+            isFlipped ? styles.flipped : ""
+          }`}>
           <div className={styles.flashCardFront}>
             <h2 className={styles.question}>{cards[cardIndex].question}</h2>
           </div>
-          {/* Flashcard Back */}
           <div className={styles.flashCardBack}>
             <h2 className={styles.question}>{cards[cardIndex].question}</h2>
             <p className={styles.answer}>{cards[cardIndex].answer}</p>
