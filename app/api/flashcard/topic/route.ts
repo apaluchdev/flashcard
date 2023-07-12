@@ -7,11 +7,18 @@ export async function GET(req: NextRequest) {
 
   if (!topicId) return;
 
-  try {
-    let topic = await flashcardClient.getTopicByTopicId(topicId);
-    return NextResponse.json({ topic });
-  } catch (error) {
-    console.error("Error fetching flashcards", error);
-    return NextResponse.json({ msg: "Error fetching flashcards" });
+  // Returning a list of all topic requests
+  if (topicId === "all") {
+    const topics = await flashcardClient.getAllTopics();
+    return NextResponse.json({ topics });
+  } else {
+    // Or find an individual topic via topic id
+    try {
+      let topic = await flashcardClient.getTopicByTopicId(topicId);
+      return NextResponse.json({ topic });
+    } catch (error) {
+      console.error("Error fetching flashcards", error);
+      return NextResponse.json({ msg: "Error fetching flashcards" });
+    }
   }
 }

@@ -55,6 +55,30 @@ const flashcardClient = {
     }
   },
 
+  async getAllTopics() {
+    try {
+      const query = `SELECT * FROM c`;
+      const { resources: items } = await container.items
+        .query(query)
+        .fetchAll();
+
+      // // Convert list to only include distinct topics
+      // const distinctItems = items.reduce((accumulator, currentObject) => {
+      //   const { topic } = currentObject;
+      //   if (!accumulator.includes(topic)) {
+      //     accumulator.push(topic);
+      //   }
+      //   return accumulator;
+      // }, []);
+
+      // console.log(distinctItems);
+      return items;
+    } catch (error) {
+      console.error("Error retrieving topics:", error);
+      return "";
+    }
+  },
+
   async deleteItemById(flashcardId: string) {
     try {
       await container.item(flashcardId, flashcardId).delete();
