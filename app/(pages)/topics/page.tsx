@@ -54,9 +54,11 @@ export default function Page() {
         <h1 style={{ fontSize: 64, color: "#000000" }}>List of Topics</h1>
         <div style={{ marginTop: "2rem" }}>
           {topicCards.map((topicCard, index) => (
-            <Link href={`/flashcard/test/${topicCard.topicId}`}>
-              {topicCard.topic}
-            </Link>
+            <p key={index}>
+              <Link href={`/flashcard/test/${topicCard.topicId}`}>
+                {topicCard.topic}
+              </Link>
+            </p>
           ))}
         </div>
       </div>
