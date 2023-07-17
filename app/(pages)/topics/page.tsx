@@ -52,13 +52,11 @@ export default function Page() {
     <main className={styles.main}>
       <div className={styles.content}>
         <h1 style={{ fontSize: 64, color: "#000000" }}>List of Topics</h1>
-        <div>
+        <div style={{ marginTop: "2rem" }}>
           {topicCards.map((topicCard, index) => (
-            <p key={index}>
-              <Link href={`/flashcard/test/${topicCard.topicId}`}>
-                {topicCard.topic}
-              </Link>
-            </p>
+            <Link href={`/flashcard/test/${topicCard.topicId}`}>
+              {topicCard.topic}
+            </Link>
           ))}
         </div>
       </div>

@@ -1,6 +1,7 @@
 .header {
   color: "#802424";
   position: fixed;
+  font-weight: 500;
   width: 100%;
 }
 

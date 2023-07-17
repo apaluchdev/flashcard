@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@azure/cosmos": "^3.17.3",
+    "@primer/octicons-react": "^19.4.0",
     "@types/node": "20.3.1",
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
