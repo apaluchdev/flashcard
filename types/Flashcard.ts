@@ -1,5 +1,7 @@
+import { ObjectId } from "mongodb";
+
 export default interface Flashcard {
-  id: string;
+  _id: ObjectId;
   question: string;
   answer: string;
   userId: string;

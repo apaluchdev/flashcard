@@ -1,0 +1,36 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.label {
+  font-size: large;
+  text-align: left;
+}
+
+.answerInput {
+  overflow-y: scroll;
+  min-height: 200px;
+  resize: none; /* Remove this if you want the user to resize the textarea */
+}
+
+.answerInput,
+.questionInput {
+  padding: 5px;
+}
+
+.button {
+  background-color: #286ae4; /* Green */
+  border: none;
+  border-radius: 5px;
+  color: white;
+  padding: 8px 12px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  align-self: flex-end;
+  width: 100px;
+  /* z-index: 1; */
+}

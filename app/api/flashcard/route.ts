@@ -1,54 +1,53 @@
 import { NextRequest, NextResponse } from "next/server";
 import Flashcard from "@/types/Flashcard";
-import flashcardClient from "@/lib/FlashcardClient";
-
+import connectToDatabase from "@/lib/mongodb";
+import { ObjectId } from "mongodb";
 // CREATE
 export async function POST(req: any) {
   try {
     const body = await req.json();
 
     let flashcard: Flashcard = {
-      id: "",
+      _id: new mongodb.ObjectID(),
       question: body.question,
       answer: body.answer,
       topicId: body.topicId || "123-456-789",
       userId: body.userId || "",
       topic:
         body.topic ||
-        (await flashcardClient.getTopicByTopicId(body.topicId)) ||
+        (await GetTitle(body.topicId)).json().then((res) => res.title) ||
         "Placeholder topic",
       order: 0,
     };
 
-    let createdCard = await flashcardClient.createItem(flashcard);
+    const client = await connectToDatabase();
+    let flashcardCollection = client.db("flashcard").collection("flashcards");
 
-    return NextResponse.json({ createdCard });
+    var result = await flashcardCollection.insertOne(flashcard);
+    return NextResponse.json({ result });
   } catch (error) {
-    console.log("Error adding flashcard: " + error);
+    return NextResponse.json(
+      { msg: "Error inserting flashcard" },
+      { status: 500 }
+    );
   }
 }
 
 // READ
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
+
   const topicId = searchParams.get("topicId");
-  const userId = searchParams.get("userId");
+  const getTitle = searchParams.get("getTitle");
 
-  if (!userId || !topicId) return;
+  // No topicId given, just return all topics
+  if (!topicId) return await GetTopics();
 
-  try {
-    let cards = await flashcardClient.getFlashcardsByUserIdAndTopicId(
-      userId,
-      topicId
-    );
+  // Just topicId given, return topic title
+  if (topicId && getTitle == "Y") return await GetTitle(topicId);
 
-    return NextResponse.json({ cards });
-  } catch (error) {
-    return NextResponse.json(
-      { msg: "Error fetching flashcards" },
-      { status: 500 }
-    );
-  }
+  // Both parameters, return all flashcards for the given topicId and userId
+  if (topicId) return await GetFlashcards(topicId);
 }
 
 // DELETE
@@ -59,7 +58,13 @@ export async function DELETE(req: NextRequest) {
 
     if (!id) return;
 
-    await flashcardClient.deleteItemById(id);
+    const client = await connectToDatabase();
+    let flashcardCollection = client.db("flashcard").collection("flashcards");
+
+    let objId = new ObjectId(id);
+
+    const query = { _id: objId };
+    await flashcardCollection.deleteOne(query);
 
     return NextResponse.json({ msg: "Deleted Flashcard" }, { status: 200 });
   } catch (error) {
@@ -67,5 +72,67 @@ export async function DELETE(req: NextRequest) {
       { msg: "Error deleting flashcard" },
       { status: 500 }
     );
+  }
+}
+
+async function GetFlashcards(topicId: string) {
+  try {
+    const client = await connectToDatabase();
+    let flashcardCollection = client.db("flashcard").collection("flashcards");
+
+    const query = { topicId: topicId };
+    const flashcards = await flashcardCollection.find(query).toArray();
+
+    return NextResponse.json({ flashcards }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(
+      { msg: "Error fetching flashcards" },
+      { status: 500 }
+    );
+  }
+}
+
+async function GetTitle(topicId: string) {
+  try {
+    const client = await connectToDatabase();
+    let flashcardCollection = client.db("flashcard").collection("flashcards");
+
+    const query = { topicId: topicId };
+    const flashcards = await flashcardCollection.findOne(query);
+
+    return NextResponse.json(
+      { title: flashcards?.topic ?? "" },
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json({ msg: "Error fetching title" }, { status: 500 });
+  }
+}
+
+async function GetTopics() {
+  try {
+    const client = await connectToDatabase();
+    let flashcardCollection = client.db("flashcard").collection("flashcards");
+
+    //const cursor = await flashcardCollection.distinct("topic");
+    const pipeline = [
+      {
+        $group: {
+          _id: { topicId: "$topicId", userId: "$userId" },
+          firstResult: { $first: "$$ROOT" },
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: "$firstResult",
+        },
+      },
+    ];
+
+    const results = await flashcardCollection.aggregate(pipeline).toArray();
+
+    return NextResponse.json({ results }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ msg: "Error fetching topics" }, { status: 500 });
   }
 }

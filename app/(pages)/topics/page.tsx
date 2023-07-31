@@ -5,6 +5,7 @@ import styles from "./page.module.css";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Flashcard from "@/types/Flashcard";
+import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
 
 export default function Page() {
   const [topicCards, setTopics] = useState<Flashcard[]>([]);
@@ -13,10 +14,10 @@ export default function Page() {
   useEffect(() => {
     const getTopicsAsync = async () => {
       setIsLoading(true);
-      await fetch(`/api/flashcard/topic?topicId=all`)
+      await fetch(`/api/flashcard`)
         .then((res) => res.json())
-        .then((results) => {
-          setTopics(results.topics);
+        .then((res) => {
+          setTopics(res.results);
         });
       setIsLoading(false);
     };
@@ -28,11 +29,10 @@ export default function Page() {
     return (
       <main className={styles.main}>
         <div className={styles.content}>
-          <h1 style={{ fontSize: 64, color: "#000000" }}>List of Topics</h1>
-          <div
-            style={{ marginTop: "2rem" }}
-            className="spinner-border"
-            role="status"></div>
+          <h1 style={{ fontSize: 64, color: "#000000", marginBottom: "2rem" }}>
+            List of Topics
+          </h1>
+          <LoadingSpinner />
         </div>
       </main>
     );
@@ -52,11 +52,13 @@ export default function Page() {
     <main className={styles.main}>
       <div className={styles.content}>
         <h1 style={{ fontSize: 64, color: "#000000" }}>List of Topics</h1>
-        <div style={{ marginTop: "2rem" }}>
-          {topicCards.map((topicCard, index) => (
+        <div style={{ marginTop: "2rem", textDecoration: "none" }}>
+          {topicCards.map((card, index) => (
             <p key={index}>
-              <Link href={`/flashcard/test/${topicCard.topicId}`}>
-                {topicCard.topic}
+              <Link
+                style={{ textDecoration: "none" }}
+                href={`/flashcard/${card.userId}/${card.topicId}`}>
+                {card.topic}
               </Link>
             </p>
           ))}

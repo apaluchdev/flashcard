@@ -1,11 +1,11 @@
 "use client";
 
-import Flashcard from "@/types/Flashcard";
+import FlashcardData from "@/types/Flashcard";
 import styles from "./Flashcard.module.css";
 import { useState, useEffect } from "react";
-import ButtonModal from "../modal/ButtonModal";
-import TopicTitle from "../topic-title/TopicTitle";
-import AddFlashcard from "../add-flashcard/AddFlashcard";
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
+import ButtonModal from "../ButtonModal/ButtonModal";
+import AddFlashcard from "../AddFlashcard/AddFlashcard";
 
 interface FlashcardProps {
   userId: string;
@@ -14,75 +14,55 @@ interface FlashcardProps {
 
 const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
   const [isLoading, setLoading] = useState<boolean>(true);
-  const [topic, setTopic] = useState<string>("");
+  const [cards, setCards] = useState<FlashcardData[]>([]);
   const [cardIndex, setCardIndex] = useState<number>(0);
-  const [cards, setCards] = useState<Flashcard[]>([]);
+  const [title, setTitle] = useState<string>("");
 
   useEffect(() => {
-    setLoading(true);
-
     const GetData = async () => {
+      setLoading(true);
       await LoadCards();
-      await GetTopicFromTopicId(topic);
+      await LoadTitle();
       setLoading(false);
     };
 
     GetData();
   }, []);
 
-  async function GetTopicFromTopicId(topic: string) {
-    await fetch(`/api/flashcard/topic?topicId=${topicId}`)
-      .then((res) => res.json())
-      .then((res) => {
-        setTopic(res.topic);
-      });
-  }
-
   // Load cards and verify current card index is valid
   async function LoadCards(index: number = 0) {
     await fetch(`/api/flashcard?userId=${userId}&topicId=${topicId}`)
       .then((res) => res.json())
-      .then((results) => {
-        setCards(results.cards);
-        setCardIndex(index < 0 || index >= cards.length ? 0 : index);
+      .then((res) => {
+        setCards(res.flashcards);
+        setCardIndex(index);
       });
   }
 
-  const NextAndPrevButtons = () => {
-    function NextCard() {
-      if (cardIndex == cards.length - 1) return;
-      setCardIndex(cardIndex + 1);
-    }
+  // Get Title
+  async function LoadTitle() {
+    await fetch(`/api/flashcard?topicId=${topicId}&getTitle=Y`)
+      .then((res) => res.json())
+      .then((res) => {
+        setTitle(res.title);
+      });
+  }
 
-    function PreviousCard() {
-      if (cardIndex == 0) return;
-      setCardIndex(cardIndex - 1);
-    }
-
+  const Title = () => {
     return (
       <div>
-        <div className={styles.flashCardControl}>
-          <div className={styles.buttons}>
-            <button onClick={PreviousCard} className={styles.button}>
-              Previous
-            </button>
-            <button onClick={NextCard} className={styles.button}>
-              Next
-            </button>
-          </div>
-          <p className={styles.cardCount}>
-            {cardIndex + 1} / {cards.length}
-          </p>
-        </div>
+        <h3 style={{ textAlign: "left" }}>Current Topic:</h3>
+        <h1 style={{ fontSize: 64, color: "#802424" }}>
+          {title ?? "No topic found"}
+        </h1>
       </div>
     );
   };
 
-  // Next and previous buttons
-  const DeleteFlashcardButton = () => {
-    async function deleteFlashcard() {
+  const Delete = () => {   
+    async function DeleteCard() {
       try {
-        await fetch(`/api/flashcard?id=${cards[cardIndex].id}`, {
+        await fetch(`/api/flashcard?id=${cards[cardIndex]._id}`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -95,27 +75,71 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
     }
 
     return (
-      <button onClick={deleteFlashcard} className={styles.button}>
-        Delete Flashcard
-      </button>
+      <div className={styles.bottomButtons}>
+        <button
+          onClick={DeleteCard}
+          className={`${styles.button} ${styles.deleteButton}`}>
+          Delete
+        </button>
+      </div>
     );
   };
 
-  //Show only spinner if no cards are loaded
-  if (isLoading) {
+  const Front = () => {
     return (
-      <div
-        style={{ marginTop: "2rem" }}
-        className="spinner-border"
-        role="status"></div>
+      <div className={styles.front}>
+        <h1 className={styles.question}>{cards[cardIndex].question}</h1>
+      </div>
+    );
+  };
+
+  const Back = () => {
+    return (
+      <div className={styles.back}>
+        <div>
+          <h1 className={styles.question}>{cards[cardIndex].question}</h1>
+          <p className={styles.answer}>{cards[cardIndex].answer}</p>
+        </div>
+      </div>
+    );
+  };
+
+  const Navigation = () => {
+    function NextCard() {
+      setCardIndex(
+        cardIndex >= cards.length - 1 ? cards.length - 1 : cardIndex + 1
+      );
+    }
+    function PreviousCard() {
+      setCardIndex(cardIndex < 1 ? 0 : cardIndex - 1);
+    }
+
+    return (
+      <div className={styles.navigation}>
+        <button onClick={PreviousCard} className={styles.button}>
+          Previous
+        </button>
+        <button onClick={NextCard} className={styles.button}>
+          Next
+        </button>
+      </div>
+    );
+  };
+
+  // If finished loading and no cards found
+  if (!isLoading && (!cards || cards.length < 1)) {
+    return (
+      <div>
+        <h1>No cards found!</h1>
+      </div>
     );
   }
 
-  if (cards.length < 1) {
-    return (
-      <div>
-        {/* <TopicTitle topic={topic} /> */}
-        <h1 style={{ marginBottom: "75px" }}>No cards found for topic</h1>
+  return (
+    <div className={styles.flashcardView}>
+      {!isLoading && <Title />}
+      <div className={styles.topButtons}>
+        <Navigation />
         <ButtonModal text="Add Flashcard">
           <AddFlashcard
             topicId={topicId}
@@ -125,39 +149,19 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
           />
         </ButtonModal>
       </div>
-    );
-  }
-
-  return (
-    <div>
-      <TopicTitle topic={topic} />
-      <div>
-        <NextAndPrevButtons />
-      </div>
-      <div className={styles.flashCard}>
-        <div className={styles.flashCardInner}>
-          {/* Flashcard Front  */}
-          <div className={styles.flashCardFront}>
-            <h2 className={styles.question}>{cards[cardIndex].question}</h2>
+      <div className={styles.card}>
+        {isLoading ? (
+          <div className={styles.loadingIcon}>
+            <LoadingSpinner />
           </div>
-          {/* Flashcard Back */}
-          <div className={styles.flashCardBack}>
-            <h2 className={styles.question}>{cards[cardIndex].question}</h2>
-            <p className={styles.answer}>{cards[cardIndex].answer}</p>
+        ) : (
+          <div className={styles.content}>
+            <Front />
+            <Back />
           </div>
-        </div>
+        )}
       </div>
-      <div className={styles.addDeleteButtons}>
-        <DeleteFlashcardButton />
-        <ButtonModal text="Add Flashcard">
-          <AddFlashcard
-            topicId={topicId}
-            userId={userId}
-            onSuccess={LoadCards}
-            cards={cards}
-          />
-        </ButtonModal>
-      </div>
+      <Delete />
     </div>
   );
 };

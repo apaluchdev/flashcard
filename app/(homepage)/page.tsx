@@ -2,8 +2,8 @@
 
 import styles from "./page.module.css";
 import Link from "next/link";
-import ButtonModal from "@/components/modal/ButtonModal";
-import AddTopic from "@/components/add-topic/AddTopic";
+import ButtonModal from "@/components/ButtonModal/ButtonModal";
+import AddFlashcard from "@/components/AddFlashcard/AddFlashcard";
 
 export default function Page() {
   return (
@@ -13,7 +13,12 @@ export default function Page() {
         <div className={styles.buttons}>
           <ButtonModal text="Add Flashcard">
             <div>
-              <AddTopic />
+              <AddFlashcard
+                topicId=""
+                userId="Adrian"
+                onSuccess={() => {}}
+                cards={[]}
+              />
             </div>
           </ButtonModal>
           <Link className={styles.button} href="/topics">

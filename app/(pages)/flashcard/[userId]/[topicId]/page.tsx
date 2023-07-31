@@ -1,4 +1,4 @@
-import Flashcard from "@/components/flashcard/Flashcard"; //Fixed
+import Flashcard from "@/components/Flashcard/Flashcard"; //Fixed
 import styles from "./page.module.css";
 
 interface PageProps {
