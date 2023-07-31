@@ -2,6 +2,8 @@
 import Flashcard from "@/components/Flashcard/Flashcard";
 import styles from "./page.module.css";
 
+//git config core.ignorecase false ! NEEDED TO FIX A CASE ISSUE WITH GITHUB ACTIONS
+
 interface PageProps {
   params: { userId: string; topicId: string };
 }
