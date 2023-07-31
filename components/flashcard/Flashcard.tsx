@@ -34,7 +34,8 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
     await fetch(`/api/flashcard?userId=${userId}&topicId=${topicId}`)
       .then((res) => res.json())
       .then((res) => {
-        setCards(res.flashcards);
+        let cards: FlashcardData[] = res.flashcards;
+        setCards(cards.sort((a, b) => (a.order > b.order ? 1 : -1)));
         setCardIndex(index);
       });
   }
@@ -59,7 +60,7 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
     );
   };
 
-  const Delete = () => {   
+  const Delete = () => {
     async function DeleteCard() {
       try {
         await fetch(`/api/flashcard?id=${cards[cardIndex]._id}`, {
@@ -135,31 +136,30 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
     );
   }
 
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <div className={styles.flashcardView}>
-      {!isLoading && <Title />}
+      <Title />
       <div className={styles.topButtons}>
         <Navigation />
         <ButtonModal text="Add Flashcard">
           <AddFlashcard
             topicId={topicId}
             userId={userId}
+            topicTitle={title}
             onSuccess={() => LoadCards(cards.length)}
             cards={cards}
           />
         </ButtonModal>
       </div>
       <div className={styles.card}>
-        {isLoading ? (
-          <div className={styles.loadingIcon}>
-            <LoadingSpinner />
-          </div>
-        ) : (
-          <div className={styles.content}>
-            <Front />
-            <Back />
-          </div>
-        )}
+        <div className={styles.content}>
+          <Front />
+          <Back />
+        </div>
       </div>
       <Delete />
     </div>

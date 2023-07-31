@@ -15,6 +15,7 @@ export default function Page() {
             <div>
               <AddFlashcard
                 topicId=""
+                topicTitle=""
                 userId="Adrian"
                 onSuccess={() => {}}
                 cards={[]}

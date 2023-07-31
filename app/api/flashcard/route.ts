@@ -8,7 +8,7 @@ export async function POST(req: any) {
     const body = await req.json();
 
     let flashcard: Flashcard = {
-      _id: new mongodb.ObjectID(),
+      _id: new ObjectId(),
       question: body.question,
       answer: body.answer,
       topicId: body.topicId || "123-456-789",
@@ -17,7 +17,7 @@ export async function POST(req: any) {
         body.topic ||
         (await GetTitle(body.topicId)).json().then((res) => res.title) ||
         "Placeholder topic",
-      order: 0,
+      order: body.order || 0,
     };
 
     const client = await connectToDatabase();

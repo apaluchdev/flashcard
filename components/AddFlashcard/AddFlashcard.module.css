@@ -15,6 +15,14 @@
   resize: none; /* Remove this if you want the user to resize the textarea */
 }
 
+.topicTitle {
+  font-weight: 800;
+  font-size: larger;
+  align-self: flex-start;
+  color: #802424;
+}
+
+.topicInput,
 .answerInput,
 .questionInput {
   padding: 5px;
