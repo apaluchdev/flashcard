@@ -5,6 +5,7 @@ env:
   COSMOSDB_ENDPOINT: ${{ secrets.COSMOSDB_ENDPOINT }}
   COSMOSDB_KEY: ${{ secrets.COSMOSDB_KEY }}
   COSMOSDB_NAME: ${{ secrets.COSMOSDB_NAME }}
+  MONGODB_KEY: ${{ secrets.MONGODB_KEY }}
 
 name: Build and deploy Node.js app to Azure Web App - apaluchflashcards
 on:
