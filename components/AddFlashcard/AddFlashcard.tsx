@@ -4,22 +4,17 @@ import Flashcard from "@/types/Flashcard";
 import styles from "./AddFlashcard.module.css";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-const { v4: uuidv4 } = require("uuid");
+import { v4 as uuid } from "uuid";
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 
 interface AddFlashcardProps {
-  topicId: string;
-  userId: string;
-  topicTitle: string;
+  flashcard: Flashcard;
   onSuccess: Function;
-  cards: Flashcard[];
 }
 
 const AddFlashcard: React.FC<AddFlashcardProps> = ({
-  topicId,
-  userId,
-  topicTitle,
+  flashcard,
   onSuccess,
-  cards,
 }) => {
   const [message, setMessage] = useState("");
   const [question, setQuestion] = useState("");
@@ -28,25 +23,18 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
-  var guid = uuidv4();
 
   const handleSubmit = async (e: any) => {
     e.preventDefault(); // Prevent refresh on submit
 
-    guid = uuidv4();
+    // Assign a new topic id if not already assigned
+    if (!flashcard.topicId) flashcard.topicId = uuid();
 
-    const flashcard = {
-      question: question,
-      answer: answer,
-      userId: userId,
-      topicId: guid,
-      topic: topic,
-      order: 0,
-    };
     try {
       // Indicate that a save is being performed
       setIsLoading(true);
       setMessage("");
+
       // Save request
       const response = await fetch(`/api/flashcard`, {
         method: "POST",
@@ -57,13 +45,14 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
       });
 
       let responseBody = await response.json();
-      topicId = responseBody.result.insertedId;
+      let _id = responseBody.result.insertedId;
 
-      if (response.ok && topicId) {
+      if (response.ok && _id) {
         setMessage("Success");
+
+        // Clear fields
         setQuestion("");
         setAnswer("");
-      } else if (response.ok && !guid) {
       } else {
         setMessage("Failure");
       }
@@ -72,11 +61,10 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
       console.error(error);
     }
 
-    // Reload cards, and select the newly added card
-    onSuccess(cards.length - 1); // This causes the entire page to reload and closes the modal, find a better way to keep modal open and do not refresh the whole page
+    onSuccess(); // TODO - Select new card on submit success
 
-    if (!topicTitle) {
-      router.push(`/flashcard/${userId}/${guid}`);
+    if (message === "Success") {
+      router.push(`/flashcard/${flashcard.userId}/${flashcard.topicId}`);
     }
     setIsLoading(false);
   };
@@ -106,6 +94,8 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
     else return <Failure />;
   };
 
+  if (isLoading) return <LoadingSpinner />;
+
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
       <h1>Add Flashcard</h1>
@@ -113,7 +103,8 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
       {/* Topic Input */}
       <label className={styles.label}>Topic</label>
 
-      {!topicId ? (
+      {/* If the flashcard passed in does not have a topic, it means a new topic is being created */}
+      {!flashcard.topicId ? (
         <input
           className={styles.topicInput}
           type="text"
@@ -122,7 +113,7 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
           onChange={(e) => setTopic(e.target.value)}
         />
       ) : (
-        <div className={styles.topicTitle}>{topicTitle}</div>
+        <div className={styles.topicTitle}>{flashcard.topic}</div>
       )}
 
       {/* Question Input */}
@@ -143,8 +134,10 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
         value={answer}
         onChange={(e) => setAnswer(e.target.value)}></textarea>
 
+      {/* Submit Button  */}
       <button className={styles.button}>Submit</button>
 
+      {/* Display Submit Results  */}
       <Result />
     </form>
   );

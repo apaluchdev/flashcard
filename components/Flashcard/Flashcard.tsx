@@ -6,6 +6,8 @@ import { useState, useEffect } from "react";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import ButtonModal from "../ButtonModal/ButtonModal";
 import AddFlashcard from "../AddFlashcard/AddFlashcard";
+import TopicTitle from "../topic-title/TopicTitle";
+import { ObjectId } from "mongodb";
 
 interface FlashcardProps {
   userId: string;
@@ -140,6 +142,16 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
     return <LoadingSpinner />;
   }
 
+  let flashcard: FlashcardData = {
+    _id: new ObjectId(),
+    topic: cards[cardIndex].topic,
+    topicId: cards[cardIndex].topicId || "",
+    userId: cards[cardIndex].userId || "",
+    question: cards[cardIndex].question || "",
+    answer: cards[cardIndex].answer || "",
+    order: cardIndex + 1,
+  };
+
   return (
     <div className={styles.flashcardView}>
       <Title />
@@ -147,11 +159,8 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
         <Navigation />
         <ButtonModal text="Add Flashcard">
           <AddFlashcard
-            topicId={topicId}
-            userId={userId}
-            topicTitle={title}
-            onSuccess={() => LoadCards(cards.length)}
-            cards={cards}
+            flashcard={flashcard}
+            onSuccess={() => LoadCards(cards.length - 1)}
           />
         </ButtonModal>
       </div>
