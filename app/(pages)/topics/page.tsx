@@ -1,6 +1,5 @@
 "use client"; // TODO this could and should be a server component, read up on how to convert
 
-import flashcardClient from "@/lib/FlashcardClient";
 import styles from "./page.module.css";
 import { useEffect, useState } from "react";
 import Link from "next/link";

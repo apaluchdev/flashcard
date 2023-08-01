@@ -8,7 +8,6 @@ export async function POST(req: any) {
     const body = await req.json();
 
     let flashcard: Flashcard = {
-      _id: new ObjectId(),
       question: body.question,
       answer: body.answer,
       topicId: body.topicId || "123-456-789",

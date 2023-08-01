@@ -7,7 +7,6 @@ import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import ButtonModal from "../ButtonModal/ButtonModal";
 import AddFlashcard from "../AddFlashcard/AddFlashcard";
 import TopicTitle from "../topic-title/TopicTitle";
-import { ObjectId } from "mongodb";
 
 interface FlashcardProps {
   userId: string;
@@ -143,7 +142,6 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
   }
 
   let flashcard: FlashcardData = {
-    _id: new ObjectId(),
     topic: cards[cardIndex].topic,
     topicId: cards[cardIndex].topicId || "",
     userId: cards[cardIndex].userId || "",
