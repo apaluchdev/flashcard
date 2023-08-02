@@ -21,7 +21,7 @@ export default function Page() {
       <div className={styles.content}>
         <h1 className={styles.title}>Welcome to Flashcards!</h1>
         <div className={styles.buttons}>
-          <ButtonModal text="Add Flashcard">
+          <ButtonModal text="Add Topic">
             <div>
               <AddFlashcard flashcard={flashcard} onSuccess={() => {}} />
             </div>

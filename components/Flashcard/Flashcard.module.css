@@ -91,6 +91,10 @@
   font-weight: 600;
 }
 
+.answer {
+  margin-top: 25px;
+}
+
 .front,
 .back {
   padding: 20px;
