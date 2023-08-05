@@ -2,10 +2,11 @@
 
 import styles from "./Flashcard.module.css";
 import { useState, useEffect } from "react";
-import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
-import ButtonModal from "../ButtonModal/ButtonModal";
-import AddFlashcard from "../AddFlashcard/AddFlashcard";
+import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
+import ButtonModal from "@/components/ButtonModal/ButtonModal";
+import AddFlashcard from "@/components/AddFlashcard/AddFlashcard";
 import { IFlashcard } from "@/models/Flashcard";
+import flashcardClient from "@/lib/flashcard-client";
 
 interface FlashcardProps {
   userId: string;
@@ -29,26 +30,19 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
     GetData();
   }, []);
 
-  // Load cards and verify current card index is valid
   async function LoadCards(index: number = 0) {
-    await fetch(`/api/flashcard?userId=${userId}&topicId=${topicId}`)
-      .then((res) => res.json())
-      .then((res) => {
-        let cards: IFlashcard[] = res.flashcards;
-        setCards(
-          cards.sort((a, b) => ((a.order || 0) > (b.order || 0) ? 1 : -1))
-        );
-        setCardIndex(index);
-      });
+    let cards: IFlashcard[] = await flashcardClient.GetFlashcards(
+      userId,
+      topicId
+    );
+
+    setCards(cards.sort((a, b) => ((a.order || 0) > (b.order || 0) ? 1 : -1)));
+    setCardIndex(index);
   }
 
-  // Get Title
   async function LoadTitle() {
-    await fetch(`/api/flashcard?topicId=${topicId}&getTitle=Y`)
-      .then((res) => res.json())
-      .then((res) => {
-        setTitle(res.title);
-      });
+    let title: string = await flashcardClient.GetTitle(topicId);
+    setTitle(title);
   }
 
   const Title = () => {
@@ -64,18 +58,10 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
 
   const Delete = () => {
     async function DeleteCard() {
-      try {
-        // create an api client class
-        await fetch(`/api/flashcard?id=${cards[cardIndex]._id}`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        LoadCards(cardIndex - 1 < 0 ? 0 : cardIndex - 1);
-      } catch (error) {
-        console.error("An error occurred while deleting the item:", error);
-      }
+      var isDeleted = await flashcardClient.DeleteCard(
+        cards[cardIndex]._id || ""
+      );
+      if (isDeleted) LoadCards(cardIndex - 1 < 0 ? 0 : cardIndex - 1);
     }
 
     return (
@@ -134,7 +120,6 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
     return (
       <div className={styles.navigation}>
         <ButtonModal text="Edit Card">
-          {/* Topic is not being set, fix it! */}
           <AddFlashcard
             flashcard={cards[cardIndex]}
             onSuccess={() => LoadCards(cardIndex)}
@@ -164,7 +149,6 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
     );
   };
 
-  // If finished loading and no cards found
   if (!isLoading && (!cards || cards.length < 1)) {
     return (
       <div>
