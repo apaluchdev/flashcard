@@ -1,14 +1,12 @@
 "use client";
 
-import Flashcard from "@/types/Flashcard";
 import styles from "./AddFlashcard.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { v4 as uuid } from "uuid";
-import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
+import { IFlashcard } from "@/models/Flashcard";
 
 interface AddFlashcardProps {
-  flashcard: Flashcard;
+  flashcard: IFlashcard;
   onSuccess: Function;
 }
 
@@ -16,23 +14,34 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
   flashcard,
   onSuccess,
 }) => {
+  const router = useRouter();
+
   const [message, setMessage] = useState("");
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [topic, setTopic] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
-  const router = useRouter();
+  useEffect(() => {
+    // If a flashcard is passed in, set the initial values
+    if (flashcard) {
+      setQuestion(flashcard.question);
+      setAnswer(flashcard.answer);
+      setTopic(flashcard.topic);
+    }
+  }, []);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault(); // Prevent refresh on submit
 
-    // Assign a new topic id if not already assigned
-    if (!flashcard.topicId) flashcard.topicId = uuid();
+    const card: IFlashcard = {
+      question: question,
+      answer: answer,
+      topic: topic,
+      userId: flashcard.userId,
+      topicId: flashcard.topicId,
+    };
 
     try {
-      // Indicate that a save is being performed
-      setIsLoading(true);
       setMessage("");
 
       // Save request
@@ -41,21 +50,18 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(flashcard),
+        body: JSON.stringify(card),
       });
 
-      let responseBody = await response.json();
-      let _id = responseBody.result.insertedId;
+      let result = (await response.json()).savedFlashcard;
 
-      if (response.ok && _id) {
-        setMessage("Success");
+      //flashcard._id = new ObjectId(result.upsertedId);
 
-        // Clear fields
-        setQuestion("");
-        setAnswer("");
-      } else {
-        setMessage("Failure");
-      }
+      setQuestion("");
+      setAnswer("");
+      setTopic("");
+
+      setMessage(response.ok && result._id ? "Success" : "Failure");
     } catch (error) {
       setMessage("Sorry! A failure occurred.");
       console.error(error);
@@ -64,9 +70,8 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
     onSuccess(); // TODO - Select new card on submit success
 
     if (message === "Success") {
-      router.push(`/flashcard/${flashcard.userId}/${flashcard.topicId}`);
+      router.push(`/flashcard/${card.userId}/${card.topicId}`);
     }
-    setIsLoading(false);
   };
 
   const Result = () => {
@@ -93,8 +98,6 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
     if (message == "Success") return <Success />;
     else return <Failure />;
   };
-
-  if (isLoading) return <LoadingSpinner />;
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>

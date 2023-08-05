@@ -1,12 +1,11 @@
 "use client";
 
-import FlashcardData from "@/types/Flashcard";
 import styles from "./Flashcard.module.css";
 import { useState, useEffect } from "react";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import ButtonModal from "../ButtonModal/ButtonModal";
 import AddFlashcard from "../AddFlashcard/AddFlashcard";
-import TopicTitle from "../topic-title/TopicTitle";
+import { IFlashcard } from "@/models/Flashcard";
 
 interface FlashcardProps {
   userId: string;
@@ -15,7 +14,7 @@ interface FlashcardProps {
 
 const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
   const [isLoading, setLoading] = useState<boolean>(true);
-  const [cards, setCards] = useState<FlashcardData[]>([]);
+  const [cards, setCards] = useState<IFlashcard[]>([]);
   const [cardIndex, setCardIndex] = useState<number>(0);
   const [title, setTitle] = useState<string>("");
 
@@ -35,8 +34,10 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
     await fetch(`/api/flashcard?userId=${userId}&topicId=${topicId}`)
       .then((res) => res.json())
       .then((res) => {
-        let cards: FlashcardData[] = res.flashcards;
-        setCards(cards.sort((a, b) => (a.order > b.order ? 1 : -1)));
+        let cards: IFlashcard[] = res.flashcards;
+        setCards(
+          cards.sort((a, b) => ((a.order || 0) > (b.order || 0) ? 1 : -1))
+        );
         setCardIndex(index);
       });
   }
@@ -64,6 +65,7 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
   const Delete = () => {
     async function DeleteCard() {
       try {
+        // create an api client class
         await fetch(`/api/flashcard?id=${cards[cardIndex]._id}`, {
           method: "DELETE",
           headers: {
@@ -128,6 +130,25 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
     );
   };
 
+  const EditCard = () => {
+    // let flashcard: FlashcardData = {
+    //   question: cards[cardIndex].question,
+    //   answer:
+    // }
+
+    return (
+      <div className={styles.navigation}>
+        <ButtonModal text="Edit Card">
+          {/* Topic is not being set, fix it! */}
+          <AddFlashcard
+            flashcard={cards[cardIndex]}
+            onSuccess={() => LoadCards(cardIndex)}
+          />
+        </ButtonModal>
+      </div>
+    );
+  };
+
   // If finished loading and no cards found
   if (!isLoading && (!cards || cards.length < 1)) {
     return (
@@ -141,8 +162,8 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
     return <LoadingSpinner />;
   }
 
-  let flashcard: FlashcardData = {
-    topic: cards[cardIndex].topic,
+  let flashcard: IFlashcard = {
+    topic: cards[cardIndex].topic || "",
     topicId: cards[cardIndex].topicId || "",
     userId: cards[cardIndex].userId || "",
     question: cards[cardIndex].question || "",
@@ -155,12 +176,16 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
       <Title />
       <div className={styles.topButtons}>
         <Navigation />
-        <ButtonModal text="Add Flashcard">
-          <AddFlashcard
-            flashcard={flashcard}
-            onSuccess={() => LoadCards(cards.length - 1)}
-          />
-        </ButtonModal>
+
+        <div className={styles.topRightButtons}>
+          <EditCard />
+          <ButtonModal text="Add Flashcard">
+            <AddFlashcard
+              flashcard={flashcard}
+              onSuccess={() => LoadCards(cards.length - 1)}
+            />
+          </ButtonModal>
+        </div>
       </div>
       <div className={styles.card}>
         <div className={styles.content}>

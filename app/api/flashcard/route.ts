@@ -1,29 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
-import Flashcard from "@/types/Flashcard";
-import connectToDatabase from "@/lib/mongodb";
-import { ObjectId } from "mongodb";
+import Flashcard, { IFlashcard } from "@/models/Flashcard";
+import InitializeMongoose from "@/lib/mongodb";
+import { randomUUID } from "crypto";
+
+InitializeMongoose();
+
 // CREATE
 export async function POST(req: any) {
   try {
     const body = await req.json();
 
-    let flashcard: Flashcard = {
+    const flashcard = new Flashcard({
+      _id: body._id,
       question: body.question,
       answer: body.answer,
-      topicId: body.topicId || "123-456-789",
-      userId: body.userId || "",
-      topic:
-        body.topic ||
-        (await GetTitle(body.topicId)).json().then((res) => res.title) ||
-        "Placeholder topic",
-      order: body.order || 0,
-    };
+      topicId: body.topicId || randomUUID().toString(),
+      userId: body.userId || randomUUID().toString(),
+      topic: body.topic, // If topicId and userId is filled - try getting the title
+      order: body.order,
+    });
 
-    const client = await connectToDatabase();
-    let flashcardCollection = client.db("flashcard").collection("flashcards");
+    const savedFlashcard: IFlashcard = await flashcard.save();
 
-    var result = await flashcardCollection.insertOne(flashcard);
-    return NextResponse.json({ result });
+    return NextResponse.json({ savedFlashcard });
   } catch (error) {
     return NextResponse.json(
       { msg: "Error inserting flashcard" },
@@ -57,15 +56,12 @@ export async function DELETE(req: NextRequest) {
 
     if (!id) return;
 
-    const client = await connectToDatabase();
-    let flashcardCollection = client.db("flashcard").collection("flashcards");
+    await Flashcard.deleteOne({ _id: id });
 
-    let objId = new ObjectId(id);
-
-    const query = { _id: objId };
-    await flashcardCollection.deleteOne(query);
-
-    return NextResponse.json({ msg: "Deleted Flashcard" }, { status: 200 });
+    return NextResponse.json(
+      { msg: `Deleted Flashcard with id: ${id}` },
+      { status: 200 }
+    );
   } catch (error) {
     return NextResponse.json(
       { msg: "Error deleting flashcard" },
@@ -76,12 +72,7 @@ export async function DELETE(req: NextRequest) {
 
 async function GetFlashcards(topicId: string) {
   try {
-    const client = await connectToDatabase();
-    let flashcardCollection = client.db("flashcard").collection("flashcards");
-
-    const query = { topicId: topicId };
-    const flashcards = await flashcardCollection.find(query).toArray();
-
+    const flashcards = await Flashcard.find({ topicId: topicId });
     return NextResponse.json({ flashcards }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
@@ -93,16 +84,10 @@ async function GetFlashcards(topicId: string) {
 
 async function GetTitle(topicId: string) {
   try {
-    const client = await connectToDatabase();
-    let flashcardCollection = client.db("flashcard").collection("flashcards");
+    const result: IFlashcard =
+      (await Flashcard.findOne({ topicId: topicId })) || new Flashcard();
 
-    const query = { topicId: topicId };
-    const flashcards = await flashcardCollection.findOne(query);
-
-    return NextResponse.json(
-      { title: flashcards?.topic ?? "" },
-      { status: 200 }
-    );
+    return NextResponse.json({ title: result?.topic ?? "" }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ msg: "Error fetching title" }, { status: 500 });
   }
@@ -110,25 +95,19 @@ async function GetTitle(topicId: string) {
 
 async function GetTopics() {
   try {
-    const client = await connectToDatabase();
-    let flashcardCollection = client.db("flashcard").collection("flashcards");
-
-    //const cursor = await flashcardCollection.distinct("topic");
     const pipeline = [
       {
         $group: {
           _id: { topicId: "$topicId", userId: "$userId" },
-          firstResult: { $first: "$$ROOT" },
+          firstDocument: { $first: "$$ROOT" }, // $$ROOT represents the entire document
         },
       },
       {
-        $replaceRoot: {
-          newRoot: "$firstResult",
-        },
+        $replaceRoot: { newRoot: "$firstDocument" }, // Promote the grouped document to the root
       },
     ];
 
-    const results = await flashcardCollection.aggregate(pipeline).toArray();
+    const results = await Flashcard.aggregate(pipeline, {});
 
     return NextResponse.json({ results }, { status: 200 });
   } catch (error) {
