@@ -40,6 +40,6 @@ const flashcardSchema = new Schema<IFlashcard>(
 );
 
 const Flashcard: Model<IFlashcard> =
-  mongoose.models.Flashcard ||
+  mongoose.models?.Flashcard ||
   mongoose.model<IFlashcard>("Flashcard", flashcardSchema);
 export default Flashcard;
