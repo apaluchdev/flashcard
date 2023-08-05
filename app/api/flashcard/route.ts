@@ -10,15 +10,27 @@ export async function POST(req: any) {
   try {
     const body = await req.json();
 
-    const flashcard = new Flashcard({
-      _id: body._id,
-      question: body.question,
-      answer: body.answer,
-      topicId: body.topicId || randomUUID().toString(),
-      userId: body.userId || randomUUID().toString(),
-      topic: body.topic, // If topicId and userId is filled - try getting the title
-      order: body.order,
-    });
+    let flashcard = await Flashcard.findOne({ _id: body._id });
+
+    // Existing card
+    if (flashcard) {
+      flashcard.question = body.question;
+      flashcard.answer = body.answer;
+      flashcard.topic = body.topic;
+      flashcard.order = body.order;
+    }
+    // New card
+    else {
+      flashcard = new Flashcard({
+        _id: body._id,
+        question: body.question,
+        answer: body.answer,
+        topicId: body.topicId || randomUUID().toString(),
+        userId: body.userId || randomUUID().toString(),
+        topic: body.topic, // If topicId and userId is filled - try getting the title
+        order: body.order,
+      });
+    }
 
     const savedFlashcard: IFlashcard = await flashcard.save();
 
@@ -73,6 +85,7 @@ export async function DELETE(req: NextRequest) {
 async function GetFlashcards(topicId: string) {
   try {
     const flashcards = await Flashcard.find({ topicId: topicId });
+    flashcards.sort((a: any, b: any) => (a.createdAt > b.createdAt ? -1 : 1));
     return NextResponse.json({ flashcards }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
@@ -108,6 +121,7 @@ async function GetTopics() {
     ];
 
     const results = await Flashcard.aggregate(pipeline, {});
+    results.sort((a: any, b: any) => (a.topic > b.topic ? 1 : -1));
 
     return NextResponse.json({ results }, { status: 200 });
   } catch (error) {

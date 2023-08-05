@@ -7,13 +7,10 @@ import AddFlashcard from "@/components/AddFlashcard/AddFlashcard";
 import Flashcard, { IFlashcard } from "@/models/Flashcard";
 
 export default function Page() {
-  let flashcard: IFlashcard = new Flashcard({
+  let newTopicFlashcard: IFlashcard = new Flashcard({
     topic: "",
-    topicId: "",
-    userId: "Adrian",
     question: "",
     answer: "",
-    order: 0,
   });
 
   return (
@@ -23,7 +20,10 @@ export default function Page() {
         <div className={styles.buttons}>
           <ButtonModal text="Add Topic">
             <div>
-              <AddFlashcard flashcard={flashcard} onSuccess={() => {}} />
+              <AddFlashcard
+                flashcard={newTopicFlashcard}
+                onSuccess={() => {}}
+              />
             </div>
           </ButtonModal>
           <Link className={styles.button} href="/topics">

@@ -131,11 +131,6 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
   };
 
   const EditCard = () => {
-    // let flashcard: FlashcardData = {
-    //   question: cards[cardIndex].question,
-    //   answer:
-    // }
-
     return (
       <div className={styles.navigation}>
         <ButtonModal text="Edit Card">
@@ -143,6 +138,26 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
           <AddFlashcard
             flashcard={cards[cardIndex]}
             onSuccess={() => LoadCards(cardIndex)}
+          />
+        </ButtonModal>
+      </div>
+    );
+  };
+
+  const AddCard = () => {
+    let blankCard: IFlashcard = {
+      topicId: cards[cardIndex].topicId,
+      question: "",
+      answer: "",
+      topic: cards[cardIndex].topic,
+    };
+
+    return (
+      <div className={styles.navigation}>
+        <ButtonModal text="Add Flashcard">
+          <AddFlashcard
+            flashcard={blankCard}
+            onSuccess={() => LoadCards(cards.length)}
           />
         </ButtonModal>
       </div>
@@ -162,15 +177,6 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
     return <LoadingSpinner />;
   }
 
-  let flashcard: IFlashcard = {
-    topic: cards[cardIndex].topic || "",
-    topicId: cards[cardIndex].topicId || "",
-    userId: cards[cardIndex].userId || "",
-    question: cards[cardIndex].question || "",
-    answer: cards[cardIndex].answer || "",
-    order: cardIndex + 1,
-  };
-
   return (
     <div className={styles.flashcardView}>
       <Title />
@@ -179,12 +185,7 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
 
         <div className={styles.topRightButtons}>
           <EditCard />
-          <ButtonModal text="Add Flashcard">
-            <AddFlashcard
-              flashcard={flashcard}
-              onSuccess={() => LoadCards(cards.length - 1)}
-            />
-          </ButtonModal>
+          <AddCard />
         </div>
       </div>
       <div className={styles.card}>

@@ -4,6 +4,9 @@ import styles from "./AddFlashcard.module.css";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { IFlashcard } from "@/models/Flashcard";
+import flashcardClient from "@/lib/flashcard-client";
+import Status from "@/enums/status";
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 
 interface AddFlashcardProps {
   flashcard: IFlashcard;
@@ -16,7 +19,7 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
 }) => {
   const router = useRouter();
 
-  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<Status>(Status.Pending);
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [topic, setTopic] = useState("");
@@ -34,6 +37,7 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
     e.preventDefault(); // Prevent refresh on submit
 
     const card: IFlashcard = {
+      _id: flashcard._id,
       question: question,
       answer: answer,
       topic: topic,
@@ -42,40 +46,29 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
     };
 
     try {
-      setMessage("");
+      setStatus(Status.Loading);
 
-      // Save request
-      const response = await fetch(`/api/flashcard`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(card),
-      });
-
-      let result = (await response.json()).savedFlashcard;
-
-      //flashcard._id = new ObjectId(result.upsertedId);
+      let savedCard: IFlashcard = await flashcardClient.SaveFlashcard(card);
 
       setQuestion("");
       setAnswer("");
       setTopic("");
 
-      setMessage(response.ok && result._id ? "Success" : "Failure");
+      setStatus(savedCard._id ? Status.Success : Status.Failure);
+
+      if (Status.Success && flashcard._id) {
+        router.push(`/flashcard/${savedCard.userId}/${savedCard.topicId}`);
+      }
+
+      onSuccess(); // TODO - Select new card on submit success
     } catch (error) {
-      setMessage("Sorry! A failure occurred.");
+      setStatus(Status.Failure);
       console.error(error);
-    }
-
-    onSuccess(); // TODO - Select new card on submit success
-
-    if (message === "Success") {
-      router.push(`/flashcard/${card.userId}/${card.topicId}`);
     }
   };
 
   const Result = () => {
-    if (!message) return;
+    if (!status) return;
 
     const Success = () => {
       return (
@@ -87,16 +80,20 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
 
     const Failure = () => {
       return (
-        message && (
-          <div className="alert alert-danger">
-            <strong>Flashcard save failed.</strong>
-          </div>
-        )
+        <div className="alert alert-danger">
+          <strong>Flashcard save failed.</strong>
+        </div>
       );
     };
 
-    if (message == "Success") return <Success />;
-    else return <Failure />;
+    if (status == Status.Success) return <Success />;
+    if (status == Status.Failure) return <Failure />;
+    if (status == Status.Loading)
+      return (
+        <div>
+          <LoadingSpinner />
+        </div>
+      );
   };
 
   return (
