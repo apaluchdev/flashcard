@@ -4,17 +4,17 @@ import styles from "./page.module.css";
 import Link from "next/link";
 import ButtonModal from "@/components/ButtonModal/ButtonModal";
 import AddFlashcard from "@/components/AddFlashcard/AddFlashcard";
-import Flashcard from "@/types/Flashcard";
+import Flashcard, { IFlashcard } from "@/models/Flashcard";
 
 export default function Page() {
-  let flashcard: Flashcard = {
+  let flashcard: IFlashcard = new Flashcard({
     topic: "",
     topicId: "",
     userId: "Adrian",
     question: "",
     answer: "",
     order: 0,
-  };
+  });
 
   return (
     <main className={styles.main}>

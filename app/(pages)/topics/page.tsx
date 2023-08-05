@@ -3,11 +3,11 @@
 import styles from "./page.module.css";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Flashcard from "@/types/Flashcard";
 import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
+import { IFlashcard } from "@/models/Flashcard";
 
 export default function Page() {
-  const [topicCards, setTopics] = useState<Flashcard[]>([]);
+  const [topicCards, setTopics] = useState<IFlashcard[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
