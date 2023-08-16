@@ -26,12 +26,13 @@ const Modal: React.FC<ParentComponentProps> = ({ text, children }) => {
         <div className={styles.modal}>
           <div className={styles.modalWindow}>
             <button onClick={ToggleVisibility} className={styles.close}>
-              <Image
+              {/* <Image
                 alt="close button"
                 src="/closeIcon.png"
                 width={25}
                 height={25}
-              />
+              /> */}
+              &#215;
             </button>
             <div className={styles.modalContent}>{children}</div>
           </div>

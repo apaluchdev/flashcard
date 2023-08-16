@@ -111,7 +111,7 @@ async function GetTopics() {
     const pipeline = [
       {
         $group: {
-          _id: { topicId: "$topicId", userId: "$userId" },
+          _id: { topicId: "$topicId" },
           firstDocument: { $first: "$$ROOT" }, // $$ROOT represents the entire document
         },
       },
@@ -120,7 +120,7 @@ async function GetTopics() {
       },
     ];
 
-    const results = await Flashcard.aggregate(pipeline, {});
+    const results = await Flashcard.aggregate(pipeline);
     results.sort((a: any, b: any) => (a.topic > b.topic ? 1 : -1));
 
     return NextResponse.json({ results }, { status: 200 });

@@ -38,6 +38,9 @@
   margin-left: auto;
   border: none;
   background-color: transparent;
+  color: black;
+  font-size: 32px;
+  font-weight: 900;
 }
 
 .close:hover,

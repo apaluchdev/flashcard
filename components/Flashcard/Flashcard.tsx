@@ -7,6 +7,8 @@ import ButtonModal from "@/components/ButtonModal/ButtonModal";
 import AddFlashcard from "@/components/AddFlashcard/AddFlashcard";
 import { IFlashcard } from "@/models/Flashcard";
 import flashcardClient from "@/lib/flashcard-client";
+import { marked } from "marked";
+import DOMPurify from "dompurify";
 
 interface FlashcardProps {
   userId: string;
@@ -68,7 +70,8 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
       <div className={styles.bottomButtons}>
         <button
           onClick={DeleteCard}
-          className={`${styles.button} ${styles.deleteButton}`}>
+          className={`${styles.button} ${styles.deleteButton}`}
+        >
           Delete
         </button>
       </div>
@@ -88,7 +91,15 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
       <div className={styles.back}>
         <div>
           <h1 className={styles.question}>{cards[cardIndex].question}</h1>
-          <p className={styles.answer}>{cards[cardIndex].answer}</p>
+          <div className={styles.answer}>
+            <p
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(
+                  marked.parse(cards[cardIndex].answer)
+                ),
+              }}
+            ></p>
+          </div>
         </div>
       </div>
     );
