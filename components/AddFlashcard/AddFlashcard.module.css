@@ -11,7 +11,7 @@
 
 .answerInput {
   overflow-y: scroll;
-  min-height: 200px;
+  min-height: 150px;
   resize: none; /* Remove this if you want the user to resize the textarea */
 }
 
