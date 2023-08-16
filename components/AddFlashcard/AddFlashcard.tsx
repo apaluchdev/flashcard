@@ -23,10 +23,12 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [topic, setTopic] = useState("");
+  const [isEdit, setIsEdit] = useState(false);
 
   useEffect(() => {
     // If a flashcard is passed in, set the initial values
     if (flashcard) {
+      setIsEdit(true);
       setQuestion(flashcard.question);
       setAnswer(flashcard.answer);
       setTopic(flashcard.topic);
@@ -56,11 +58,11 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
 
       setStatus(savedCard._id ? Status.Success : Status.Failure);
 
-      if (Status.Success && flashcard._id) {
+      if (!isEdit && Status.Success && flashcard._id) {
         router.push(`/flashcard/${savedCard.userId}/${savedCard.topicId}`);
+      } else if (Status.Success && flashcard._id) {
+        onSuccess();
       }
-
-      onSuccess(); // TODO - Select new card on submit success
     } catch (error) {
       setStatus(Status.Failure);
       console.error(error);
@@ -132,7 +134,8 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
         className={styles.answerInput}
         required
         value={answer}
-        onChange={(e) => setAnswer(e.target.value)}></textarea>
+        onChange={(e) => setAnswer(e.target.value)}
+      ></textarea>
 
       {/* Submit Button  */}
       <button className={styles.button}>Submit</button>

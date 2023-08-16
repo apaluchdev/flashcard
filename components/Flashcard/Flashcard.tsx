@@ -81,7 +81,7 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
   const Front = () => {
     return (
       <div className={styles.front}>
-        <h1 className={styles.question}>{cards[cardIndex].question}</h1>
+        <h3 className={styles.frontQuestion}>{cards[cardIndex].question}</h3>
       </div>
     );
   };
@@ -90,15 +90,12 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
     return (
       <div className={styles.back}>
         <div>
-          <h1 className={styles.question}>{cards[cardIndex].question}</h1>
-          <div className={styles.answer}>
-            <p
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(
-                  marked.parse(cards[cardIndex].answer)
-                ),
-              }}
-            ></p>
+          <h3 className={styles.backQuestion}>
+            {cards[cardIndex].question}
+            <hr></hr>
+          </h3>
+          <div className={styles.backAnswer}>
+            <p>{cards[cardIndex].answer}</p>
           </div>
         </div>
       </div>
@@ -177,7 +174,6 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
       <Title />
       <div className={styles.topButtons}>
         <Navigation />
-
         <div className={styles.topRightButtons}>
           <EditCard />
           <AddCard />
