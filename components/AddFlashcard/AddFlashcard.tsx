@@ -27,7 +27,7 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
 
   useEffect(() => {
     // If a flashcard is passed in, set the initial values
-    if (flashcard) {
+    if (flashcard.topic) {
       setIsEdit(true);
       setQuestion(flashcard.question);
       setAnswer(flashcard.answer);
@@ -56,11 +56,13 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
       setAnswer("");
       setTopic("");
 
-      setStatus(savedCard._id ? Status.Success : Status.Failure);
+      let saveStatus = savedCard._id ? Status.Success : Status.Failure;
 
-      if (!isEdit && Status.Success && flashcard._id) {
+      setStatus(saveStatus);
+
+      if (!isEdit && saveStatus == Status.Success && savedCard._id) {
         router.push(`/flashcard/${savedCard.userId}/${savedCard.topicId}`);
-      } else if (Status.Success && flashcard._id) {
+      } else if (saveStatus == Status.Success) {
         onSuccess();
       }
     } catch (error) {
