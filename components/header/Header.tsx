@@ -7,6 +7,9 @@ export default function Header() {
       <div className={styles.links}>
         <Link href="/">Home</Link>
         <Link href="/about">About</Link>
+        <Link className={styles.button} href="/topics">
+          Topics
+        </Link>
         {/* <Link href="/">Sign in</Link> */}
       </div>
     </header>

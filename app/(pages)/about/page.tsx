@@ -13,15 +13,17 @@ export default function Page() {
         </p>
         <a
           style={{ paddingTop: "2rem", textDecoration: "none" }}
-          href="https://github.com/apaluchdev/flashcard">
+          href="https://github.com/apaluchdev/flashcard"
+        >
           <MarkGithubIcon size={64} />
         </a>
         <h2 style={{ marginTop: "25%", fontWeight: "800" }}>TODOs</h2>
         <ul style={{ textAlign: "left" }}>
           <li>User authentication</li>
-          <li>User topic saving</li>
-          <li>Integrate ChatGPT to help with flashcard creation</li>
-          <li>Searching topics</li>
+          <li>
+            Integrate ChatGPT to help with flashcard creation (give a topic and
+            generate a list of questions & answers).
+          </li>
         </ul>
       </div>
     </main>

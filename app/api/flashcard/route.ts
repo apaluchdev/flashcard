@@ -25,8 +25,10 @@ export async function POST(req: any) {
         _id: body._id,
         question: body.question,
         answer: body.answer,
-        topicId: body.topicId || randomUUID().toString(),
-        userId: body.userId || randomUUID().toString(),
+        topicId:
+          body.topicId ||
+          `${body.topic ?? ""}-${randomUUID().toString().split("-")[0]}`, // Generate an id using a combination of the topic and a portion of a UUID
+        userId: body.userId || randomUUID().toString().split("-")[0], // TODO - use authenticated user ids
         topic: body.topic, // If topicId and userId is filled - try getting the title
         order: body.order,
       });
