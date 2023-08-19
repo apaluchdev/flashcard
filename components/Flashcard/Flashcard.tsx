@@ -47,6 +47,33 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
     setTitle(title);
   }
 
+  function SelectRandomCard() {
+    let rand = cardIndex;
+
+    while (rand == cardIndex) {
+      rand = Math.floor(Math.random() * cards.length);
+    }
+    setCardIndex(rand);
+  }
+
+  function ShuffleCards() {
+    let shuffledCards = cards.concat([]);
+
+    // Keep shuffling if the first card doesn't change, otherwise users will think nothing happened.
+    while (cards[0] == shuffledCards[0]) {
+      for (let i = shuffledCards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1)); // Generate a random index between 0 and i
+        [shuffledCards[i], shuffledCards[j]] = [
+          shuffledCards[j],
+          shuffledCards[i],
+        ]; // Swap elements at indices i and j
+      }
+    }
+
+    setCards(shuffledCards);
+    setCardIndex(0);
+  }
+
   const Title = () => {
     return (
       <div>
@@ -67,14 +94,12 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
     }
 
     return (
-      <div className={styles.bottomButtons}>
-        <button
-          onClick={DeleteCard}
-          className={`${styles.button} ${styles.deleteButton}`}
-        >
-          Delete
-        </button>
-      </div>
+      <button
+        onClick={DeleteCard}
+        className={`${styles.button} ${styles.deleteButton}`}
+      >
+        Delete
+      </button>
     );
   };
 
@@ -185,7 +210,19 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
           <Back />
         </div>
       </div>
-      <Delete />
+      {/* TODO Move into a separate functional component for cleanliness */}
+      <div className={styles.bottomButtons}>
+        <p className={styles.cardNumber}>
+          {cardIndex + 1} / {cards.length}
+        </p>
+        <button onClick={ShuffleCards} className={styles.button}>
+          Shuffle
+        </button>
+        <button onClick={SelectRandomCard} className={styles.button}>
+          Random
+        </button>
+        <Delete />
+      </div>
     </div>
   );
 };
