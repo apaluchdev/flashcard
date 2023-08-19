@@ -1,6 +1,16 @@
 import { IFlashcard } from "@/models/Flashcard";
 
 const flashcardClient = {
+  async GenerateDeck(topic: string, difficulty: string): Promise<any> {
+    let response = {};
+    await fetch(`/api/chatGPT?topic=${topic}&difficulty=${difficulty}`) // TODO make difficulty an enum
+      .then((res) => res.json())
+      .then((res) => {
+        response = { topicId: res.topicId, userId: res.userId };
+      });
+    return response;
+  },
+
   async SaveFlashcard(card: IFlashcard) {
     // Save request
     const response = await fetch(`/api/flashcard`, {

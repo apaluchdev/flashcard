@@ -69,7 +69,6 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
         ]; // Swap elements at indices i and j
       }
     }
-
     setCards(shuffledCards);
     setCardIndex(0);
   }

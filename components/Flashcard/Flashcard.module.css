@@ -99,7 +99,7 @@
 .card:hover .content {
   transform: rotateY(180deg);
   transition: transform 0.5s;
-  transition-delay: 200ms;
+  transition-delay: 50ms;
 }
 
 .frontQuestion {
