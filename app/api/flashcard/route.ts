@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Flashcard, { IFlashcard } from "@/models/Flashcard";
 import InitializeMongoose from "@/lib/mongodb";
-import { randomUUID } from "crypto";
+import { UUID, randomUUID } from "crypto";
 
 InitializeMongoose();
 
@@ -9,6 +9,13 @@ InitializeMongoose();
 export async function POST(req: any) {
   try {
     const body = await req.json();
+
+    if (body.newTopicName && body.topicId) {
+      RenameTopic(body.newTopicName, body.topicId);
+      return NextResponse.json({
+        result: `Renamed topic ${body.newTopicName}`,
+      });
+    }
 
     let flashcard = await Flashcard.findOne({ _id: body._id });
 
@@ -18,6 +25,7 @@ export async function POST(req: any) {
       flashcard.answer = body.answer;
       flashcard.topic = body.topic;
       flashcard.order = body.order;
+      // Don't need to set topic id as this is just an edit, already set
     }
     // New card
     else {
@@ -128,5 +136,26 @@ async function GetTopics() {
     return NextResponse.json({ results }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ msg: "Error fetching topics" }, { status: 500 });
+  }
+}
+
+async function RenameTopic(newTopicName: string, topicId: string) {
+  try {
+    const flashcards = await Flashcard.find({ topicId: topicId });
+
+    flashcards.forEach((obj) => (obj.topic = newTopicName));
+
+    // Update each document and save
+    flashcards.forEach((flashcard) => {
+      flashcard.topic = newTopicName;
+      flashcard.save();
+    });
+
+    return NextResponse.json({ newTopicName }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(
+      { msg: "Error fetching flashcards" },
+      { status: 500 }
+    );
   }
 }

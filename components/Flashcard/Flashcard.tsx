@@ -102,6 +102,40 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
     );
   };
 
+  const RenameTopic = () => {
+    const [newTopicName, setNewTopicName] = useState<string>(
+      cards[cardIndex].topic
+    );
+
+    async function RenameTopic() {
+      var isDeleted = await flashcardClient.RenameTopic(
+        newTopicName,
+        cards[cardIndex].topicId ?? ""
+      );
+    }
+
+    return (
+      <ButtonModal text="Rename Topic">
+        <h1 className="">Rename Topic</h1>
+
+        <form className={styles.renameForm} onSubmit={RenameTopic}>
+          <label className={styles.label}>New Topic Name</label>
+
+          {/* If the flashcard passed in does not have a topic, it means a new topic is being created */}
+          <input
+            className={styles.topicInput}
+            type="text"
+            required
+            value={newTopicName}
+            onChange={(e) => setNewTopicName(e.target.value)}
+          />
+          {/* Submit Button  */}
+          <button className={styles.button}>Submit</button>
+        </form>
+      </ButtonModal>
+    );
+  };
+
   const Front = () => {
     return (
       <div className={styles.front}>
@@ -220,6 +254,7 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
         <button onClick={SelectRandomCard} className={styles.button}>
           Random
         </button>
+        <RenameTopic />
         <Delete />
       </div>
     </div>
