@@ -83,6 +83,18 @@ const flashcardClient = {
 
     return false;
   },
+
+  async GetTopics(topicSearch: string | null = null): Promise<IFlashcard[]> {
+    let cards: IFlashcard[] = [];
+
+    await fetch(`/api/flashcard?topicSearch=${topicSearch}`)
+      .then((res) => res.json())
+      .then((res) => {
+        cards = res.results;
+      });
+
+    return cards;
+  },
 };
 
 export default flashcardClient;

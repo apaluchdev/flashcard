@@ -59,9 +59,10 @@ export async function GET(req: NextRequest) {
 
   const topicId = searchParams.get("topicId");
   const getTitle = searchParams.get("getTitle");
+  const topicSearch = searchParams.get("topicSearch");
 
   // No topicId given, just return all topics
-  if (!topicId) return await GetTopics();
+  if (!topicId) return await GetTopics(topicSearch);
 
   // Just topicId given, return topic title
   if (topicId && getTitle == "Y") return await GetTitle(topicId);
@@ -116,7 +117,7 @@ async function GetTitle(topicId: string) {
   }
 }
 
-async function GetTopics() {
+async function GetTopics(topicSearch: string | null) {
   try {
     const pipeline = [
       {
@@ -130,8 +131,13 @@ async function GetTopics() {
       },
     ];
 
-    const results = await Flashcard.aggregate(pipeline);
-    results.sort((a: any, b: any) => (a.topic > b.topic ? 1 : -1));
+    let results = await Flashcard.aggregate(pipeline);
+    if (topicSearch) {
+      results = results.filter((obj) =>
+        obj.topic.toLowerCase().includes(topicSearch.toLowerCase())
+      );
+    }
+    results.sort((a: any, b: any) => (a.updatedAt < b.updatedAt ? 1 : -1));
 
     return NextResponse.json({ results }, { status: 200 });
   } catch (error) {

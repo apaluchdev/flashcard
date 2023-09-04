@@ -45,3 +45,12 @@
   transform: scale(0.95); /* Adjust the scale factor as needed */
   background-color: #1b4da8; /* Replace with your desired color */
 }
+
+.searchTopic {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: center;
+}
