@@ -163,10 +163,3 @@
 .flashcardView ::-webkit-scrollbar-thumb:hover {
   background-color: #a8bbbf;
 }
-
-.renameForm {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  text-align: left;
-}

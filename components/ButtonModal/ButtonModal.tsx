@@ -2,7 +2,6 @@
 
 import styles from "./ButtonModal.module.css";
 import { useState, ReactNode } from "react";
-import Image from "next/image";
 
 interface ParentComponentProps {
   text: string;
@@ -26,12 +25,6 @@ const Modal: React.FC<ParentComponentProps> = ({ text, children }) => {
         <div className={styles.modal}>
           <div className={styles.modalWindow}>
             <button onClick={ToggleVisibility} className={styles.close}>
-              {/* <Image
-                alt="close button"
-                src="/closeIcon.png"
-                width={25}
-                height={25}
-              /> */}
               &#215;
             </button>
             <div className={styles.modalContent}>{children}</div>

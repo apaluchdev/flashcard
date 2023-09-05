@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { IFlashcard } from "@/models/Flashcard";
 import flashcardClient from "@/lib/flashcard-client";
 import Status from "@/enums/status";
-import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
+import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
 
 interface AddFlashcardProps {
   flashcard: IFlashcard;
@@ -18,7 +18,6 @@ const AddFlashcard: React.FC<AddFlashcardProps> = ({
   onSuccess,
 }) => {
   const router = useRouter();
-
   const [status, setStatus] = useState<Status>(Status.Pending);
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");

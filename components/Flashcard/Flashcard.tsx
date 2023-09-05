@@ -5,10 +5,10 @@ import { useState, useEffect } from "react";
 import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
 import ButtonModal from "@/components/ButtonModal/ButtonModal";
 import AddFlashcard from "@/components/AddFlashcard/AddFlashcard";
+import RenameTopic from "@/components/RenameTopic/RenameTopic";
 import { IFlashcard } from "@/models/Flashcard";
 import flashcardClient from "@/lib/flashcard-client";
-import { marked } from "marked";
-import DOMPurify from "dompurify";
+import TopicTitle from "../TopicTitle/TopicTitle";
 
 interface FlashcardProps {
   userId: string;
@@ -73,17 +73,6 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
     setCardIndex(0);
   }
 
-  const Title = () => {
-    return (
-      <div>
-        <h3 style={{ textAlign: "left" }}>Current Topic:</h3>
-        <h1 style={{ fontSize: 64, color: "#802424" }}>
-          {title ?? "No topic found"}
-        </h1>
-      </div>
-    );
-  };
-
   const Delete = () => {
     async function DeleteCard() {
       var isDeleted = await flashcardClient.DeleteCard(
@@ -99,40 +88,6 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
       >
         Delete
       </button>
-    );
-  };
-
-  const RenameTopic = () => {
-    const [newTopicName, setNewTopicName] = useState<string>(
-      cards[cardIndex].topic
-    );
-
-    async function RenameTopic() {
-      var isDeleted = await flashcardClient.RenameTopic(
-        newTopicName,
-        cards[cardIndex].topicId ?? ""
-      );
-    }
-
-    return (
-      <ButtonModal text="Rename Topic">
-        <h1 className="">Rename Topic</h1>
-
-        <form className={styles.renameForm} onSubmit={RenameTopic}>
-          <label className={styles.label}>New Topic Name</label>
-
-          {/* If the flashcard passed in does not have a topic, it means a new topic is being created */}
-          <input
-            className={styles.topicInput}
-            type="text"
-            required
-            value={newTopicName}
-            onChange={(e) => setNewTopicName(e.target.value)}
-          />
-          {/* Submit Button  */}
-          <button className={styles.button}>Submit</button>
-        </form>
-      </ButtonModal>
     );
   };
 
@@ -229,7 +184,7 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
 
   return (
     <div className={styles.flashcardView}>
-      <Title />
+      <TopicTitle topic={title} />
       <div className={styles.topButtons}>
         <Navigation />
         <div className={styles.topRightButtons}>
@@ -243,7 +198,6 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
           <Back />
         </div>
       </div>
-      {/* TODO Move into a separate functional component for cleanliness */}
       <div className={styles.bottomButtons}>
         <p className={styles.cardNumber}>
           {cardIndex + 1} / {cards.length}
@@ -254,7 +208,12 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
         <button onClick={SelectRandomCard} className={styles.button}>
           Random
         </button>
-        <RenameTopic />
+        <ButtonModal text="Rename Topic">
+          <RenameTopic
+            topicId={cards[cardIndex].topicId || ""}
+            topicName={cards[cardIndex].topic}
+          />
+        </ButtonModal>
         <Delete />
       </div>
     </div>
