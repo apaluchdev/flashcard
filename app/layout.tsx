@@ -5,7 +5,6 @@ import Header from "@/components/header/Header";
 
 const openSans = Open_Sans({ subsets: ["latin"], weight: "300" });
 const inter = Inter({ subsets: ["latin"], weight: "800" });
-const roboto = Roboto({ subsets: ["latin"], weight: "300" });
 
 export const metadata = {
   title: "Flashcards",
@@ -21,8 +20,8 @@ export default function RootLayout({
     <html lang="en">
       {/* <body className={`${quicksand.className} text-red-500`}> */}
       <body className={`${inter.className}`}>
-        {/* <Header /> */}
-        {children}
+        <Header />
+        <div className="pt-12">{children}</div>
         {/* <Footer /> */}
       </body>
     </html>

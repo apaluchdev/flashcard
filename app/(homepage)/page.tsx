@@ -2,6 +2,7 @@
 
 import "./styles.css";
 import Link from "next/link";
+import Image from "next/image";
 import ButtonModal from "@/components/ButtonModal/ButtonModal";
 import AddFlashcard from "@/components/AddFlashcard/AddFlashcard";
 import { IFlashcard } from "@/models/Flashcard";
@@ -45,8 +46,22 @@ export default function Page() {
       <Title />
       <div className="mt-12 flex flex-col gap-5 fade-in">
         <Button>Sign in</Button>
-        <Button>Continue as Guest</Button>
+        <Button>
+          {" "}
+          <Link href="/topics">Continue as Guest</Link>
+        </Button>
       </div>
+
+      <h2 className="mt-32 scroll-m-20 border-b pb-2 text-2xl tracking-tight text-gray-800 transition-colors first:mt-0">
+        Created by Adrian Paluch
+      </h2>
+      <Image
+        className="mt-6 rounded-full"
+        src="/adrian.png"
+        width={160}
+        height={160}
+        alt="Picture of the author"
+      />
 
       {/* <div className={styles.buttons}>
           <ButtonModal text="Add Deck">
