@@ -1,25 +1,48 @@
 import React from "react";
-import "./styles.css";
+import { Payment, columns } from "@/components/flashcard-table/columns";
+import { FlashcardTable } from "@/components/flashcard-table/flashcard-table";
 
-const Page = () => {
-  return (
-    <div className={`flex min-h-screen flex-col`}>
-      <Title />
-    </div>
-  );
-};
+async function getData(): Promise<Payment[]> {
+  // Fetch data from your API here.
+  return [
+    {
+      id: "728ed52f",
+      amount: 100,
+      status: "pending",
+      email: "m@example.com",
+    },
+    // ...
+  ];
+}
+export default async function Page() {
+  const data = await getData();
 
-export const Title = () => {
   return (
     <div>
-      <h1 className="text-center text-8xl tracking-tighter text-gray-700 fade-in">
-        Topics
-      </h1>
+      <FlashcardTable columns={columns} data={data} />
     </div>
   );
-};
+}
 
-export default Page;
+// const Page = () => {
+//   return (
+//     <div className={`flex min-h-screen flex-col`}>
+//       <Title />
+//     </div>
+//   );
+// };
+
+// export const Title = () => {
+//   return (
+//     <div>
+//       <h1 className="text-center text-8xl tracking-tighter text-gray-700 fade-in">
+//         Topics
+//       </h1>
+//     </div>
+//   );
+// };
+
+// export default Page;
 
 // "use client"; // TODO this could and should be a server component, read up on how to convert
 

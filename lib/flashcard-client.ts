@@ -1,4 +1,6 @@
 import { IFlashcard } from "@/models/Flashcard";
+import { ITopic } from "@/models/Topic";
+import topicClient from "./topic-client";
 
 const flashcardClient = {
   async GenerateDeck(topic: string, difficulty: string): Promise<any> {
@@ -11,9 +13,22 @@ const flashcardClient = {
     return response;
   },
 
-  async SaveFlashcard(card: IFlashcard) {
-    // Save request
-    const response = await fetch(`/api/flashcard`, {
+  async AddTopicAsync(topic: ITopic): Promise<ITopic | undefined> {
+    const response = await fetch(`/api/topics`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(topic),
+    });
+
+    if (response.status !== 200) return undefined;
+
+    return (await response.json()).savedTopic;
+  },
+
+  async SaveFlashcard(card: IFlashcard): Promise<IFlashcard | undefined> {
+    const response = await fetch(`/api/flashcards`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -21,15 +36,12 @@ const flashcardClient = {
       body: JSON.stringify(card),
     });
 
-    if (response.status !== 200) {
-      return "Error: " + response;
-    }
+    if (response.status !== 200) return undefined;
 
     return (await response.json()).savedFlashcard;
   },
 
-  async RenameTopic(newTopicName: string, topicId: string) {
-    // Save request
+  async RenameTopic(newTopicName: string, topicId: string): Promise<boolean> {
     const response = await fetch(`/api/flashcard`, {
       method: "POST",
       headers: {
@@ -38,16 +50,20 @@ const flashcardClient = {
       body: JSON.stringify({ newTopicName: newTopicName, topicId: topicId }),
     });
 
-    if (response.status !== 200) {
-      return "Error: " + response;
-    }
-
-    return (await response.json()).savedFlashcard;
+    return response.status == 200;
   },
 
-  async GetFlashcards(userId: string, topicId: string): Promise<IFlashcard[]> {
+  async GetFlashcardsByUserIdAndTopicAsync(
+    userId: string,
+    topic: string,
+  ): Promise<IFlashcard[]> {
     let cards: IFlashcard[] = [];
-    await fetch(`/api/flashcard?userId=${userId}&topicId=${topicId}`)
+
+    const topicResult: ITopic | null =
+      await topicClient.GetTopicByUserIdAndTopic(userId, topic);
+    if (!topicResult) return [];
+
+    await fetch(`/api/flashcards?topicId=${topicResult?._id}`)
       .then((res) => res.json())
       .then((res) => {
         cards = res.flashcards;
@@ -56,7 +72,8 @@ const flashcardClient = {
   },
 
   async GetTitle(topicId: string): Promise<string> {
-    let title: string = "Title not found";
+    let title: string = "";
+
     await fetch(`/api/flashcard?topicId=${topicId}&getTitle=Y`)
       .then((res) => res.json())
       .catch((err) => {
@@ -77,23 +94,7 @@ const flashcardClient = {
       },
     });
 
-    if (response.status === 200) {
-      return true;
-    }
-
-    return false;
-  },
-
-  async GetTopics(topicSearch: string | null = null): Promise<IFlashcard[]> {
-    let cards: IFlashcard[] = [];
-
-    await fetch(`/api/flashcard?topicSearch=${topicSearch}`)
-      .then((res) => res.json())
-      .then((res) => {
-        cards = res.results;
-      });
-
-    return cards;
+    return response.status === 200;
   },
 };
 

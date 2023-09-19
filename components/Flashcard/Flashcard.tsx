@@ -1,62 +1,147 @@
 "use client";
 
-import styles from "./Flashcard.module.css";
-import { useState, useEffect } from "react";
-import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
-import ButtonModal from "@/components/ButtonModal/ButtonModal";
-import AddFlashcard from "@/components/AddFlashcard/AddFlashcard";
-import RenameTopic from "@/components/RenameTopic/RenameTopic";
-import { IFlashcard } from "@/models/Flashcard";
-import flashcardClient from "@/lib/flashcard-client";
-import TopicTitle from "../TopicTitle/TopicTitle";
+import React, { ReactNode, createContext, useEffect, useState } from "react";
+import TextEditor from "../text-editor/text-editor";
+import { Open_Sans, Roboto } from "next/font/google";
 
-interface FlashcardProps {
+import { Button } from "../ui/button";
+import flashcardClient from "@/lib/flashcard-client";
+import { IFlashcard } from "@/models/Flashcard";
+import { ITopic } from "@/models/Topic";
+import AddDeck from "../add-deck/add-deck";
+import { toast } from "../ui/use-toast";
+import topicClient from "@/lib/topic-client";
+import FlipCard from "./flip-card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Input } from "../ui/input";
+import DiscardDialog from "../discard-dialog/discard-dialog";
+
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: "400",
+});
+
+interface Props {
   userId: string;
-  topicId: string;
+  topic: string;
 }
 
-const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
-  const [isLoading, setLoading] = useState<boolean>(true);
+const Flashcard: React.FC<Props> = ({ userId, topic }) => {
+  const [isEdit, setIsEdit] = useState<boolean>(false);
   const [cards, setCards] = useState<IFlashcard[]>([]);
   const [cardIndex, setCardIndex] = useState<number>(0);
-  const [title, setTitle] = useState<string>("");
+  const [change, setChange] = useState<boolean>(false);
+  const [card, setCard] = useState<IFlashcard | undefined>(undefined);
 
   useEffect(() => {
     const GetData = async () => {
-      setLoading(true);
       await LoadCards();
-      await LoadTitle();
-      setLoading(false);
     };
 
     GetData();
   }, []);
 
+  function onQuestionEdit(event: { target: { value: any } }) {
+    cards[cardIndex].question = event.target.value;
+    setChange(!change);
+  }
+
+  function onAnswerEdit(answer: string) {
+    cards[cardIndex].answer = answer;
+    setChange(!change);
+  }
+
   async function LoadCards(index: number = 0) {
-    let cards: IFlashcard[] = await flashcardClient.GetFlashcards(
-      userId,
-      topicId
-    );
+    let cards: IFlashcard[] =
+      await flashcardClient.GetFlashcardsByUserIdAndTopicAsync(userId, topic);
 
     setCards(cards.sort((a, b) => ((a.order || 0) > (b.order || 0) ? 1 : -1)));
     setCardIndex(index);
+    setCard(cards[cardIndex])
   }
 
-  async function LoadTitle() {
-    let title: string = await flashcardClient.GetTitle(topicId);
-    setTitle(title);
+  async function AddCard() {
+    const newCard: IFlashcard = {
+      question: "",
+      answer: "",
+      topicId: "",
+      userId: userId,
+    };
+    cards.push(newCard);
+    setCardIndex(cards.length - 1);
+    setIsEdit(true);
   }
 
-  function SelectRandomCard() {
-    let rand = cardIndex;
+  function EditCard() {
+    setIsEdit(true);
+  }
 
-    while (rand == cardIndex) {
-      rand = Math.floor(Math.random() * cards.length);
+  async function onSaveCard() {
+    cards[cardIndex].topicId = (
+      await topicClient.GetTopicByUserIdAndTopic(userId, topic)
+    )?._id;
+    const result = await flashcardClient.SaveFlashcard(cards[cardIndex]);
+
+    if (result) {
+      setIsEdit(false);
+      cards.pop();
+      cards.push(result);
+      setCards(cards);
+
+      toast({
+        description: "Flashcard saved!",
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        description: "An error occurred.",
+      });
     }
-    setCardIndex(rand);
   }
+
+  function onCancelEdit() {
+    setIsEdit(false);
+
+    // If card has topicId, it must have been an edit
+    if (cards[cardIndex].topicId) return;
+
+    // Cancelled adding a card, remove it
+    setCardIndex(cardIndex - 1);
+    setCards(cards.slice(0, -1));
+  }
+
+  function DeleteButton() {
+    async function DeleteCard() {
+      var isDeleted = await flashcardClient.DeleteCard(
+        cards[cardIndex]._id || "",
+      );
+      if (isDeleted) LoadCards(cardIndex - 1 < 0 ? 0 : cardIndex - 1);
+    }
+
+    return (
+      <Button
+        className="w-28"
+        disabled={isEdit}
+        onClick={DeleteCard}
+        variant="destructive"
+      >
+        Delete
+      </Button>
+    );
+  };
 
   function ShuffleCards() {
+    if (!cards) return;
     let shuffledCards = cards.concat([]);
 
     // Keep shuffling if the first card doesn't change, otherwise users will think nothing happened.
@@ -73,149 +158,104 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
     setCardIndex(0);
   }
 
-  const Delete = () => {
-    async function DeleteCard() {
-      var isDeleted = await flashcardClient.DeleteCard(
-        cards[cardIndex]._id || ""
-      );
-      if (isDeleted) LoadCards(cardIndex - 1 < 0 ? 0 : cardIndex - 1);
-    }
-
-    return (
-      <button
-        onClick={DeleteCard}
-        className={`${styles.button} ${styles.deleteButton}`}
-      >
-        Delete
-      </button>
-    );
-  };
-
-  const Front = () => {
-    return (
-      <div className={styles.front}>
-        <h3 className={styles.frontQuestion}>{cards[cardIndex].question}</h3>
-      </div>
-    );
-  };
-
-  const Back = () => {
-    return (
-      <div className={styles.back}>
-        <div>
-          <h3 className={styles.backQuestion}>
-            {cards[cardIndex].question}
-            <hr></hr>
-          </h3>
-          <div className={styles.backAnswer}>
-            <p>{cards[cardIndex].answer}</p>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const Navigation = () => {
-    function NextCard() {
-      setCardIndex(
-        cardIndex >= cards.length - 1 ? cards.length - 1 : cardIndex + 1
-      );
-    }
-    function PreviousCard() {
-      setCardIndex(cardIndex < 1 ? 0 : cardIndex - 1);
-    }
-
-    return (
-      <div className={styles.navigation}>
-        <button onClick={PreviousCard} className={styles.button}>
-          Previous
-        </button>
-        <button onClick={NextCard} className={styles.button}>
-          Next
-        </button>
-      </div>
-    );
-  };
-
-  const EditCard = () => {
-    return (
-      <div className={styles.navigation}>
-        <ButtonModal text="Edit Card">
-          <AddFlashcard
-            flashcard={cards[cardIndex]}
-            onSuccess={() => LoadCards(cardIndex)}
-          />
-        </ButtonModal>
-      </div>
-    );
-  };
-
-  const AddCard = () => {
-    let blankCard: IFlashcard = {
-      topicId: cards[cardIndex].topicId,
-      question: "",
-      answer: "",
-      topic: cards[cardIndex].topic,
-    };
-
-    return (
-      <div className={styles.navigation}>
-        <ButtonModal text="Add Flashcard">
-          <AddFlashcard
-            flashcard={blankCard}
-            onSuccess={() => LoadCards(cards.length)}
-          />
-        </ButtonModal>
-      </div>
-    );
-  };
-
-  if (!isLoading && (!cards || cards.length < 1)) {
-    return (
-      <div>
-        <h1>No cards found!</h1>
-      </div>
+  function NextCard() {
+    setCardIndex(
+      cardIndex >= cards.length - 1 ? cards.length - 1 : cardIndex + 1,
     );
   }
 
-  if (isLoading) {
-    return <LoadingSpinner />;
+  function PreviousCard() {
+    setCardIndex(cardIndex < 1 ? 0 : cardIndex - 1);
+  }
+
+  if (!cards || cards.length < 1) {
+    // and !loading
+    return (
+      <div
+        className={`${roboto.className} mb-36 flex h-full w-4/6 max-w-3xl flex-col items-center justify-center gap-10 text-4xl tracking-tight`}
+      >
+        <h1>No cards found!</h1>
+        <Button disabled={isEdit} onClick={AddCard} className="w-28">
+          Add Card
+        </Button>
+      </div>
+    );
   }
 
   return (
-    <div className={styles.flashcardView}>
-      <TopicTitle topic={title} />
-      <div className={styles.topButtons}>
-        <Navigation />
-        <div className={styles.topRightButtons}>
-          <EditCard />
-          <AddCard />
+    <div
+      className={`${roboto.className} mb-36 flex h-full w-4/6 max-w-3xl flex-col items-center justify-center gap-6`}
+    >
+      <div className="flex w-full justify-between">
+        <div className="flex w-full justify-start gap-3">
+          <AddDeck />
+        </div>
+        <div className="flex w-full justify-end gap-3">
+          <Button disabled={isEdit} onClick={ShuffleCards} className="w-28">
+            Shuffle
+          </Button>
+          <Button disabled={isEdit} onClick={EditCard} className="w-28">
+            Edit Card
+          </Button>
         </div>
       </div>
-      <div className={styles.card}>
-        <div className={styles.content}>
-          <Front />
-          <Back />
+
+      {/* Card  */}
+      <FlipCard
+        question={cards[cardIndex].question}
+        answer={cards[cardIndex].answer}
+        isEditMode={isEdit}
+      />
+
+      {/* Bottom Buttons  */}
+      <div className="flex w-full justify-between gap-1">
+        {/* Previous and Next Buttons  */}
+        <div className="flex w-full justify-start gap-3">
+          <Button
+            disabled={isEdit}
+            onClick={PreviousCard}
+            className="w-20"
+            variant="outline"
+          >
+            Previous
+          </Button>
+          <Button
+            disabled={isEdit}
+            onClick={NextCard}
+            className="w-20"
+            variant="outline"
+          >
+            Next
+          </Button>
+        </div>
+
+        {/* Add and Delete Buttons  */}
+        <div className="flex w-full justify-end gap-3">
+          <Button disabled={isEdit} onClick={AddCard} className="w-28">
+            Add Card
+          </Button>
+          <DeleteButton />
         </div>
       </div>
-      <div className={styles.bottomButtons}>
-        <p className={styles.cardNumber}>
-          {cardIndex + 1} / {cards.length}
-        </p>
-        <button onClick={ShuffleCards} className={styles.button}>
-          Shuffle
-        </button>
-        <button onClick={SelectRandomCard} className={styles.button}>
-          Random
-        </button>
-        <ButtonModal text="Rename Topic">
-          <RenameTopic
-            topicId={cards[cardIndex].topicId || ""}
-            topicName={cards[cardIndex].topic}
+
+      {/* Edit Mode Text Area */}
+      {isEdit && (
+        <div className="flex h-64 w-full flex-col justify-between gap-5">
+          <Input
+            type="text"
+            placeholder="Question"
+            value={cards[cardIndex].question}
+            onChange={onQuestionEdit}
           />
-        </ButtonModal>
-        <Delete />
-      </div>
+          <TextEditor TextEditorCallback={onAnswerEdit} />
+          <div className="mt-16 flex w-full justify-end gap-3">
+            <DiscardDialog onDiscard={onCancelEdit} onCancel={() => null} />
+            <Button onClick={onSaveCard} className="w-28">
+              Submit
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

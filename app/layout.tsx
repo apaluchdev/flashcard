@@ -2,8 +2,8 @@ import "./globals.css";
 import { Inter, Open_Sans, Quicksand, Roboto } from "next/font/google";
 import Footer from "@/components/footer/Footer";
 import Header from "@/components/header/Header";
+import { Toaster } from "@/components/ui/toaster";
 
-const openSans = Open_Sans({ subsets: ["latin"], weight: "300" });
 const inter = Inter({ subsets: ["latin"], weight: "800" });
 
 export const metadata = {
@@ -19,10 +19,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       {/* <body className={`${quicksand.className} text-red-500`}> */}
-      <body className={`${inter.className}`}>
+      <body className={`${inter.className} fancy-scroll`}>
         <Header />
-        <div className="pt-12">{children}</div>
+        <div className="h-screen pt-12">{children}</div>
         {/* <Footer /> */}
+        <Toaster />
       </body>
     </html>
   );

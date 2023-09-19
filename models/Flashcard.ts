@@ -7,7 +7,6 @@ export interface IFlashcard {
   answer: string;
   userId?: string;
   topicId?: string;
-  topic: string;
   order?: number;
 }
 
@@ -21,22 +20,20 @@ const flashcardSchema = new Schema<IFlashcard>(
       type: String,
       required: true,
     },
-    topic: {
+    topicId: {
       type: String,
       required: true,
     },
-    topicId: {
-      type: String,
-    },
     userId: {
       type: String,
+      required: true,
     },
     order: {
       type: Number,
       default: 0,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Flashcard: Model<IFlashcard> =

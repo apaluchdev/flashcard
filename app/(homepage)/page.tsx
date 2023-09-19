@@ -3,44 +3,9 @@
 import "./styles.css";
 import Link from "next/link";
 import Image from "next/image";
-import ButtonModal from "@/components/ButtonModal/ButtonModal";
-import AddFlashcard from "@/components/AddFlashcard/AddFlashcard";
-import { IFlashcard } from "@/models/Flashcard";
-import { useEffect, useState } from "react";
-import flashcardClient from "@/lib/flashcard-client";
-import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
 export default function Page() {
-  const router = useRouter();
-
-  const [isLoading, setLoading] = useState<boolean>(true);
-  const [topic, setTopic] = useState<string>("");
-  const [status, setStatus] = useState<string>("");
-
-  useEffect(() => {
-    setLoading(false);
-  }, []);
-  let newTopicFlashcard: IFlashcard = {
-    topic: "",
-    question: "",
-    answer: "",
-  };
-
-  // async function GenerateDeck() {
-  //   setStatus("");
-  //   setLoading(true);
-  //   let result = await flashcardClient.GenerateDeck(topic, "medium");
-  //   setLoading(false);
-
-  //   if (result.userId && result.topicId)
-  //     router.push(`/flashcard/${result.userId}/${result.topicId}`);
-  //   else {
-  //     setStatus("Failed generation likely due to bad AI response, try again.");
-  //   }
-  // }
-
   return (
     <main className={`flex min-h-screen flex-col items-center justify-center`}>
       <Title />
@@ -52,60 +17,16 @@ export default function Page() {
         </Button>
       </div>
 
-      <h2 className="mt-32 scroll-m-20 border-b pb-2 text-2xl tracking-tight text-gray-800 transition-colors first:mt-0">
+      <h2 className="mt-32 scroll-m-20 border-b pb-2 text-2xl tracking-tight text-gray-800 transition-colors fade-in first:mt-0">
         Created by Adrian Paluch
       </h2>
       <Image
-        className="mt-6 rounded-full"
+        className="mt-6 rounded-full fade-in"
         src="/adrian.png"
         width={160}
         height={160}
         alt="Picture of the author"
       />
-
-      {/* <div className={styles.buttons}>
-          <ButtonModal text="Add Deck">
-            <div>
-              <AddFlashcard
-                flashcard={newTopicFlashcard}
-                onSuccess={() => {}}
-              />
-            </div>
-          </ButtonModal>
-          <Link className={styles.button} href="/topics">
-            Find Decks
-          </Link>
-        </div> */}
-      {/* <hr
-          style={{
-            marginTop: "100px",
-            border: "none",
-            width: "100%",
-            height: "1px",
-            backgroundColor: "black",
-          }}
-        >
-          
-        </hr>
-        <div className={styles.generate}>
-          <h1>Generate a deck using AI</h1>
-          <p className={styles.preview}>! Work in progess preview !</p>
-          <div className={styles.genPrompt}>
-            <h3 className={styles.enterTopicHeader}>Enter a topic:</h3>
-            <input
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              className={styles.aiInput}
-            ></input>
-            <button onClick={GenerateDeck} className={styles.button}>
-              Generate
-            </button>
-            <div className={styles.loading}>
-              {isLoading && <LoadingSpinner />}
-              {status}
-            </div>
-          </div>
-        </div> */}
     </main>
   );
 }
