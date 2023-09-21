@@ -11,8 +11,8 @@ export default async function Page({
   params: { userId, topicTitle },
 }: PageProps) {
   return (
-    <main className="flex h-full flex-col items-center">
-      <Flashcard userId={userId} topic={topicTitle}/>
+    <main className="flex h-screen flex-col items-center">
+      <Flashcard userId={userId} topic={topicTitle} />
       {/* <TextEditor /> */}
     </main>
   );

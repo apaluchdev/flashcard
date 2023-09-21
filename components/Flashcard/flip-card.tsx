@@ -6,31 +6,40 @@ import { Card } from "../ui/card";
 interface SimpleComponentProps {
   question: string;
   answer: string;
+  topic: string;
   isEditMode: boolean;
 }
 
 const FlipCard: React.FC<SimpleComponentProps> = ({
   question,
   answer,
+  topic,
   isEditMode,
 }) => {
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
 
+  // if (isEditMode) setIsFlipped(true);
+
   return (
     <div
       className={`${styles.container}`}
-      onClick={() => !isEditMode && setIsFlipped(!isFlipped)}
+      onClick={() => setIsFlipped(!isFlipped)}
     >
+      {/* When not flipped, and not currently editing, lift the card slightly to the right */}
+      {/* When flipped, and not editing, lift the card slightly to the left */}
+      {/* When in edit mode or clicked - flip the card */}
       <Card
-        className={`${styles.card} ${styles.cardHover} ${
-          isFlipped && styles.isFlipped
-        }`}
+        className={`${styles.card} ${styles.cardHover} 
+        
+        ${!isFlipped && !isEditMode && styles.rightFlip}
+        ${isFlipped && !isEditMode && styles.leftFlip}
+        ${(isEditMode || isFlipped) && styles.isFlipped}`}
       >
         <div className={styles.front}>
-          <CardFace question={question} answer={answer} />
+          <CardFace question={question} answer={""} topic={topic} />
         </div>
         <div className={styles.back}>
-          <CardFace question={question} answer={answer} />
+          <CardFace question={question} answer={answer} topic={topic} />
         </div>
       </Card>
     </div>

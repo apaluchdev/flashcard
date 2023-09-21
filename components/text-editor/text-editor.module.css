@@ -1,0 +1,12 @@
+.text p {
+  @apply text-lg;
+}
+.text h1 {
+  @apply text-3xl;
+}
+.text h2 {
+  @apply text-2xl;
+}
+.text h3 {
+  @apply text-xl;
+}

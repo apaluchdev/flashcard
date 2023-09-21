@@ -87,7 +87,7 @@ const flashcardClient = {
   },
 
   async DeleteCard(id: string): Promise<boolean> {
-    const response = await fetch(`/api/flashcard?id=${id}`, {
+    const response = await fetch(`/api/flashcards?id=${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

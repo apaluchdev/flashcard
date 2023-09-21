@@ -38,12 +38,12 @@ export const Title = () => {
         Flashcards
       </h1>
       <h1 className=" text-7xl tracking-tighter text-gray-500">
-        <span className="fade-in-delay-1 text-theme-3">Study</span>
+        <span className="text-theme-3 fade-in">Study</span>
+        <span className="text-6xl fade-in">. </span>
+        <span className="fade-in-delay-1 text-theme-2">Flip</span>
         <span className="fade-in-delay-1 text-6xl">. </span>
-        <span className="fade-in-delay-2 text-theme-2">Flip</span>
+        <span className="fade-in-delay-2 text-theme-1">Learn</span>
         <span className="fade-in-delay-2 text-6xl">. </span>
-        <span className="fade-in-delay-3 text-theme-1">Learn</span>
-        <span className="fade-in-delay-3 text-6xl">. </span>
       </h1>
     </div>
   );

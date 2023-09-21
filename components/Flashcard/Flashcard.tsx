@@ -1,30 +1,18 @@
 "use client";
 
-import React, { ReactNode, createContext, useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import TextEditor from "../text-editor/text-editor";
-import { Open_Sans, Roboto } from "next/font/google";
-
+import { Roboto } from "next/font/google";
 import { Button } from "../ui/button";
 import flashcardClient from "@/lib/flashcard-client";
 import { IFlashcard } from "@/models/Flashcard";
-import { ITopic } from "@/models/Topic";
 import AddDeck from "../add-deck/add-deck";
 import { toast } from "../ui/use-toast";
 import topicClient from "@/lib/topic-client";
 import FlipCard from "./flip-card";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Input } from "../ui/input";
 import DiscardDialog from "../discard-dialog/discard-dialog";
+import LoadingSpinner from "../loading-spinner/loading-spinner";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -38,10 +26,11 @@ interface Props {
 
 const Flashcard: React.FC<Props> = ({ userId, topic }) => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [cards, setCards] = useState<IFlashcard[]>([]);
-  const [cardIndex, setCardIndex] = useState<number>(0);
-  const [change, setChange] = useState<boolean>(false);
-  const [card, setCard] = useState<IFlashcard | undefined>(undefined);
+  const [card, setCard] = useState<IFlashcard>({ question: "", answer: "" });
+  const [loading, setLoading] = useState<boolean>(true);
+  const cards = useRef<IFlashcard[]>([]);
+  const cardIndex = useRef<number>(0);
+  const originalCard = useRef<IFlashcard>({ question: "", answer: "" }); // Used to revert edits
 
   useEffect(() => {
     const GetData = async () => {
@@ -52,22 +41,24 @@ const Flashcard: React.FC<Props> = ({ userId, topic }) => {
   }, []);
 
   function onQuestionEdit(event: { target: { value: any } }) {
-    cards[cardIndex].question = event.target.value;
-    setChange(!change);
+    setCard({ ...card, question: event.target.value });
   }
 
   function onAnswerEdit(answer: string) {
-    cards[cardIndex].answer = answer;
-    setChange(!change);
+    setCard({ ...card, answer: answer });
   }
 
   async function LoadCards(index: number = 0) {
-    let cards: IFlashcard[] =
+    let data: IFlashcard[] =
       await flashcardClient.GetFlashcardsByUserIdAndTopicAsync(userId, topic);
 
-    setCards(cards.sort((a, b) => ((a.order || 0) > (b.order || 0) ? 1 : -1)));
-    setCardIndex(index);
-    setCard(cards[cardIndex])
+    cards.current = data.sort((a, b) =>
+      (a.order || 0) > (b.order || 0) ? 1 : -1,
+    );
+
+    cardIndex.current = 0;
+    setCard(cards.current[cardIndex.current]);
+    setLoading(false);
   }
 
   async function AddCard() {
@@ -77,28 +68,35 @@ const Flashcard: React.FC<Props> = ({ userId, topic }) => {
       topicId: "",
       userId: userId,
     };
-    cards.push(newCard);
-    setCardIndex(cards.length - 1);
     setIsEdit(true);
+    setCard(newCard);
   }
 
   function EditCard() {
     setIsEdit(true);
+    originalCard.current = card;
   }
 
   async function onSaveCard() {
-    cards[cardIndex].topicId = (
-      await topicClient.GetTopicByUserIdAndTopic(userId, topic)
-    )?._id;
-    const result = await flashcardClient.SaveFlashcard(cards[cardIndex]);
+    const isNewCard = card.topicId ? false : true;
+
+    if (isNewCard)
+      card.topicId = (await topicClient.GetTopicByUserIdAndTopic(userId, topic))
+        ?._id;
+
+    const result = await flashcardClient.SaveFlashcard(card);
 
     if (result) {
+      if (!isNewCard) {
+        cards.current.pop(); // Remove old card
+        cards.current.push(result); // Add updated card
+      } else {
+        cards.current.push(result); // Add new card
+      }
       setIsEdit(false);
-      cards.pop();
-      cards.push(result);
-      setCards(cards);
-
+      setCard(result);
       toast({
+        variant: "success",
         description: "Flashcard saved!",
       });
     } else {
@@ -112,20 +110,18 @@ const Flashcard: React.FC<Props> = ({ userId, topic }) => {
   function onCancelEdit() {
     setIsEdit(false);
 
+    setCard(originalCard.current);
     // If card has topicId, it must have been an edit
-    if (cards[cardIndex].topicId) return;
+    if (card.topicId) return;
 
     // Cancelled adding a card, remove it
-    setCardIndex(cardIndex - 1);
-    setCards(cards.slice(0, -1));
+    setCard(cards.current[cards.current.length - 1]);
   }
 
   function DeleteButton() {
     async function DeleteCard() {
-      var isDeleted = await flashcardClient.DeleteCard(
-        cards[cardIndex]._id || "",
-      );
-      if (isDeleted) LoadCards(cardIndex - 1 < 0 ? 0 : cardIndex - 1);
+      var isDeleted = await flashcardClient.DeleteCard(card._id || "");
+      if (isDeleted) LoadCards(Math.max(0, cardIndex.current - 1));
     }
 
     return (
@@ -138,14 +134,14 @@ const Flashcard: React.FC<Props> = ({ userId, topic }) => {
         Delete
       </Button>
     );
-  };
+  }
 
   function ShuffleCards() {
     if (!cards) return;
-    let shuffledCards = cards.concat([]);
+    let shuffledCards = cards.current.concat([]);
 
     // Keep shuffling if the first card doesn't change, otherwise users will think nothing happened.
-    while (cards[0] == shuffledCards[0]) {
+    while (cards.current[0] == shuffledCards[0]) {
       for (let i = shuffledCards.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1)); // Generate a random index between 0 and i
         [shuffledCards[i], shuffledCards[j]] = [
@@ -154,21 +150,32 @@ const Flashcard: React.FC<Props> = ({ userId, topic }) => {
         ]; // Swap elements at indices i and j
       }
     }
-    setCards(shuffledCards);
-    setCardIndex(0);
+    cards.current = shuffledCards;
+    cardIndex.current = 0;
+    setCard(cards.current[0]);
   }
 
   function NextCard() {
-    setCardIndex(
-      cardIndex >= cards.length - 1 ? cards.length - 1 : cardIndex + 1,
+    cardIndex.current = Math.min(
+      cardIndex.current + 1,
+      cards.current.length - 1,
     );
+    setCard(cards.current[cardIndex.current]);
   }
 
   function PreviousCard() {
-    setCardIndex(cardIndex < 1 ? 0 : cardIndex - 1);
+    cardIndex.current = Math.max(0, cardIndex.current - 1);
+    setCard(cards.current[cardIndex.current]);
   }
 
-  if (!cards || cards.length < 1) {
+  if (loading)
+    return (
+      <div className="flex h-full w-4/6 max-w-3xl flex-col items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+
+  if (!isEdit && (!cards || cards.current.length < 1)) {
     // and !loading
     return (
       <div
@@ -184,7 +191,7 @@ const Flashcard: React.FC<Props> = ({ userId, topic }) => {
 
   return (
     <div
-      className={`${roboto.className} mb-36 flex h-full w-4/6 max-w-3xl flex-col items-center justify-center gap-6`}
+      className={`${roboto.className} mb-36 flex h-full w-4/6 max-w-3xl flex-col items-center justify-center gap-6 text-2xl`}
     >
       <div className="flex w-full justify-between">
         <div className="flex w-full justify-start gap-3">
@@ -202,8 +209,9 @@ const Flashcard: React.FC<Props> = ({ userId, topic }) => {
 
       {/* Card  */}
       <FlipCard
-        question={cards[cardIndex].question}
-        answer={cards[cardIndex].answer}
+        question={card.question}
+        answer={card.answer}
+        topic={topic || ""}
         isEditMode={isEdit}
       />
 
@@ -230,30 +238,46 @@ const Flashcard: React.FC<Props> = ({ userId, topic }) => {
         </div>
 
         {/* Add and Delete Buttons  */}
+
         <div className="flex w-full justify-end gap-3">
-          <Button disabled={isEdit} onClick={AddCard} className="w-28">
-            Add Card
-          </Button>
-          <DeleteButton />
+          {isEdit ? (
+            <DiscardDialog onDiscard={onCancelEdit} onCancel={() => null} />
+          ) : (
+            <DeleteButton />
+          )}
+          {isEdit ? (
+            <Button onClick={onSaveCard} className="mt-1 w-28">
+              Submit
+            </Button>
+          ) : (
+            <Button disabled={isEdit} onClick={AddCard} className="w-28">
+              Add Card
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Edit Mode Text Area */}
+      {/* Edit Mode Area */}
       {isEdit && (
-        <div className="flex h-64 w-full flex-col justify-between gap-5">
+        <div className="flex w-full flex-col justify-between gap-5">
           <Input
+            autoFocus
             type="text"
             placeholder="Question"
-            value={cards[cardIndex].question}
+            value={card.question}
             onChange={onQuestionEdit}
           />
-          <TextEditor TextEditorCallback={onAnswerEdit} />
-          <div className="mt-16 flex w-full justify-end gap-3">
+          <TextEditor
+            TextEditorCallback={onAnswerEdit}
+            initialText={card.answer}
+          />
+
+          {/* <div className="flex w-full justify-end gap-3">
             <DiscardDialog onDiscard={onCancelEdit} onCancel={() => null} />
             <Button onClick={onSaveCard} className="w-28">
               Submit
             </Button>
-          </div>
+          </div> */}
         </div>
       )}
     </div>

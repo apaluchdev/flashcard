@@ -10,14 +10,17 @@ import {
 interface CardFaceProps {
   question: string;
   answer: string;
+  topic: string;
 }
 
-const CardFace: React.FC<CardFaceProps> = ({ question, answer }) => {
+const CardFace: React.FC<CardFaceProps> = ({ question, answer, topic }) => {
   return (
     <div className="w-full">
-      <CardHeader className="text-center text-4xl">
-        <CardTitle>{question}</CardTitle>
-        <CardDescription>Front</CardDescription>
+      <CardHeader className="w-full text-center">
+        <CardDescription>{topic}</CardDescription>
+        <CardTitle className="whitespace-normal break-words text-4xl">
+          {question}
+        </CardTitle>
       </CardHeader>
       <CardContent className="w-full">
         <TextViewer text={answer} />
