@@ -1,7 +1,7 @@
 import { useState } from "react";
 import styles from "./flip-card.module.css";
 import CardFace from "./cardface";
-import { Card } from "../ui/card";
+import { Card } from "@/components/ui/card";
 
 interface SimpleComponentProps {
   question: string;
