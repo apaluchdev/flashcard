@@ -2,7 +2,7 @@ interface PageProps {
   params: { userId: string; topicTitle: string };
 }
 
-import Flashcard from "@/components/flashcard/flashcard";
+import Flashcard from "@/components/flashcard/fflashcard";
 
 export default async function Page({
   params: { userId, topicTitle },

@@ -5,7 +5,7 @@ import InitializeMongoose from "@/lib/mongodb";
 
 const inter = Inter({ subsets: ["latin"], weight: "800" });
 
-import Header from "@/components/header/header";
+import Header from "@/components/header/hheader";
 
 export const metadata = {
   title: "Flashcards",
