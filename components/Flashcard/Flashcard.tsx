@@ -1,66 +1,158 @@
 "use client";
 
-import styles from "./Flashcard.module.css";
-import { useState, useEffect } from "react";
-import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
-import ButtonModal from "@/components/ButtonModal/ButtonModal";
-import AddFlashcard from "@/components/AddFlashcard/AddFlashcard";
-import RenameTopic from "@/components/RenameTopic/RenameTopic";
+import React, { useEffect, useRef, useState } from "react";
+import TextEditor from "../text-editor/text-editor";
+import { Roboto } from "next/font/google";
+import { Button } from "../ui/button";
+import flashcardClient from "@/clients/flashcard-client";
 import { IFlashcard } from "@/models/Flashcard";
-import flashcardClient from "@/lib/flashcard-client";
-import TopicTitle from "../TopicTitle/TopicTitle";
+import AddDeck from "../add-deck/add-deck";
+import { toast } from "../ui/use-toast";
+import topicClient from "@/clients/topic-client";
+import FlipCard from "./flip-card";
+import { Input } from "../ui/input";
+import DiscardDialog from "../discard-dialog/discard-dialog";
+import LoadingSpinner from "../loading-spinner/loading-spinner";
+import Topic from "@/models/Topic";
 
-interface FlashcardProps {
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: "400",
+});
+
+interface Props {
   userId: string;
-  topicId: string;
+  topic: string;
 }
 
-const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
-  const [isLoading, setLoading] = useState<boolean>(true);
-  const [cards, setCards] = useState<IFlashcard[]>([]);
-  const [cardIndex, setCardIndex] = useState<number>(0);
-  const [title, setTitle] = useState<string>("");
+const Flashcard: React.FC<Props> = ({ userId, topic }) => {
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [card, setCard] = useState<IFlashcard>({ question: "", answer: "" });
+  const [loading, setLoading] = useState<boolean>(true);
+  const cards = useRef<IFlashcard[]>([]);
+  const cardIndex = useRef<number>(0);
+  const originalCard = useRef<IFlashcard>({ question: "", answer: "" }); // Used to revert edits
 
   useEffect(() => {
     const GetData = async () => {
-      setLoading(true);
       await LoadCards();
-      await LoadTitle();
-      setLoading(false);
     };
 
     GetData();
   }, []);
 
+  function onQuestionEdit(event: { target: { value: any } }) {
+    setCard({ ...card, question: event.target.value });
+  }
+
+  function onAnswerEdit(answer: string) {
+    setCard({ ...card, answer: answer });
+  }
+
   async function LoadCards(index: number = 0) {
-    let cards: IFlashcard[] = await flashcardClient.GetFlashcards(
-      userId,
-      topicId
+    let data: IFlashcard[] =
+      await flashcardClient.GetFlashcardsByUserIdAndTopicTitleAsync(
+        userId,
+        topic,
+      );
+
+    cards.current = data.sort((a, b) =>
+      (a.order || 0) > (b.order || 0) ? 1 : -1,
     );
 
-    setCards(cards.sort((a, b) => ((a.order || 0) > (b.order || 0) ? 1 : -1)));
-    setCardIndex(index);
+    cardIndex.current = index;
+    setCard(cards.current[cardIndex.current]);
+    setLoading(false);
   }
 
-  async function LoadTitle() {
-    let title: string = await flashcardClient.GetTitle(topicId);
-    setTitle(title);
+  async function AddCard() {
+    const newCard: IFlashcard = {
+      question: "",
+      answer: "",
+      topicId: "",
+      userId: userId,
+    };
+    setIsEdit(true);
+    setCard(newCard);
   }
 
-  function SelectRandomCard() {
-    let rand = cardIndex;
+  function EditCard() {
+    setIsEdit(true);
+    originalCard.current = card;
+  }
 
-    while (rand == cardIndex) {
-      rand = Math.floor(Math.random() * cards.length);
+  async function onSaveCard() {
+    const isNewCard = card.topicId ? false : true;
+
+    if (isNewCard)
+      card.topicId = (
+        await topicClient.GetTopicByUserIdAndTopicTitle(userId, topic)
+      )?._id;
+
+    const result = await flashcardClient.UpsertFlashcard(card);
+
+    if (result) {
+      if (!isNewCard) {
+        cards.current.pop(); // Remove old card
+        cards.current.push(result); // Add updated card
+      } else {
+        LoadCards(cards.current.length);
+      }
+      setIsEdit(false);
+      setCard(result);
+      toast({
+        variant: "success",
+        description: "Flashcard saved!",
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        description: "An error occurred.",
+      });
     }
-    setCardIndex(rand);
+  }
+
+  function onCancelEdit() {
+    setIsEdit(false);
+
+    setCard(originalCard.current);
+    // If card has topicId, it must have been an edit
+    if (card.topicId) return;
+
+    // Cancelled adding a card, remove it
+    setCard(cards.current[cards.current.length - 1]);
+  }
+
+  function DeleteButton() {
+    async function DeleteCard() {
+      var isDeleted = await flashcardClient.DeleteFlashcardById(card._id || "");
+      if (isDeleted) {
+        toast({
+          variant: "success",
+          description: "Flashcard deleted.",
+        });
+        LoadCards(Math.max(0, cardIndex.current - 1));
+      }
+    }
+
+    return (
+      <Button
+        className="w-28"
+        disabled={isEdit}
+        onClick={DeleteCard}
+        variant="destructive"
+      >
+        Delete
+      </Button>
+    );
   }
 
   function ShuffleCards() {
-    let shuffledCards = cards.concat([]);
+    if (!cards || cards.current.length < 2) return;
+    let shuffledCards = cards.current.concat([]);
 
     // Keep shuffling if the first card doesn't change, otherwise users will think nothing happened.
-    while (cards[0] == shuffledCards[0]) {
+    while (cards.current[0] == shuffledCards[0]) {
       for (let i = shuffledCards.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1)); // Generate a random index between 0 and i
         [shuffledCards[i], shuffledCards[j]] = [
@@ -69,153 +161,139 @@ const Flashcard: React.FC<FlashcardProps> = ({ userId, topicId }) => {
         ]; // Swap elements at indices i and j
       }
     }
-    setCards(shuffledCards);
-    setCardIndex(0);
+    cards.current = shuffledCards;
+    cardIndex.current = 0;
+    setCard(cards.current[0]);
   }
 
-  const Delete = () => {
-    async function DeleteCard() {
-      var isDeleted = await flashcardClient.DeleteCard(
-        cards[cardIndex]._id || ""
-      );
-      if (isDeleted) LoadCards(cardIndex - 1 < 0 ? 0 : cardIndex - 1);
-    }
+  function NextCard() {
+    cardIndex.current = Math.min(
+      cardIndex.current + 1,
+      cards.current.length - 1,
+    );
+    setCard(cards.current[cardIndex.current]);
+  }
 
+  function PreviousCard() {
+    cardIndex.current = Math.max(0, cardIndex.current - 1);
+    setCard(cards.current[cardIndex.current]);
+  }
+
+  if (loading)
     return (
-      <button
-        onClick={DeleteCard}
-        className={`${styles.button} ${styles.deleteButton}`}
+      <div className="flex h-full w-4/6 max-w-3xl flex-col items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+
+  if (!isEdit && (!cards || cards.current.length < 1)) {
+    // and !loading
+    return (
+      <div
+        className={`${roboto.className} mb-36 flex h-full w-4/6 max-w-3xl flex-col items-center justify-center gap-10 text-4xl tracking-tight`}
       >
-        Delete
-      </button>
-    );
-  };
-
-  const Front = () => {
-    return (
-      <div className={styles.front}>
-        <h3 className={styles.frontQuestion}>{cards[cardIndex].question}</h3>
-      </div>
-    );
-  };
-
-  const Back = () => {
-    return (
-      <div className={styles.back}>
-        <div>
-          <h3 className={styles.backQuestion}>
-            {cards[cardIndex].question}
-            <hr></hr>
-          </h3>
-          <div className={styles.backAnswer}>
-            <p>{cards[cardIndex].answer}</p>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const Navigation = () => {
-    function NextCard() {
-      setCardIndex(
-        cardIndex >= cards.length - 1 ? cards.length - 1 : cardIndex + 1
-      );
-    }
-    function PreviousCard() {
-      setCardIndex(cardIndex < 1 ? 0 : cardIndex - 1);
-    }
-
-    return (
-      <div className={styles.navigation}>
-        <button onClick={PreviousCard} className={styles.button}>
-          Previous
-        </button>
-        <button onClick={NextCard} className={styles.button}>
-          Next
-        </button>
-      </div>
-    );
-  };
-
-  const EditCard = () => {
-    return (
-      <div className={styles.navigation}>
-        <ButtonModal text="Edit Card">
-          <AddFlashcard
-            flashcard={cards[cardIndex]}
-            onSuccess={() => LoadCards(cardIndex)}
-          />
-        </ButtonModal>
-      </div>
-    );
-  };
-
-  const AddCard = () => {
-    let blankCard: IFlashcard = {
-      topicId: cards[cardIndex].topicId,
-      question: "",
-      answer: "",
-      topic: cards[cardIndex].topic,
-    };
-
-    return (
-      <div className={styles.navigation}>
-        <ButtonModal text="Add Flashcard">
-          <AddFlashcard
-            flashcard={blankCard}
-            onSuccess={() => LoadCards(cards.length)}
-          />
-        </ButtonModal>
-      </div>
-    );
-  };
-
-  if (!isLoading && (!cards || cards.length < 1)) {
-    return (
-      <div>
         <h1>No cards found!</h1>
+        <Button disabled={isEdit} onClick={AddCard} className="w-28">
+          Add Card
+        </Button>
       </div>
     );
-  }
-
-  if (isLoading) {
-    return <LoadingSpinner />;
   }
 
   return (
-    <div className={styles.flashcardView}>
-      <TopicTitle topic={title} />
-      <div className={styles.topButtons}>
-        <Navigation />
-        <div className={styles.topRightButtons}>
-          <EditCard />
-          <AddCard />
+    <div
+      className={`${roboto.className} mb-36 flex h-full w-4/6 max-w-3xl flex-col items-center justify-center gap-6 text-2xl`}
+    >
+      <div className="flex w-full justify-between">
+        <div className="flex w-full justify-start gap-3">
+          <AddDeck />
+        </div>
+        <div className="flex w-full justify-end gap-3">
+          <Button disabled={isEdit} onClick={ShuffleCards} className="w-28">
+            Shuffle
+          </Button>
+          <Button disabled={isEdit} onClick={EditCard} className="w-28">
+            Edit Card
+          </Button>
         </div>
       </div>
-      <div className={styles.card}>
-        <div className={styles.content}>
-          <Front />
-          <Back />
+
+      {/* Card  */}
+      <FlipCard
+        question={card.question}
+        answer={card.answer}
+        topic={topic || ""}
+        isEditMode={isEdit}
+      />
+
+      {/* Bottom Buttons  */}
+      <div className="flex w-full justify-between gap-1">
+        {/* Previous and Next Buttons  */}
+        <div className="flex w-full justify-start gap-3">
+          <Button
+            disabled={isEdit}
+            onClick={PreviousCard}
+            className="w-20"
+            variant="outline"
+          >
+            Previous
+          </Button>
+          <Button
+            disabled={isEdit}
+            onClick={NextCard}
+            className="w-20"
+            variant="outline"
+          >
+            Next
+          </Button>
+          <p className="ml-3 mt-1 text-lg">
+            {cardIndex.current + 1} / {cards.current.length}
+          </p>
+        </div>
+
+        {/* Add and Delete Buttons  */}
+
+        <div className="flex w-full justify-end gap-3">
+          {isEdit ? (
+            <DiscardDialog onDiscard={onCancelEdit} onCancel={() => null} />
+          ) : (
+            <DeleteButton />
+          )}
+          {isEdit ? (
+            <Button onClick={onSaveCard} className="mt-1 w-28">
+              Submit
+            </Button>
+          ) : (
+            <Button disabled={isEdit} onClick={AddCard} className="w-28">
+              Add Card
+            </Button>
+          )}
         </div>
       </div>
-      <div className={styles.bottomButtons}>
-        <p className={styles.cardNumber}>
-          {cardIndex + 1} / {cards.length}
-        </p>
-        <button onClick={ShuffleCards} className={styles.button}>
-          Shuffle
-        </button>
-        <button onClick={SelectRandomCard} className={styles.button}>
-          Random
-        </button>
-        <ButtonModal text="Rename Topic">
-          <RenameTopic
-            topicId={cards[cardIndex].topicId || ""}
-            topicName={cards[cardIndex].topic}
+
+      {/* Edit Mode Area */}
+      {isEdit && (
+        <div className="flex w-full flex-col justify-between gap-5">
+          <Input
+            autoFocus
+            type="text"
+            placeholder="Question"
+            value={card.question}
+            onChange={onQuestionEdit}
           />
-        </ButtonModal>
-        <Delete />
-      </div>
+          <TextEditor
+            TextEditorCallback={onAnswerEdit}
+            initialText={card.answer}
+          />
+
+          {/* <div className="flex w-full justify-end gap-3">
+            <DiscardDialog onDiscard={onCancelEdit} onCancel={() => null} />
+            <Button onClick={onSaveCard} className="w-28">
+              Submit
+            </Button>
+          </div> */}
+        </div>
+      )}
     </div>
   );
 };

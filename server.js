@@ -3,7 +3,7 @@ const { parse } = require("url");
 const next = require("next");
 
 const dev = process.env.NODE_ENV !== "production";
-const hostname = "localhost";
+const hostname = "127.0.0.1"; //"localhost";
 const port = process.env.WEBSITES_PORT || process.env.PORT || 3000;
 
 console.log(`VAR WEBSITES_PORT: ${process.env.WEBSITES_PORT}`);
@@ -11,7 +11,7 @@ console.log(`VAR PORT: ${process.env.PORT}`);
 console.log(`Using port: ${port}`);
 
 // when using middleware `hostname` and `port` must be provided below
-const app = next({ dev });
+const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
