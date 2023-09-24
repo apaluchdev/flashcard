@@ -4,15 +4,16 @@ import React, { useEffect, useRef, useState } from "react";
 import TextEditor from "../text-editor/text-editor";
 import { Roboto } from "next/font/google";
 import { Button } from "../ui/button";
-import flashcardClient from "@/lib/flashcard-client";
+import flashcardClient from "@/clients/flashcard-client";
 import { IFlashcard } from "@/models/Flashcard";
 import AddDeck from "../add-deck/add-deck";
 import { toast } from "../ui/use-toast";
-import topicClient from "@/lib/topic-client";
+import topicClient from "@/clients/topic-client";
 import FlipCard from "./flip-card";
 import { Input } from "../ui/input";
 import DiscardDialog from "../discard-dialog/discard-dialog";
 import LoadingSpinner from "../loading-spinner/loading-spinner";
+import Topic from "@/models/Topic";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -50,13 +51,16 @@ const Flashcard: React.FC<Props> = ({ userId, topic }) => {
 
   async function LoadCards(index: number = 0) {
     let data: IFlashcard[] =
-      await flashcardClient.GetFlashcardsByUserIdAndTopicAsync(userId, topic);
+      await flashcardClient.GetFlashcardsByUserIdAndTopicTitleAsync(
+        userId,
+        topic,
+      );
 
     cards.current = data.sort((a, b) =>
       (a.order || 0) > (b.order || 0) ? 1 : -1,
     );
 
-    cardIndex.current = 0;
+    cardIndex.current = index;
     setCard(cards.current[cardIndex.current]);
     setLoading(false);
   }
@@ -81,17 +85,18 @@ const Flashcard: React.FC<Props> = ({ userId, topic }) => {
     const isNewCard = card.topicId ? false : true;
 
     if (isNewCard)
-      card.topicId = (await topicClient.GetTopicByUserIdAndTopic(userId, topic))
-        ?._id;
+      card.topicId = (
+        await topicClient.GetTopicByUserIdAndTopicTitle(userId, topic)
+      )?._id;
 
-    const result = await flashcardClient.SaveFlashcard(card);
+    const result = await flashcardClient.UpsertFlashcard(card);
 
     if (result) {
       if (!isNewCard) {
         cards.current.pop(); // Remove old card
         cards.current.push(result); // Add updated card
       } else {
-        cards.current.push(result); // Add new card
+        LoadCards(cards.current.length);
       }
       setIsEdit(false);
       setCard(result);
@@ -120,8 +125,14 @@ const Flashcard: React.FC<Props> = ({ userId, topic }) => {
 
   function DeleteButton() {
     async function DeleteCard() {
-      var isDeleted = await flashcardClient.DeleteCard(card._id || "");
-      if (isDeleted) LoadCards(Math.max(0, cardIndex.current - 1));
+      var isDeleted = await flashcardClient.DeleteFlashcardById(card._id || "");
+      if (isDeleted) {
+        toast({
+          variant: "success",
+          description: "Flashcard deleted.",
+        });
+        LoadCards(Math.max(0, cardIndex.current - 1));
+      }
     }
 
     return (
@@ -137,7 +148,7 @@ const Flashcard: React.FC<Props> = ({ userId, topic }) => {
   }
 
   function ShuffleCards() {
-    if (!cards) return;
+    if (!cards || cards.current.length < 2) return;
     let shuffledCards = cards.current.concat([]);
 
     // Keep shuffling if the first card doesn't change, otherwise users will think nothing happened.
@@ -235,6 +246,9 @@ const Flashcard: React.FC<Props> = ({ userId, topic }) => {
           >
             Next
           </Button>
+          <p className="ml-3 mt-1 text-lg">
+            {cardIndex.current + 1} / {cards.current.length}
+          </p>
         </div>
 
         {/* Add and Delete Buttons  */}

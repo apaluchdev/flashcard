@@ -4,7 +4,6 @@ import "./styles.css";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-
 export default function Page() {
   return (
     <main className={`flex min-h-screen flex-col items-center justify-center`}>
@@ -31,7 +30,7 @@ export default function Page() {
   );
 }
 
-export const Title = () => {
+const Title = () => {
   return (
     <div className="mb-12">
       <h1 className="text-center text-8xl tracking-tighter text-gray-700 fade-in">

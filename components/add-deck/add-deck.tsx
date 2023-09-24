@@ -4,7 +4,6 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/use-toast";
@@ -22,8 +21,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import flashcardClient from "@/lib/flashcard-client";
 import { ITopic } from "@/models/Topic";
+import topicClient from "@/clients/topic-client";
+import { Roboto } from "next/font/google";
+
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: "400",
+});
 
 export default function AddDeck() {
   const router = useRouter();
@@ -46,7 +51,7 @@ export default function AddDeck() {
           userId: "Adrian",
         };
 
-        let savedTopic = await flashcardClient.AddTopicAsync(topic);
+        let savedTopic = await topicClient.UpsertTopic(topic);
 
         if (!savedTopic) throw new Error("Error occurred adding topic");
         else
@@ -63,7 +68,10 @@ export default function AddDeck() {
 
     return (
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form
+          className={`${roboto.className} space-y-8`}
+          onSubmit={form.handleSubmit(onSubmit)}
+        >
           <FormField
             control={form.control}
             name="topicTitle"

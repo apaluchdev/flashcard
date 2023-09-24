@@ -53,13 +53,15 @@ export function FlashcardTable<TData, TValue>({
   });
 
   return (
-    <div>
+    <div className="w-2/4">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          placeholder="Filter topics..."
+          value={
+            (table.getColumn("topicTitle")?.getFilterValue() as string) ?? ""
+          }
           onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
+            table.getColumn("topicTitle")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
