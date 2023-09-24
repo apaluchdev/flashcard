@@ -13,7 +13,6 @@ import FlipCard from "./flip-card";
 import { Input } from "../ui/input";
 import DiscardDialog from "../discard-dialog/discard-dialog";
 import LoadingSpinner from "../loading-spinner/loading-spinner";
-import Topic from "@/models/Topic";
 
 const roboto = Roboto({
   subsets: ["latin"],
