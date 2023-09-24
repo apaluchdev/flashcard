@@ -1,8 +1,8 @@
-import Flashcard from "@/components/flashcard/flashcard";
-
 interface PageProps {
   params: { userId: string; topicTitle: string };
 }
+
+import Flashcard from "@/components/flashcard/flashcard";
 
 export default async function Page({
   params: { userId, topicTitle },

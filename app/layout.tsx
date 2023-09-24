@@ -1,11 +1,11 @@
 import "./globals.css";
 import { Inter, Open_Sans, Quicksand, Roboto } from "next/font/google";
-import Footer from "@/components/footer/Footer";
 import { Toaster } from "@/components/ui/toaster";
 import InitializeMongoose from "@/lib/mongodb";
-import Header from "@/components/header/header";
 
 const inter = Inter({ subsets: ["latin"], weight: "800" });
+
+import Header from "@/components/header/header";
 
 export const metadata = {
   title: "Flashcards",
