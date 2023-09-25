@@ -22,7 +22,9 @@ function TopicFinder() {
   async function LoadData() {
     try {
       console.log("Loading topics!");
-      setTopics(await topicClient.GetTopics());
+      const foundTopics = await topicClient.GetTopics();
+      console.log(foundTopics);
+      setTopics(foundTopics);
     } catch (err) {
       console.log(err);
     }
