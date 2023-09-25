@@ -4,9 +4,8 @@ import Topic, { ITopic } from "@/models/Topic";
 // READ
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
-    console.log("Finding topics!");
-    const topics = await Topic.find({ userId: "Adrian" });
-    console.log(`Found topics: ${topics}`);
+    const topics = await Topic.find();
+
     return NextResponse.json({ topics }, { status: 200 });
   } catch (error) {
     console.log(`Error in API GET for topics ${error}`);

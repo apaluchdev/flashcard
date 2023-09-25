@@ -10,7 +10,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     const topicId = searchParams.get("topicId");
 
-    if (topicId) var topic = await Topic.find({ _id: topicId });
+    if (topicId) var topic = await Topic.find({ }); //    if (topicId) var topic = await Topic.find({ _id: topicId });
     else throw new Error("Topic Id not found");
 
     return NextResponse.json({ topic }, { status: 200 });
