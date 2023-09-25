@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
     const userId = searchParams.get("userId");
     const topicTitle = searchParams.get("topicTitle");
 
+    console.log("Getting flashcards!");
     if (!userId || !topicTitle) throw new Error("Invalid request");
 
     return await GetFlashcardsByUserIdAndTopicTitle(userId, topicTitle);
