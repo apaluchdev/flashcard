@@ -2,12 +2,12 @@ import Flashcard from "@/models/Flashcard";
 import { NextRequest, NextResponse } from "next/server";
 
 // DELETE
-export async function DELETE(req: NextRequest) {
+export async function DELETE(req: NextRequest): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
 
-    if (!id) return;
+    if (!id) throw Error("Flashcard not found.");
 
     await Flashcard.deleteOne({ _id: id });
 

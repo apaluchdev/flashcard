@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import Flashcard, { IFlashcard } from "@/models/Flashcard";
 import Topic, { ITopic } from "@/models/Topic";
 
 // READ
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     console.log("Finding topics!");
-    const topics = await Topic.find();
+    const topics: ITopic[] = await Topic.find();
     console.log(`Found topics: ${topics}`);
     return NextResponse.json({ topics }, { status: 200 });
   } catch (error) {
