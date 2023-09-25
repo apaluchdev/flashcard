@@ -1,14 +1,31 @@
+"use client";
+
 import Topic, { ITopic } from "@/models/Topic";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { columns } from "../flashcard-table/columns";
 import { FlashcardTable } from "../flashcard-table/flashcard-table";
+import topicClient from "@/clients/topic-client";
 
-async function TopicFinder() {
-  const data: ITopic[] = await Topic.find().lean();
-  data.forEach((x) => (x._id = x._id?.toString())); // Simplify complex server side objects
+function TopicFinder() {
+  // const data: ITopic[] = await Topic.find().lean();
+  // data.forEach((x) => (x._id = x._id?.toString())); // Simplify complex server side objects
+
+  const [topics, setTopics] = useState<ITopic[]>([]);
+  useEffect(() => {
+    const GetData = async () => {
+      await LoadData();
+    };
+
+    GetData();
+  }, []);
+
+  async function LoadData() {
+    setTopics(await topicClient.GetTopics());
+  }
+
   return (
     <div className="flex w-full justify-center">
-      <FlashcardTable columns={columns} data={data} />
+      <FlashcardTable columns={columns} data={topics} />
     </div>
   );
 }
