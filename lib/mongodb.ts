@@ -1,17 +1,12 @@
 import mongoose from "mongoose";
 
-let initialized: boolean = false;
-
 export default function InitializeMongoose() {
-  if (initialized) return;
-
   console.log("Mongoose initializing...");
 
   const MONGODB_URI =
     process.env.MONGODB_KEY || "mongodb://localhost:27017/my-mongo-db"; // Replace with your MongoDB connection string
 
   var options = {
-    useMongoClient: true,
     autoIndex: false, // Don't build indexes
     reconnectTries: Number.MAX_VALUE, // Never stop trying to reconnect
     reconnectInterval: 500, // Reconnect every 500ms
@@ -21,9 +16,7 @@ export default function InitializeMongoose() {
   };
 
   mongoose
-    .connect(MONGODB_URI, options)
+    .connect(MONGODB_URI)
     .then((result) => console.log("Mongoose connected"))
     .catch((error) => console.log("Mongoose error: " + error));
-
-  initialized = true;
 }
