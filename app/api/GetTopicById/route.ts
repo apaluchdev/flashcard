@@ -5,6 +5,7 @@ import Topic, { ITopic } from "@/models/Topic";
 // READ
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
+    console.log("Getting topic by id");
     const { searchParams } = new URL(req.url);
 
     const topicId = searchParams.get("topicId");
