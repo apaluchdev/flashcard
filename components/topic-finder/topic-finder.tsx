@@ -20,7 +20,12 @@ function TopicFinder() {
   }, []);
 
   async function LoadData() {
-    setTopics(await topicClient.GetTopics());
+    try {
+      console.log("Loading topics!");
+      setTopics(await topicClient.GetTopics());
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   return (
