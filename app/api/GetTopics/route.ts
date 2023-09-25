@@ -6,6 +6,7 @@ import Topic, { ITopic } from "@/models/Topic";
 export async function GET(req: NextRequest) {
   try {
     const topics = await Topic.find();
+    console.log(`Found topics: ${topics}`);
     return NextResponse.json({ topics }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ msg: "Error fetching topic" }, { status: 500 });
