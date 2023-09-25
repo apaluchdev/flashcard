@@ -14,10 +14,7 @@ const topicClient = {
   },
 
   async GetTopics(): Promise<ITopic[]> {
-    console.log("Making request");
     let result = await fetch(`/api/GetTopics`);
-    let result2 = await fetch(`/api/GetTopicsById?topicId=123123`);
-    console.log("Returned from request");
     const resultJson = await result.json();
     return resultJson.topics;
   },
