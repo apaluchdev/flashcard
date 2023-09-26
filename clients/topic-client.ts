@@ -14,7 +14,7 @@ const topicClient = {
   },
 
   async GetTopics(): Promise<ITopic[]> {
-    let result = await fetch(`/api/GetTopics`, { cache: "no-store" });
+    let result = await fetch(`/api/GetTopics`, { next: { revalidate: 60 } });
     const resultJson = await result.json();
     return resultJson.topics;
   },
