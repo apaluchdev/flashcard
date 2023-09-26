@@ -1,5 +1,5 @@
 //import Flashcard from "./test/flashcard";
-import Flashcard from "@/components/flashcard/flashcard";
+import Flashcard from "@/components/flashcard-card/flashcard";
 
 interface PageProps {
   params: { userId: string; topicTitle: string };
