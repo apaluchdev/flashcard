@@ -7,8 +7,7 @@ export async function GET(
   res: NextResponse,
 ): Promise<NextResponse> {
   try {
-    res.headers.set("Cache-Control", "no-store");
-    const topics = await Topic.find();
+    const topics = await Topic.find({});
     //redeploy testing
     return NextResponse.json({ topics }, { status: 200 });
   } catch (error) {
