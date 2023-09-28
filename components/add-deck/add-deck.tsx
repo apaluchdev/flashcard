@@ -97,7 +97,9 @@ export default function AddDeck() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline">New Deck</Button>
+        <Button className="w-36" variant="outline">
+          New Topic
+        </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80">
         <AddDeckForm />

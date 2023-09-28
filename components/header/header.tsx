@@ -1,20 +1,47 @@
+"use client";
+
+import * as React from "react";
 import Link from "next/link";
-import { Roboto } from "next/font/google";
-import { Button } from "../ui/button";
 
-const roboto = Roboto({ subsets: ["latin"], weight: "300" });
+import { cn } from "@/lib/utils";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+import { usePathname } from "next/navigation";
 
-export default function Header() {
+export function Header() {
+  const currentRoute = usePathname();
+
   return (
-    <header className={`${roboto.className} fixed z-50 min-w-full`}>
-      <div className="flex justify-start">
-        <Button variant="ghost" className="text-lg font-bold tracking-tight">
-          <Link href="/">Home</Link>
-        </Button>
-        <Button variant="ghost" className="text-lg font-bold tracking-tight">
-          <Link href="/topics">Topics</Link>
-        </Button>
-      </div>
-    </header>
+    <NavigationMenu className={`fixed z-50`}>
+      <NavigationMenuList>
+        <NavigationMenuItem>
+          <Link href="/" legacyBehavior passHref>
+            <NavigationMenuLink
+              className={`${navigationMenuTriggerStyle()} ${
+                currentRoute == "/" ? "bg-accent" : "bg-inherit"
+              }`}
+            >
+              <p className="text-lg">Home</p>
+            </NavigationMenuLink>
+          </Link>
+          <Link href="/topics" legacyBehavior passHref>
+            <NavigationMenuLink
+              className={`${navigationMenuTriggerStyle()} ${
+                currentRoute == "/topics" ? "bg-accent" : "bg-inherit"
+              }`}
+            >
+              <p className="text-lg">Topics</p>
+            </NavigationMenuLink>
+          </Link>
+        </NavigationMenuItem>
+      </NavigationMenuList>
+    </NavigationMenu>
   );
 }
+
+export default Header;

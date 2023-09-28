@@ -17,7 +17,7 @@ const CardFace: React.FC<CardFaceProps> = ({ question, answer, topic }) => {
   return (
     <div className="w-full">
       <CardHeader className="w-full text-center">
-        <CardDescription>{topic}</CardDescription>
+        <CardDescription>{topic.replace(/%20/g, " ")}</CardDescription>
         <CardTitle className="whitespace-normal break-words text-4xl">
           {question}
         </CardTitle>

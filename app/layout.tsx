@@ -21,7 +21,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      {/* <body className={`${quicksand.className} text-red-500`}> */}
       <body className={`${inter.className} fancy-scroll`}>
         <Header />
         <div className="h-screen pb-12 pt-12">{children}</div>

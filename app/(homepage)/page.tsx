@@ -19,13 +19,15 @@ export default function Page() {
       <h2 className="mt-32 scroll-m-20 border-b pb-2 text-2xl tracking-tight text-gray-800 transition-colors fade-in first:mt-0">
         Created by Adrian Paluch
       </h2>
-      <Image
-        className="mt-6 rounded-full fade-in"
-        src="/adrian.png"
-        width={160}
-        height={160}
-        alt="Picture of the author"
-      />
+      <Link href="https://www.linkedin.com/in/adrian-paluch-675b32178/">
+        <Image
+          className="mt-6 rounded-full fade-in"
+          src="/adrian.png"
+          width={160}
+          height={160}
+          alt="Picture of the author"
+        />
+      </Link>
     </main>
   );
 }

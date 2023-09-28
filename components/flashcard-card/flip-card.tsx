@@ -32,7 +32,6 @@ const FlipCard: React.FC<SimpleComponentProps> = ({
         className={`${styles.card} ${styles.cardHover} 
         
         ${!isFlipped && !isEditMode && styles.rightFlip}
-        ${isFlipped && !isEditMode && styles.leftFlip}
         ${(isEditMode || isFlipped) && styles.isFlipped}`}
       >
         <div className={styles.front}>
