@@ -1,0 +1,6 @@
+Card needs to flip to question when clicking next/prev
+Use URL state for flip condition
+Change question text size based on length
+Flashcards fetch serverside
+bookmarking flashcards that are hard
+fix the stuttering when moving cards in the flipped state

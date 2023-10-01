@@ -11,7 +11,10 @@
   },
   "dependencies": {
     "@azure/cosmos": "^3.17.3",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
     "@hookform/resolvers": "^3.3.1",
+    "@mui/material": "^5.14.11",
     "@primer/octicons-react": "^19.4.0",
     "@radix-ui/react-alert-dialog": "^1.0.4",
     "@radix-ui/react-checkbox": "^1.0.4",

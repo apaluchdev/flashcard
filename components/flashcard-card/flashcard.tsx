@@ -13,6 +13,16 @@ import FlipCard from "./flip-card";
 import { Input } from "../ui/input";
 import DiscardDialog from "../discard-dialog/discard-dialog";
 import LoadingSpinner from "../loading-spinner/loading-spinner";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Edit,
+  PlusSquare,
+  Save,
+  Shuffle,
+  Trash2,
+} from "lucide-react";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -20,33 +30,33 @@ const roboto = Roboto({
 });
 
 interface Props {
+  flashcardData: IFlashcard[];
   userId: string;
   topic: string;
 }
 
-const Flashcard: React.FC<Props> = ({ userId, topic }) => {
+const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [card, setCard] = useState<IFlashcard>({ question: "", answer: "" });
   const [loading, setLoading] = useState<boolean>(true);
   const cards = useRef<IFlashcard[]>([]);
   const cardIndex = useRef<number>(0);
   const originalCard = useRef<IFlashcard>({ question: "", answer: "" }); // Used to revert edits
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const GetData = async () => {
-      await LoadCards();
-    };
-
-    GetData();
+    cardIndex.current = parseInt(searchParams.get("cardIndex") || "0");
+    cards.current = flashcardData;
+    setCard(cards.current[cardIndex.current]);
+    setLoading(false);
   }, []);
 
-  function onQuestionEdit(event: { target: { value: any } }) {
-    setCard({ ...card, question: event.target.value });
-  }
-
-  function onAnswerEdit(answer: string) {
-    setCard({ ...card, answer: answer });
-  }
+  useEffect(() => {
+    router.push(`?cardIndex=${cardIndex.current}`, {
+      scroll: false,
+    });
+  }, [cardIndex.current, router]);
 
   async function LoadCards(index: number = 0) {
     let data: IFlashcard[] =
@@ -60,7 +70,9 @@ const Flashcard: React.FC<Props> = ({ userId, topic }) => {
     );
 
     cardIndex.current = index;
-    setCard(cards.current[cardIndex.current]);
+
+    // cardIndex.current = index;
+    setCard(cards.current[index]);
     setLoading(false);
   }
 
@@ -115,11 +127,9 @@ const Flashcard: React.FC<Props> = ({ userId, topic }) => {
     setIsEdit(false);
 
     setCard(originalCard.current);
-    // If card has topicId, it must have been an edit
-    if (card.topicId) return;
 
-    // Cancelled adding a card, remove it
-    setCard(cards.current[cards.current.length - 1]);
+    // Cancelled adding a new card, remove it
+    if (!card.topicId) setCard(cards.current[cards.current.length - 1]);
   }
 
   function DeleteButton() {
@@ -136,12 +146,12 @@ const Flashcard: React.FC<Props> = ({ userId, topic }) => {
 
     return (
       <Button
-        className="w-28"
+        className="w-15"
         disabled={isEdit}
         onClick={DeleteCard}
         variant="destructive"
       >
-        Delete
+        <Trash2 />
       </Button>
     );
   }
@@ -165,7 +175,7 @@ const Flashcard: React.FC<Props> = ({ userId, topic }) => {
     setCard(cards.current[0]);
   }
 
-  function NextCard() {
+  async function NextCard() {
     cardIndex.current = Math.min(
       cardIndex.current + 1,
       cards.current.length - 1,
@@ -173,7 +183,7 @@ const Flashcard: React.FC<Props> = ({ userId, topic }) => {
     setCard(cards.current[cardIndex.current]);
   }
 
-  function PreviousCard() {
+  async function PreviousCard() {
     cardIndex.current = Math.max(0, cardIndex.current - 1);
     setCard(cards.current[cardIndex.current]);
   }
@@ -201,76 +211,39 @@ const Flashcard: React.FC<Props> = ({ userId, topic }) => {
 
   return (
     <div
-      className={`${roboto.className} mb-36 flex h-full w-4/6 max-w-3xl flex-col items-center justify-center gap-6 text-2xl`}
+      className={`${roboto.className} min-w-content mb-36 flex h-full w-4/5 max-w-3xl flex-col items-center justify-center gap-6`}
     >
       <div className="flex w-full justify-between">
         <div className="flex w-full justify-start gap-3">
           <AddDeck />
         </div>
         <div className="flex w-full justify-end gap-3">
-          <Button disabled={isEdit} onClick={ShuffleCards} className="w-28">
-            Shuffle
+          <Button disabled={isEdit} onClick={ShuffleCards} className="w-15">
+            <Shuffle />
           </Button>
-          <Button disabled={isEdit} onClick={EditCard} className="w-28">
-            Edit Card
+          <Button disabled={isEdit} onClick={EditCard} className="w-15">
+            <Edit />
           </Button>
         </div>
       </div>
 
       {/* Card  */}
       <FlipCard
-        question={card.question}
-        answer={card.answer}
-        topic={topic || ""}
+        flashcard={{
+          question: card.question,
+          answer: card.answer,
+          topic: topic || "",
+        }}
         isEditMode={isEdit}
       />
 
       {/* Bottom Buttons  */}
       <div className="flex w-full justify-between gap-1">
-        {/* Previous and Next Buttons  */}
-        <div className="flex w-full justify-start gap-3">
-          <Button
-            disabled={isEdit}
-            onClick={PreviousCard}
-            className="w-20"
-            variant="outline"
-          >
-            Previous
-          </Button>
-          <Button
-            disabled={isEdit}
-            onClick={NextCard}
-            className="w-20"
-            variant="outline"
-          >
-            Next
-          </Button>
-          <p className="ml-3 mt-1 text-lg">
-            {cardIndex.current + 1} / {cards.current.length}
-          </p>
-        </div>
-
-        {/* Add and Delete Buttons  */}
-
-        <div className="flex w-full justify-end gap-3">
-          {isEdit ? (
-            <DiscardDialog onDiscard={onCancelEdit} onCancel={() => null} />
-          ) : (
-            <DeleteButton />
-          )}
-          {isEdit ? (
-            <Button onClick={onSaveCard} className="mt-1 w-28">
-              Submit
-            </Button>
-          ) : (
-            <Button disabled={isEdit} onClick={AddCard} className="w-28">
-              Add Card
-            </Button>
-          )}
-        </div>
+        <PreviousAndNextButtons />
+        <AddAndDeleteButtons />
       </div>
 
-      {/* Edit Mode Area */}
+      {/* Bottom Edit Mode Area */}
       {isEdit && (
         <div className="flex w-full flex-col justify-between gap-5">
           <Input
@@ -278,23 +251,67 @@ const Flashcard: React.FC<Props> = ({ userId, topic }) => {
             type="text"
             placeholder="Question"
             value={card.question}
-            onChange={onQuestionEdit}
+            onChange={(event) =>
+              setCard({ ...card, question: event.target.value })
+            }
           />
           <TextEditor
-            TextEditorCallback={onAnswerEdit}
+            TextEditorCallback={(answer: string) =>
+              setCard({ ...card, answer: answer })
+            }
             initialText={card.answer}
           />
-
-          {/* <div className="flex w-full justify-end gap-3">
-            <DiscardDialog onDiscard={onCancelEdit} onCancel={() => null} />
-            <Button onClick={onSaveCard} className="w-28">
-              Submit
-            </Button>
-          </div> */}
         </div>
       )}
     </div>
   );
+
+  function PreviousAndNextButtons() {
+    return (
+      <div className="flex w-full gap-3">
+        <Button
+          disabled={isEdit}
+          onClick={PreviousCard}
+          className="w-10"
+          variant="outline"
+        >
+          <ChevronLeft className="absolute" />
+        </Button>
+        <Button
+          disabled={isEdit}
+          onClick={NextCard}
+          className="w-10"
+          variant="outline"
+        >
+          <ChevronRight className="absolute" />
+        </Button>
+        <p className="mt-2.5 text-sm">
+          {cardIndex.current + 1} / {cards.current.length}
+        </p>
+      </div>
+    );
+  }
+
+  function AddAndDeleteButtons() {
+    return (
+      <div className="flex w-full justify-end gap-3">
+        {isEdit ? (
+          <DiscardDialog onDiscard={onCancelEdit} onCancel={() => null} />
+        ) : (
+          <DeleteButton />
+        )}
+        {isEdit ? (
+          <Button onClick={onSaveCard} className="w-15">
+            <Save />
+          </Button>
+        ) : (
+          <Button disabled={isEdit} onClick={AddCard} className="w-15">
+            <PlusSquare />
+          </Button>
+        )}
+      </div>
+    );
+  }
 };
 
 export default Flashcard;

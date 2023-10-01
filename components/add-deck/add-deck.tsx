@@ -24,6 +24,7 @@ import {
 import { ITopic } from "@/models/Topic";
 import topicClient from "@/clients/topic-client";
 import { Roboto } from "next/font/google";
+import { PackagePlus } from "lucide-react";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -97,8 +98,8 @@ export default function AddDeck() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className="w-36" variant="outline">
-          New Topic
+        <Button className="w-15" variant="outline">
+          <PackagePlus />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80">

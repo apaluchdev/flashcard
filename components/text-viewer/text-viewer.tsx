@@ -19,7 +19,8 @@ const TextViewer: React.FC<Props> = ({ text }) => {
       <ReactQuill
         theme="bubble"
         modules={modules}
-        className="h-full border-none"
+        readOnly={true}
+        className="h-full cursor-pointer select-none border-none"
         value={text}
       />
     </div>

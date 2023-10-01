@@ -1,24 +1,25 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./flip-card.module.css";
 import CardFace from "./cardface";
 import { Card } from "../ui/card";
+import { IFlashcard } from "@/models/Flashcard";
+import { useRouter, useSearchParams } from "next/navigation";
 
-interface SimpleComponentProps {
-  question: string;
-  answer: string;
-  topic: string;
+interface Props {
+  flashcard: IFlashcard;
   isEditMode: boolean;
 }
 
-const FlipCard: React.FC<SimpleComponentProps> = ({
-  question,
-  answer,
-  topic,
-  isEditMode,
-}) => {
+const FlipCard: React.FC<Props> = ({ flashcard, isEditMode }) => {
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
+  const searchParams = useSearchParams();
+  const cardIndex = useRef<number>(0);
 
-  // if (isEditMode) setIsFlipped(true);
+  if (cardIndex.current != parseInt(searchParams.get("cardIndex") || "0")) {
+    setIsFlipped(false);
+  }
+
+  cardIndex.current = parseInt(searchParams.get("cardIndex") || "0");
 
   return (
     <div
@@ -28,17 +29,29 @@ const FlipCard: React.FC<SimpleComponentProps> = ({
       {/* When not flipped, and not currently editing, lift the card slightly to the right */}
       {/* When flipped, and not editing, lift the card slightly to the left */}
       {/* When in edit mode or clicked - flip the card */}
+      {/* ${!isFlipped && styles.fastFlip} */}
       <Card
-        className={`${styles.card} ${styles.cardHover} 
+        className={`
+        ${isFlipped && styles.slowFlip}
         
+        ${styles.card} ${styles.cardHover}        
         ${!isFlipped && !isEditMode && styles.rightFlip}
-        ${(isEditMode || isFlipped) && styles.isFlipped}`}
+        ${(isEditMode || isFlipped) && styles.isFlipped}
+        `}
       >
         <div className={styles.front}>
-          <CardFace question={question} answer={""} topic={topic} />
+          <CardFace
+            question={flashcard.question}
+            answer={""}
+            topic={flashcard.topic || ""}
+          />
         </div>
         <div className={styles.back}>
-          <CardFace question={question} answer={answer} topic={topic} />
+          <CardFace
+            question={flashcard.question}
+            answer={flashcard.answer}
+            topic={flashcard.topic || ""} // make this accept IFlashcard too
+          />
         </div>
       </Card>
     </div>

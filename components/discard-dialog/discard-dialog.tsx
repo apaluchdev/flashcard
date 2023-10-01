@@ -11,6 +11,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "../ui/button";
+import { Trash2, X } from "lucide-react";
 
 interface SimpleComponentProps {
   onCancel: Function;
@@ -31,8 +32,8 @@ const DiscardDialog: React.FC<SimpleComponentProps> = ({
   return (
     <AlertDialog>
       <AlertDialogTrigger>
-        <Button onClick={handleCancel} variant="outline">
-          Cancel
+        <Button onClick={handleCancel} className="w-15" variant="outline">
+          <X />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
