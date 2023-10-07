@@ -17,7 +17,7 @@ import {
 import { Roboto } from "next/font/google";
 import { toast } from "../ui/use-toast";
 import { IUser } from "@/models/User";
-import { useSession } from "next-auth/react";
+//import { useSession } from "next-auth/react";
 import userClient from "@/clients/user-client";
 
 const roboto = Roboto({
@@ -26,7 +26,7 @@ const roboto = Roboto({
 });
 
 export default function UpdateUsername() {
-  const { data: session } = useSession();
+  //const { data: session } = useSession();
   const router = useRouter();
   const formSchema = z.object({
     username: z.string().min(2).max(80),
