@@ -39,6 +39,7 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [card, setCard] = useState<IFlashcard>({ question: "", answer: "" });
   const [loading, setLoading] = useState<boolean>(true);
+  const [isCardNavigation, setIsCardNavigation] = useState<boolean>(false);
   const cards = useRef<IFlashcard[]>([]);
   const cardIndex = useRef<number>(0);
   const originalCard = useRef<IFlashcard>({ question: "", answer: "" }); // Used to revert edits
@@ -180,12 +181,19 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
       cardIndex.current + 1,
       cards.current.length - 1,
     );
-    setCard(cards.current[cardIndex.current]);
+    setIsCardNavigation(!isCardNavigation);
+    //setCard(cards.current[cardIndex.current]);
   }
 
   async function PreviousCard() {
     cardIndex.current = Math.max(0, cardIndex.current - 1);
+    setIsCardNavigation(!isCardNavigation);
+    //setCard(cards.current[cardIndex.current]);
+  }
+
+  function UpdateCard() {
     setCard(cards.current[cardIndex.current]);
+    setIsCardNavigation(!isCardNavigation);
   }
 
   if (loading)
@@ -235,6 +243,7 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
           topic: topic || "",
         }}
         isEditMode={isEdit}
+        onFlipCompleted={UpdateCard}
       />
 
       {/* Bottom Buttons  */}

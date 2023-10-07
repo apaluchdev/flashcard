@@ -1,13 +1,11 @@
 import "./globals.css";
 import { Inter, Open_Sans, Quicksand, Roboto } from "next/font/google";
 import { Toaster } from "@/components/ui/toaster";
-import InitializeMongoose from "@/lib/mongodb";
-
-InitializeMongoose();
 
 const inter = Inter({ subsets: ["latin"], weight: "800" });
 
 import Header from "@/components/header/header";
+import Providers from "@/components/providers/providers";
 
 export const metadata = {
   title: "Flashcards",
@@ -23,7 +21,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} fancy-scroll`}>
         <Header />
+        {/* <Providers> */}
         <div className="h-screen pb-12 pt-12">{children}</div>
+        {/* </Providers> */}
         {/* <Footer /> */}
         <Toaster />
       </body>

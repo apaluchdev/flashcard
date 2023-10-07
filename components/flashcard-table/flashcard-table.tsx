@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import React from "react";
 import AddDeck from "../add-deck/add-deck";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface FlashcardTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -126,14 +127,14 @@ export function FlashcardTable<TData, TValue>({
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            Previous
+            <ChevronLeft className="absolute" />
           </Button>
           <Button
             variant="outline"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            Next
+            <ChevronRight className="absolute" />
           </Button>
         </div>
       </div>

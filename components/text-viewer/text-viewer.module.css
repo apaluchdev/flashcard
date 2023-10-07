@@ -1,5 +1,5 @@
 .text p {
-  @apply text-lg;
+  @apply text-sm;
 }
 .text h1 {
   @apply text-3xl;

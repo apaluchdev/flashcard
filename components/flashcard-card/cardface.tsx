@@ -18,7 +18,7 @@ const CardFace: React.FC<CardFaceProps> = ({ question, answer, topic }) => {
     <div>
       <CardHeader className="text-center">
         <CardDescription>{decodeURIComponent(topic)}</CardDescription>
-        <CardTitle className="whitespace-normal break-words text-4xl">
+        <CardTitle className="whitespace-normal break-words text-xl md:text-4xl">
           {question}
         </CardTitle>
       </CardHeader>

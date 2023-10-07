@@ -8,15 +8,25 @@ import { useRouter, useSearchParams } from "next/navigation";
 interface Props {
   flashcard: IFlashcard;
   isEditMode: boolean;
+  onFlipCompleted: Function;
 }
 
-const FlipCard: React.FC<Props> = ({ flashcard, isEditMode }) => {
+const FlipCard: React.FC<Props> = ({
+  flashcard,
+  isEditMode,
+  onFlipCompleted,
+}) => {
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
   const searchParams = useSearchParams();
   const cardIndex = useRef<number>(0);
 
+  useEffect(() => {
+    if (!isFlipped) onFlipCompleted();
+  }, [isFlipped]);
+
   if (cardIndex.current != parseInt(searchParams.get("cardIndex") || "0")) {
     setIsFlipped(false);
+    onFlipCompleted();
   }
 
   cardIndex.current = parseInt(searchParams.get("cardIndex") || "0");
@@ -31,10 +41,8 @@ const FlipCard: React.FC<Props> = ({ flashcard, isEditMode }) => {
       {/* When in edit mode or clicked - flip the card */}
       {/* ${!isFlipped && styles.fastFlip} */}
       <Card
-        className={`
-        ${isFlipped && styles.slowFlip}
-        
-        ${styles.card} ${styles.cardHover}        
+        className={`         
+        ${styles.card}       
         ${!isFlipped && !isEditMode && styles.rightFlip}
         ${(isEditMode || isFlipped) && styles.isFlipped}
         `}
@@ -46,12 +54,14 @@ const FlipCard: React.FC<Props> = ({ flashcard, isEditMode }) => {
             topic={flashcard.topic || ""}
           />
         </div>
-        <div className={styles.back}>
-          <CardFace
-            question={flashcard.question}
-            answer={flashcard.answer}
-            topic={flashcard.topic || ""} // make this accept IFlashcard too
-          />
+        <div className={`${styles.back}`}>
+          {isFlipped && (
+            <CardFace
+              question={flashcard.question}
+              answer={flashcard.answer}
+              topic={flashcard.topic || ""} // make this accept IFlashcard too
+            />
+          )}
         </div>
       </Card>
     </div>
