@@ -23,6 +23,7 @@ import {
   Shuffle,
   Trash2,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -45,6 +46,8 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
   const originalCard = useRef<IFlashcard>({ question: "", answer: "" }); // Used to revert edits
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session } = useSession();
+  const isSignedIn = Boolean(session?.user);
 
   useEffect(() => {
     cardIndex.current = parseInt(searchParams.get("cardIndex") || "0");
@@ -101,22 +104,25 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
         await topicClient.GetTopicByUserIdAndTopicTitle(userId, topic)
       )?._id;
 
-    const result = await flashcardClient.UpsertFlashcard(card);
-
-    if (result) {
-      if (!isNewCard) {
-        cards.current.pop(); // Remove old card
-        cards.current.push(result); // Add updated card
+    try {
+      const result = await flashcardClient.UpsertFlashcard(card);
+      if (result) {
+        if (!isNewCard) {
+          cards.current.pop(); // Remove old card
+          cards.current.push(result); // Add updated card
+        } else {
+          LoadCards(cards.current.length);
+        }
+        setIsEdit(false);
+        setCard(result);
+        toast({
+          variant: "success",
+          description: "Flashcard saved!",
+        });
       } else {
-        LoadCards(cards.current.length);
+        throw new Error("Error occurred saving flashcard");
       }
-      setIsEdit(false);
-      setCard(result);
-      toast({
-        variant: "success",
-        description: "Flashcard saved!",
-      });
-    } else {
+    } catch {
       toast({
         variant: "destructive",
         description: "An error occurred.",
@@ -148,7 +154,7 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
     return (
       <Button
         className="w-15"
-        disabled={isEdit}
+        disabled={!isSignedIn || isEdit}
         onClick={DeleteCard}
         variant="destructive"
       >
@@ -229,7 +235,11 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
           <Button disabled={isEdit} onClick={ShuffleCards} className="w-15">
             <Shuffle />
           </Button>
-          <Button disabled={isEdit} onClick={EditCard} className="w-15">
+          <Button
+            disabled={!isSignedIn || isEdit}
+            onClick={EditCard}
+            className="w-15"
+          >
             <Edit />
           </Button>
         </div>
@@ -310,11 +320,19 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
           <DeleteButton />
         )}
         {isEdit ? (
-          <Button onClick={onSaveCard} className="w-15">
+          <Button
+            disabled={!isSignedIn} // Api also denies if user not signed in
+            onClick={onSaveCard}
+            className="w-15"
+          >
             <Save />
           </Button>
         ) : (
-          <Button disabled={isEdit} onClick={AddCard} className="w-15">
+          <Button
+            disabled={!isSignedIn || isEdit}
+            onClick={AddCard}
+            className="w-15"
+          >
             <PlusSquare />
           </Button>
         )}

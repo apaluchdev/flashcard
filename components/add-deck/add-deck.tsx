@@ -25,6 +25,7 @@ import { ITopic } from "@/models/Topic";
 import topicClient from "@/clients/topic-client";
 import { Roboto } from "next/font/google";
 import { PackagePlus } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -33,6 +34,7 @@ const roboto = Roboto({
 
 export default function AddDeck() {
   const router = useRouter();
+  const { data: session } = useSession();
   const formSchema = z.object({
     topicTitle: z.string().min(2).max(80),
   });
@@ -98,7 +100,11 @@ export default function AddDeck() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className="w-15" variant="outline">
+        <Button
+          disabled={!Boolean(session?.user)}
+          className="w-15"
+          variant="outline"
+        >
           <PackagePlus />
         </Button>
       </PopoverTrigger>

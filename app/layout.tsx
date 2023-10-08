@@ -21,9 +21,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} fancy-scroll`}>
         <Header />
-        {/* <Providers> */}
-        <div className="h-screen pb-12 pt-12">{children}</div>
-        {/* </Providers> */}
+        <Providers>
+          <div className="h-screen pb-12 pt-12">{children}</div>
+        </Providers>
         {/* <Footer /> */}
         <Toaster />
       </body>

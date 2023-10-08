@@ -14,7 +14,7 @@ export default function Page() {
     <main className={`flex min-h-screen flex-col items-center justify-center`}>
       <Title />
       <div className="mt-12 flex flex-col items-center justify-center gap-5 fade-in">
-        {/* <SignInButton /> */}
+        <SignInButton />
         <Button>
           {" "}
           <Link href="/topics">Continue as Guest</Link>

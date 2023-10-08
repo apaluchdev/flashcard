@@ -55,7 +55,7 @@ const FlipCard: React.FC<Props> = ({
           />
         </div>
         <div className={`${styles.back}`}>
-          {isFlipped && (
+          {(isFlipped || isEditMode) && (
             <CardFace
               question={flashcard.question}
               answer={flashcard.answer}
