@@ -47,8 +47,10 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session } = useSession();
-  const isSignedIn = Boolean(session?.user);
+  const userOwnsDeck =
+    Boolean(session?.user) && session?.user.username == userId;
 
+  console.log("Does user own deck? " + userOwnsDeck);
   useEffect(() => {
     cardIndex.current = parseInt(searchParams.get("cardIndex") || "0");
     cards.current = flashcardData;
@@ -154,7 +156,7 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
     return (
       <Button
         className="w-15"
-        disabled={!isSignedIn || isEdit}
+        disabled={!userOwnsDeck || isEdit}
         onClick={DeleteCard}
         variant="destructive"
       >
@@ -236,7 +238,7 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
             <Shuffle />
           </Button>
           <Button
-            disabled={!isSignedIn || isEdit}
+            disabled={!userOwnsDeck || isEdit}
             onClick={EditCard}
             className="w-15"
           >
@@ -321,7 +323,7 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
         )}
         {isEdit ? (
           <Button
-            disabled={!isSignedIn} // Api also denies if user not signed in
+            disabled={!userOwnsDeck} // Api also denies if user not signed in
             onClick={onSaveCard}
             className="w-15"
           >
@@ -329,7 +331,7 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
           </Button>
         ) : (
           <Button
-            disabled={!isSignedIn || isEdit}
+            disabled={!userOwnsDeck || isEdit}
             onClick={AddCard}
             className="w-15"
           >

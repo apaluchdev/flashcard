@@ -4,7 +4,7 @@ import AddDeck from "@/components/add-deck/add-deck";
 
 export default async function Page() {
   return (
-    <div>
+    <div className="flex items-center justify-center">
       <TopicFinder />
     </div>
   );

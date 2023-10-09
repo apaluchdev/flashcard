@@ -1,13 +1,25 @@
 import Topic, { ITopic } from "@/models/Topic";
+import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 
 export async function POST(req: any) {
   try {
     const body: ITopic = await req.json();
 
+    const secret = process.env.NEXTAUTH_SECRET;
+    const token = await getToken({ req: req, secret });
+
+    if (!token?.username) {
+      throw new Error("No username associated with request");
+    }
+
     const topic = (await Topic.findOne({ _id: body._id })) || new Topic();
 
-    topic.userId = body.userId;
+    if (topic.userId != token.username) {
+      throw new Error("Cannot update a topic you do not own!");
+    }
+
+    topic.userId = String(token.username);
     topic.topicTitle = body.topicTitle;
 
     const savedTopic = await topic.save();

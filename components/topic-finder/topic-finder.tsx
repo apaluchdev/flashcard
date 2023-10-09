@@ -29,7 +29,7 @@ function TopicFinder() {
   }
 
   return (
-    <div className="flex w-full justify-center">
+    <div className="flex w-5/6 items-center justify-center">
       <FlashcardTable columns={columns} data={topics} />
     </div>
   );

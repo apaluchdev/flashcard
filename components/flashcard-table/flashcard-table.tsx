@@ -55,8 +55,8 @@ export function FlashcardTable<TData, TValue>({
   });
 
   return (
-    <div className="w-2/4">
-      <div className="flex items-center py-4">
+    <div className="w-full max-w-3xl">
+      <div className="py-4">
         <Input
           placeholder="Filter topics..."
           value={

@@ -40,16 +40,16 @@ export default function Page() {
 const Title = () => {
   return (
     <div className="mb-12">
-      <h1 className="text-center text-8xl tracking-tighter text-gray-700 fade-in">
+      <h1 className="mt-6 text-center text-6xl tracking-tighter text-gray-700 fade-in md:text-8xl">
         Flashcards
       </h1>
-      <h1 className=" text-7xl tracking-tighter text-gray-500">
+      <h1 className="text-center text-4xl tracking-tighter text-gray-500 md:text-7xl">
         <span className="text-theme-3 fade-in">Study</span>
-        <span className="text-6xl fade-in">. </span>
+        <span className="text-3xl fade-in md:text-6xl">. </span>
         <span className="fade-in-delay-1 text-theme-2">Flip</span>
-        <span className="fade-in-delay-1 text-6xl">. </span>
+        <span className="fade-in-delay-1 text-3xl md:text-6xl">. </span>
         <span className="fade-in-delay-2 text-theme-1">Learn</span>
-        <span className="fade-in-delay-2 text-6xl">. </span>
+        <span className="fade-in-delay-2 text-3xl md:text-6xl">. </span>
       </h1>
     </div>
   );
