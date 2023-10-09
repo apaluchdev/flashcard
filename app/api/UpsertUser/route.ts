@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     if (!token?.email) throw new Error("No email found in token or user");
 
     let user = await User.findOne({ email: token?.email });
-    if (user) return new Error("User already exists!");
+    if (user) throw new Error("User already exists!");
 
     user = new User();
 
