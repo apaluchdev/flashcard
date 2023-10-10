@@ -50,7 +50,6 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
   const userOwnsDeck =
     Boolean(session?.user) && session?.user.username == userId;
 
-  console.log("Does user own deck? " + userOwnsDeck);
   useEffect(() => {
     cardIndex.current = parseInt(searchParams.get("cardIndex") || "0");
     cards.current = flashcardData;
@@ -190,13 +189,11 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
       cards.current.length - 1,
     );
     setIsCardNavigation(!isCardNavigation);
-    //setCard(cards.current[cardIndex.current]);
   }
 
   async function PreviousCard() {
     cardIndex.current = Math.max(0, cardIndex.current - 1);
     setIsCardNavigation(!isCardNavigation);
-    //setCard(cards.current[cardIndex.current]);
   }
 
   function UpdateCard() {

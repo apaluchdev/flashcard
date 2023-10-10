@@ -13,11 +13,13 @@ export async function POST(req: any) {
       throw new Error("No username associated with request");
     }
 
-    const topic = (await Topic.findOne({ _id: body._id })) || new Topic();
+    let topic = await Topic.findOne({ _id: body._id });
 
-    if (topic.userId != token.username) {
+    if (topic && topic.userId != token.username) {
       throw new Error("Cannot update a topic you do not own!");
     }
+
+    if (!topic) topic = new Topic();
 
     topic.userId = String(token.username);
     topic.topicTitle = body.topicTitle;
