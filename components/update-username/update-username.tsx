@@ -65,7 +65,10 @@ export default function UpdateUsername() {
     }
 
     return (
-      <div className="flex h-full w-full items-center justify-center">
+      <div className="flex h-full w-full flex-col items-center justify-center gap-10">
+        <h1 className="text-red-600">
+          You must set a username for your account.
+        </h1>
         <Form {...form}>
           <form
             className={`${roboto.className} w-2/6 space-y-8`}

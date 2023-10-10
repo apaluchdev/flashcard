@@ -13,11 +13,16 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/api/auth/signin", request.url));
   }
 
-  if (!token.username)
+  if (!token.username) {
     return NextResponse.redirect(new URL("/username", request.url));
+  }
 }
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ["/api/Upsert(.*)", "/api/Delete(.*)"],
+  matcher: [
+    "/api/UpsertFlashcard(.*)",
+    "/api/UpsertTopic(.*)",
+    "/api/Delete(.*)",
+  ],
 };

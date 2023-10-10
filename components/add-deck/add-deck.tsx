@@ -51,11 +51,15 @@ export default function AddDeck() {
       try {
         const topic: ITopic = {
           topicTitle: values.topicTitle,
-          userId: "Adrian",
+          userId: "",
         };
 
-        let savedTopic = await topicClient.UpsertTopic(topic);
+        // Fix for middleware not redirecting - TODO, DEBUG THAT
+        if (!session?.user.username) {
+          router.push(`/username`);
+        }
 
+        let savedTopic = await topicClient.UpsertTopic(topic);
         if (!savedTopic) throw new Error("Error occurred adding topic");
         else
           router.push(
