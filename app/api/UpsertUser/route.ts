@@ -19,10 +19,16 @@ export async function POST(request: NextRequest) {
     if (user && user.username != token.username)
       throw new Error("User already exists!");
 
-    user = new User();
+    if (!user) user = new User();
+
+    let bookmarks =
+      user.bookmarkedCards?.concat(body.bookmarkedCards ?? []) ?? [];
 
     user.email = token.email;
     user.username = body.username;
+    user.bookmarkedCards = bookmarks.filter(
+      (item, i, ar) => ar.indexOf(item) === i,
+    ); // Ensure all bookmarks are unique
 
     const savedUser = await user.save();
 

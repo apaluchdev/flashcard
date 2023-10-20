@@ -6,6 +6,7 @@ export interface IUser {
   _id?: string;
   username: string;
   email: string;
+  bookmarkedCards?: string[];
 }
 
 const userSchema = new Schema<IUser>(
@@ -17,6 +18,10 @@ const userSchema = new Schema<IUser>(
     email: {
       type: String,
       required: true,
+    },
+    bookmarkedCards: {
+      type: [String],
+      required: false,
     },
   },
   { timestamps: true },

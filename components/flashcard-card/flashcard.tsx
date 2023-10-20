@@ -15,6 +15,7 @@ import DiscardDialog from "../discard-dialog/discard-dialog";
 import LoadingSpinner from "../loading-spinner/loading-spinner";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
+  Bookmark,
   ChevronLeft,
   ChevronRight,
   Edit,
@@ -24,6 +25,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
+import userClient from "@/clients/user-client";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -41,6 +43,7 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
   const [card, setCard] = useState<IFlashcard>({ question: "", answer: "" });
   const [loading, setLoading] = useState<boolean>(true);
   const [isCardNavigation, setIsCardNavigation] = useState<boolean>(false);
+  const [bookmarks, setBookmarks] = useState<String[]>([]);
   const cards = useRef<IFlashcard[]>([]);
   const cardIndex = useRef<number>(0);
   const originalCard = useRef<IFlashcard>({ question: "", answer: "" }); // Used to revert edits
@@ -54,6 +57,7 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
     cardIndex.current = parseInt(searchParams.get("cardIndex") || "0");
     cards.current = flashcardData;
     setCard(cards.current[cardIndex.current]);
+    LoadBookmarks();
     setLoading(false);
   }, []);
 
@@ -81,6 +85,16 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
     setLoading(false);
   }
 
+  async function LoadBookmarks() {
+    if (!session?.user?.username) return;
+
+    let bookmarks: String[] = await userClient.GetBookmarks(
+      session?.user.username,
+    );
+
+    setBookmarks(bookmarks);
+  }
+
   async function AddCard() {
     const newCard: IFlashcard = {
       question: "",
@@ -99,7 +113,7 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
 
   async function onSaveCard() {
     const isNewCard = card.topicId ? false : true;
-
+    console.log(isNewCard);
     if (isNewCard)
       card.topicId = (
         await topicClient.GetTopicByUserIdAndTopicTitle(userId, topic)
@@ -109,8 +123,8 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
       const result = await flashcardClient.UpsertFlashcard(card);
       if (result) {
         if (!isNewCard) {
-          cards.current.pop(); // Remove old card
-          cards.current.push(result); // Add updated card
+          cards.current[cardIndex.current] = card;
+          setCard(card);
         } else {
           LoadCards(cards.current.length);
         }
@@ -183,6 +197,20 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
     setCard(cards.current[0]);
   }
 
+  async function BookmarkCard() {
+    let username = session?.user.username;
+
+    if (!username) return;
+
+    await userClient.UpsertUser({
+      username: username,
+      email: "",
+      bookmarkedCards: [card._id ?? ""],
+    });
+
+    LoadBookmarks();
+  }
+
   async function NextCard() {
     cardIndex.current = Math.min(
       cardIndex.current + 1,
@@ -231,6 +259,14 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
           <AddDeck />
         </div>
         <div className="flex w-full justify-end gap-3">
+          <Button
+            onClick={BookmarkCard}
+            className={`w-15 ${
+              bookmarks.includes(card._id ?? "") && "bg-yellow-400"
+            }`}
+          >
+            <Bookmark />
+          </Button>
           <Button disabled={isEdit} onClick={ShuffleCards} className="w-15">
             <Shuffle />
           </Button>

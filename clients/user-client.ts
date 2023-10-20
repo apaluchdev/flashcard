@@ -9,9 +9,16 @@ const userClient = {
       },
       body: JSON.stringify(user),
     });
-    console.log("Sending user data");
     const resultJson = await result.json();
     return resultJson.savedUser;
+  },
+
+  async GetBookmarks(username: string): Promise<string[]> {
+    const result = await fetch(
+      `/api/GetBookmarksByUsername?username=${username}`,
+    );
+    const resultJson = await result.json();
+    return resultJson.bookmarks;
   },
 };
 
