@@ -24,10 +24,10 @@ const FlipCard: React.FC<Props> = ({
     if (!isFlipped) onFlipCompleted();
   }, [isFlipped]);
 
-  if (cardIndex.current != parseInt(searchParams.get("cardIndex") || "0")) {
+  useEffect(() => {
     setIsFlipped(false);
     onFlipCompleted();
-  }
+  }, [cardIndex.current]);
 
   cardIndex.current = parseInt(searchParams.get("cardIndex") || "0");
 

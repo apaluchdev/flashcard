@@ -39,24 +39,27 @@ interface Props {
 }
 
 const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
+  const searchParams = useSearchParams();
+
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [card, setCard] = useState<IFlashcard>({ question: "", answer: "" });
   const [loading, setLoading] = useState<boolean>(true);
   const [isCardNavigation, setIsCardNavigation] = useState<boolean>(false);
   const [bookmarks, setBookmarks] = useState<String[]>([]);
-  const cards = useRef<IFlashcard[]>([]);
-  const cardIndex = useRef<number>(0);
+  const cards = useRef<IFlashcard[]>(flashcardData);
+  const cardIndex = useRef<number>(
+    parseInt(searchParams.get("cardIndex") || "0"),
+  );
+  const [card, setCard] = useState<IFlashcard>(
+    cards.current[cardIndex.current],
+  );
   const originalCard = useRef<IFlashcard>({ question: "", answer: "" }); // Used to revert edits
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const userOwnsDeck =
     Boolean(session?.user) && session?.user.username == userId;
 
   useEffect(() => {
-    cardIndex.current = parseInt(searchParams.get("cardIndex") || "0");
     cards.current = flashcardData;
-    setCard(cards.current[cardIndex.current]);
     LoadBookmarks();
     setLoading(false);
   }, []);

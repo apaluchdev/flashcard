@@ -19,7 +19,10 @@ const CardFace: React.FC<CardFaceProps> = ({ question, answer, topic }) => {
       <CardHeader className="text-center">
         <CardDescription>{decodeURIComponent(topic)}</CardDescription>
         <CardTitle className="whitespace-normal break-words text-xl md:text-4xl">
-          {question}
+          {/* Override long questions to use text-xl */}
+          <div className={`${question.length > 100 && "text-xl"}`}>
+            {question}
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="w-full">
