@@ -15,14 +15,14 @@ interface CardFaceProps {
 
 const CardFace: React.FC<CardFaceProps> = ({ question, answer, topic }) => {
   return (
-    <div>
+    <div className="w-full">
       <CardHeader className="text-center">
         <CardDescription>{decodeURIComponent(topic)}</CardDescription>
         <CardTitle className="whitespace-normal break-words text-xl md:text-4xl">
           {question}
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="w-full">
         <TextViewer text={answer} />
       </CardContent>
       <CardFooter></CardFooter>
