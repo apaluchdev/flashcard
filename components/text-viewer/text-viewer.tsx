@@ -20,7 +20,7 @@ const TextViewer: React.FC<Props> = ({ text }) => {
         theme="bubble"
         modules={modules}
         readOnly={true}
-        className="h-full cursor-pointer select-none border-none"
+        className="h-full"
         value={text}
       />
     </div>
@@ -28,16 +28,3 @@ const TextViewer: React.FC<Props> = ({ text }) => {
 };
 
 export default TextViewer;
-
-// const TextEditor: React.FC<Props> = ({ TextEditorCallback }) => {
-//   const [value, setValue] = useState("");
-
-//   function handleChange(value: string) {
-//     setValue(value);
-//     TextEditorCallback(value);
-//   }
-
-//   return <ReactQuill value={value} onChange={() => handleChange(value)} />;
-// };
-
-// export default TextEditor;

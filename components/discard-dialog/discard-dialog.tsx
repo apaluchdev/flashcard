@@ -31,8 +31,8 @@ const DiscardDialog: React.FC<SimpleComponentProps> = ({
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger onClick={handleCancel}>
-        <Button className="w-15" variant="outline">
+      <AlertDialogTrigger asChild>
+        <Button onClick={handleCancel} className="w-15" variant="outline">
           <X />
         </Button>
       </AlertDialogTrigger>

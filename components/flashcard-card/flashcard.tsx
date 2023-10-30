@@ -1,5 +1,7 @@
 "use client";
 
+// https://stackoverflow.com/a/73143908
+
 import React, { useEffect, useRef, useState } from "react";
 import TextEditor from "../text-editor/text-editor";
 import { Roboto } from "next/font/google";
@@ -18,6 +20,8 @@ import {
   Bookmark,
   ChevronLeft,
   ChevronRight,
+  Clipboard,
+  ClipboardCopy,
   Edit,
   PlusSquare,
   Save,
@@ -40,99 +44,55 @@ interface Props {
 
 const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
   const searchParams = useSearchParams();
+  const cardIndex = parseInt(searchParams.get("cardIndex") || "0");
+  const { data: session } = useSession();
+  const router = useRouter();
 
+  // State
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
-  const [isCardNavigation, setIsCardNavigation] = useState<boolean>(false);
   const [bookmarks, setBookmarks] = useState<String[]>([]);
-  const cards = useRef<IFlashcard[]>(flashcardData);
-  const cardIndex = useRef<number>(
-    parseInt(searchParams.get("cardIndex") || "0"),
-  );
-  const [card, setCard] = useState<IFlashcard>(
-    cards.current[cardIndex.current],
-  );
-  const originalCard = useRef<IFlashcard>({ question: "", answer: "" }); // Used to revert edits
-  const router = useRouter();
-  const { data: session } = useSession();
+  const [cards, setCards] = useState<IFlashcard[]>(flashcardData);
+  const [editCard, setEditCard] = useState<IFlashcard>({
+    ...flashcardData[cardIndex],
+  });
   const userOwnsDeck =
     Boolean(session?.user) && session?.user.username == userId;
 
   useEffect(() => {
-    cards.current = flashcardData;
     LoadBookmarks();
     setLoading(false);
   }, []);
 
-  useEffect(() => {
-    router.push(`?cardIndex=${cardIndex.current}`, {
-      scroll: false,
-    });
-  }, [cardIndex.current, router]);
-
-  async function LoadCards(index: number = 0) {
-    let data: IFlashcard[] =
-      await flashcardClient.GetFlashcardsByUserIdAndTopicTitleAsync(
-        userId,
-        topic,
-      );
-
-    cards.current = data.sort((a, b) =>
-      (a.order || 0) > (b.order || 0) ? 1 : -1,
-    );
-
-    cardIndex.current = index;
-
-    // cardIndex.current = index;
-    setCard(cards.current[index]);
-    setLoading(false);
-  }
-
-  async function LoadBookmarks() {
-    if (!session?.user?.username) return;
-
-    let bookmarks: String[] = await userClient.GetBookmarks(
-      session?.user.username,
-    );
-
-    setBookmarks(bookmarks);
-  }
-
-  async function AddCard() {
-    const newCard: IFlashcard = {
-      question: "",
-      answer: "",
-      topicId: "",
-      userId: userId,
-    };
-    setIsEdit(true);
-    setCard(newCard);
-  }
-
   function EditCard() {
     setIsEdit(true);
-    originalCard.current = card;
+    setEditCard(cards[cardIndex]);
+
+    router.push(`?cardIndex=${cardIndex}&flipped=true`, {
+      scroll: false,
+    });
   }
 
   async function onSaveCard() {
-    const isNewCard = card.topicId ? false : true;
+    const isNewCard = cards[cardIndex].topicId ? false : true;
     console.log(isNewCard);
     if (isNewCard)
-      card.topicId = (
+      cards[cardIndex].topicId = (
         await topicClient.GetTopicByUserIdAndTopicTitle(userId, topic)
       )?._id;
+    else {
+      cards.pop();
+      cards.push({ ...editCard });
+      setCards(cards);
+    }
 
     try {
-      const result = await flashcardClient.UpsertFlashcard(card);
+      const result = await flashcardClient.UpsertFlashcard(editCard);
       if (result) {
-        if (!isNewCard) {
-          cards.current[cardIndex.current] = card;
-          setCard(card);
-        } else {
-          LoadCards(cards.current.length);
+        if (isNewCard) {
+          LoadCards(cards.length);
         }
         setIsEdit(false);
-        setCard(result);
         toast({
           variant: "success",
           description: "Flashcard saved!",
@@ -148,24 +108,46 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
     }
   }
 
+  function copyToClipboard() {
+    var copyTextHTML = `${cards[cardIndex].answer}`;
+    var copyText = cards[cardIndex].question + " ";
+    var tempElement = document.createElement("div");
+
+    // Set the innerHTML of the temporary element to the given HTML string
+    tempElement.innerHTML = copyTextHTML;
+
+    // Get all child elements
+    var elements = tempElement.children;
+
+    // Loop through each element and get inner HTML
+    for (var i = 0; i < elements.length; i++) {
+      var innerHTML = elements[i].innerHTML;
+      copyText = copyText.concat(innerHTML);
+    }
+
+    navigator.clipboard.writeText(copyText);
+    toast({
+      variant: "success",
+      description: "Copied Flashcard to clipboard.",
+    });
+  }
+
   function onCancelEdit() {
     setIsEdit(false);
-
-    setCard(originalCard.current);
-
-    // Cancelled adding a new card, remove it
-    if (!card.topicId) setCard(cards.current[cards.current.length - 1]);
+    setEditCard({ ...flashcardData[cardIndex] });
   }
 
   function DeleteButton() {
     async function DeleteCard() {
-      var isDeleted = await flashcardClient.DeleteFlashcardById(card._id || "");
+      var isDeleted = await flashcardClient.DeleteFlashcardById(
+        cards[cardIndex]._id || "",
+      );
       if (isDeleted) {
         toast({
           variant: "success",
           description: "Flashcard deleted.",
         });
-        LoadCards(Math.max(0, cardIndex.current - 1));
+        LoadCards(Math.max(0, cardIndex - 1));
       }
     }
 
@@ -181,12 +163,50 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
     );
   }
 
-  function ShuffleCards() {
-    if (!cards || cards.current.length < 2) return;
-    let shuffledCards = cards.current.concat([]);
+  async function LoadCards(index: number = 0) {
+    let data: IFlashcard[] =
+      await flashcardClient.GetFlashcardsByUserIdAndTopicTitleAsync(
+        userId,
+        topic,
+      );
+
+    setCards(data.sort((a, b) => ((a.order || 0) > (b.order || 0) ? 1 : -1)));
+    router.push(`?cardIndex=${index}`, {
+      scroll: false,
+    });
+    setLoading(false);
+  }
+
+  async function LoadBookmarks() {
+    if (!session?.user?.username) return;
+
+    let bookmarks: String[] = await userClient.GetBookmarks(
+      session?.user.username,
+    );
+
+    setBookmarks(bookmarks);
+  }
+
+  async function AddCard() {
+    setEditCard({
+      question: "",
+      answer: "",
+      topicId: "",
+      userId: userId,
+    });
+
+    router.push(`?cardIndex=${cardIndex + 1}`, {
+      scroll: false,
+    });
+    setIsEdit(true);
+  }
+
+  function shuffleCards() {
+    if (!cards || cards.length < 2) return;
+    let shuffledCards = cards.concat([]);
 
     // Keep shuffling if the first card doesn't change, otherwise users will think nothing happened.
-    while (cards.current[0] == shuffledCards[0]) {
+    while (cards[0] == shuffledCards[0]) {
       for (let i = shuffledCards.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1)); // Generate a random index between 0 and i
         [shuffledCards[i], shuffledCards[j]] = [
@@ -195,9 +215,11 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
         ]; // Swap elements at indices i and j
       }
     }
-    cards.current = shuffledCards;
-    cardIndex.current = 0;
-    setCard(cards.current[0]);
+    shuffledCards;
+    setCards(shuffledCards);
+    router.push(`?cardIndex=${0}`, {
+      scroll: false,
+    });
   }
 
   async function BookmarkCard() {
@@ -208,28 +230,22 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
     await userClient.UpsertUser({
       username: username,
       email: "",
-      bookmarkedCards: [card._id ?? ""],
+      bookmarkedCards: [cards[cardIndex]._id ?? ""],
     });
 
     LoadBookmarks();
   }
 
   async function NextCard() {
-    cardIndex.current = Math.min(
-      cardIndex.current + 1,
-      cards.current.length - 1,
-    );
-    setIsCardNavigation(!isCardNavigation);
+    router.push(`?cardIndex=${Math.min(cardIndex + 1, cards.length - 1)}`, {
+      scroll: false,
+    });
   }
 
   async function PreviousCard() {
-    cardIndex.current = Math.max(0, cardIndex.current - 1);
-    setIsCardNavigation(!isCardNavigation);
-  }
-
-  function UpdateCard() {
-    setCard(cards.current[cardIndex.current]);
-    setIsCardNavigation(!isCardNavigation);
+    router.push(`?cardIndex=${Math.max(0, cardIndex - 1)}`, {
+      scroll: false,
+    });
   }
 
   if (loading)
@@ -239,8 +255,7 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
       </div>
     );
 
-  if (!isEdit && (!cards || cards.current.length < 1)) {
-    // and !loading
+  if (!isEdit && (!cards || cards.length < 1)) {
     return (
       <div
         className={`${roboto.className} mb-36 flex h-full w-4/6 max-w-3xl flex-col items-center justify-center gap-10 text-4xl tracking-tight`}
@@ -265,12 +280,12 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
           <Button
             onClick={BookmarkCard}
             className={`w-15 ${
-              bookmarks.includes(card._id ?? "") && "bg-yellow-400"
+              bookmarks.includes(cards[cardIndex]._id ?? "") && "bg-yellow-400"
             }`}
           >
             <Bookmark />
           </Button>
-          <Button disabled={isEdit} onClick={ShuffleCards} className="w-15">
+          <Button disabled={isEdit} onClick={shuffleCards} className="w-15">
             <Shuffle />
           </Button>
           <Button
@@ -283,15 +298,10 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
         </div>
       </div>
 
-      {/* Card  */}
+      {/* Card */}
       <FlipCard
-        flashcard={{
-          question: card.question,
-          answer: card.answer,
-          topic: topic || "",
-        }}
+        flashcard={isEdit ? editCard : cards[cardIndex]}
         isEditMode={isEdit}
-        onFlipCompleted={UpdateCard}
       />
 
       {/* Bottom Buttons  */}
@@ -307,16 +317,16 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
             autoFocus
             type="text"
             placeholder="Question"
-            value={card.question}
-            onChange={(event) =>
-              setCard({ ...card, question: event.target.value })
-            }
+            value={editCard.question}
+            onChange={(event) => {
+              setEditCard({ ...editCard, question: event.target.value });
+            }}
           />
           <TextEditor
             TextEditorCallback={(answer: string) =>
-              setCard({ ...card, answer: answer })
+              setEditCard({ ...editCard, answer: answer })
             }
-            initialText={card.answer}
+            initialText={editCard.answer}
           />
         </div>
       )}
@@ -343,7 +353,7 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
           <ChevronRight className="absolute" />
         </Button>
         <p className="mt-2.5 text-sm">
-          {cardIndex.current + 1} / {cards.current.length}
+          {cardIndex + 1} / {cards.length}
         </p>
       </div>
     );
@@ -357,6 +367,9 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
         ) : (
           <DeleteButton />
         )}
+        <Button onClick={copyToClipboard} className="w-15">
+          <ClipboardCopy />
+        </Button>
         {isEdit ? (
           <Button
             disabled={!userOwnsDeck} // Api also denies if user not signed in

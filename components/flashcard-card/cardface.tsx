@@ -1,3 +1,4 @@
+import { IFlashcard } from "@/models/Flashcard";
 import TextViewer from "../text-viewer/text-viewer";
 import {
   CardContent,
@@ -8,25 +9,25 @@ import {
 } from "../ui/card";
 
 interface CardFaceProps {
-  question: string;
-  answer: string;
-  topic: string;
+  flashcard: IFlashcard;
 }
 
-const CardFace: React.FC<CardFaceProps> = ({ question, answer, topic }) => {
+const CardFace: React.FC<CardFaceProps> = ({ flashcard }) => {
   return (
     <div className="w-full">
       <CardHeader className="text-center">
-        <CardDescription>{decodeURIComponent(topic)}</CardDescription>
+        <CardDescription>
+          {decodeURIComponent(flashcard.topic || "")}
+        </CardDescription>
         <CardTitle className="whitespace-normal break-words text-xl md:text-4xl">
           {/* Override long questions to use text-xl */}
-          <div className={`${question.length > 100 && "text-xl"}`}>
-            {question}
+          <div className={`${flashcard.question.length > 100 && "text-xl"}`}>
+            {flashcard.question}
           </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="w-full">
-        <TextViewer text={answer} />
+        <TextViewer text={flashcard.answer} />
       </CardContent>
       <CardFooter></CardFooter>
     </div>
