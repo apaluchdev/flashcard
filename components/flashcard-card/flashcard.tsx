@@ -59,6 +59,8 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
   const userOwnsDeck =
     Boolean(session?.user) && session?.user.username == userId;
 
+  if (cards.length > 0) cards[cardIndex].topic = topic;
+
   useEffect(() => {
     LoadBookmarks();
     setLoading(false);
@@ -133,6 +135,11 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
   }
 
   function onCancelEdit() {
+    if (!editCard._id)
+      router.push(`?cardIndex=${cards.length - 1}`, {
+        scroll: false,
+      });
+
     setIsEdit(false);
     setEditCard({ ...flashcardData[cardIndex] });
   }
@@ -191,11 +198,11 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
     setEditCard({
       question: "",
       answer: "",
-      topicId: "",
+      topicId: cards[cardIndex].topicId,
       userId: userId,
     });
 
-    router.push(`?cardIndex=${cardIndex + 1}`, {
+    router.push(`?cardIndex=${cardIndex + 1}&flipped=true`, {
       scroll: false,
     });
     setIsEdit(true);
@@ -280,7 +287,7 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
           <Button
             onClick={BookmarkCard}
             className={`w-15 ${
-              bookmarks.includes(cards[cardIndex]._id ?? "") && "bg-yellow-400"
+              bookmarks.includes(cards[cardIndex]?._id ?? "") && "bg-yellow-400"
             }`}
           >
             <Bookmark />
