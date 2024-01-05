@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import userClient from "@/clients/user-client";
+import { Console } from "console";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -59,7 +60,8 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
   const userOwnsDeck =
     Boolean(session?.user) && session?.user.username == userId;
 
-  if (cards.length > 0) cards[cardIndex].topic = topic;
+  if (cards.length > 0 && cardIndex < cards.length)
+    cards[cardIndex].topic = topic;
 
   useEffect(() => {
     LoadBookmarks();
@@ -76,20 +78,22 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
   }
 
   async function onSaveCard() {
-    const isNewCard = cards[cardIndex].topicId ? false : true;
-    console.log(isNewCard);
-    if (isNewCard)
-      cards[cardIndex].topicId = (
+    const isNewCard = editCard._id == undefined;
+    if (isNewCard) {
+      var topicId = (
         await topicClient.GetTopicByUserIdAndTopicTitle(userId, topic)
       )?._id;
-    else {
+    } else {
       cards.pop();
       cards.push({ ...editCard });
       setCards(cards);
     }
 
     try {
-      const result = await flashcardClient.UpsertFlashcard(editCard);
+      const result = await flashcardClient.UpsertFlashcard({
+        ...editCard,
+        topicId: topicId,
+      });
       if (result) {
         if (isNewCard) {
           LoadCards(cards.length);
@@ -198,7 +202,7 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
     setEditCard({
       question: "",
       answer: "",
-      topicId: cards[cardIndex].topicId,
+      topicId: cards[cardIndex]?.topicId,
       userId: userId,
     });
 
