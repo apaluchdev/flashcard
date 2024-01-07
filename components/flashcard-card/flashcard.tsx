@@ -26,6 +26,8 @@ import {
   PlusSquare,
   Save,
   Shuffle,
+  StepBack,
+  StepForward,
   Trash2,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -79,11 +81,7 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
 
   async function onSaveCard() {
     const isNewCard = editCard._id == undefined;
-    if (isNewCard) {
-      var topicId = (
-        await topicClient.GetTopicByUserIdAndTopicTitle(userId, topic)
-      )?._id;
-    } else {
+    if (!isNewCard) {
       cards.pop();
       cards.push({ ...editCard });
       setCards(cards);
@@ -92,12 +90,14 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
     try {
       const result = await flashcardClient.UpsertFlashcard({
         ...editCard,
-        topicId: topicId,
+        topicId: (
+          await topicClient.GetTopicByUserIdAndTopicTitle(userId, topic)
+        )?._id,
       });
       if (result) {
-        if (isNewCard) {
-          LoadCards(cards.length);
-        }
+        if (!isNewCard) LoadCards(cardIndex);
+        else LoadCards(cards.length);
+
         setIsEdit(false);
         toast({
           variant: "success",
@@ -206,9 +206,12 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
       userId: userId,
     });
 
-    router.push(`?cardIndex=${cardIndex + 1}&flipped=true`, {
-      scroll: false,
-    });
+    router.push(
+      `?cardIndex=${cards.length > 0 ? cardIndex + 1 : 0}&flipped=true`,
+      {
+        scroll: false,
+      },
+    );
     setIsEdit(true);
   }
 
@@ -253,8 +256,20 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
     });
   }
 
+  async function goToLastCard() {
+    router.push(`?cardIndex=${cards.length - 1}`, {
+      scroll: false,
+    });
+  }
+
   async function PreviousCard() {
     router.push(`?cardIndex=${Math.max(0, cardIndex - 1)}`, {
+      scroll: false,
+    });
+  }
+
+  async function goToFirstCard() {
+    router.push(`?cardIndex=${0}`, {
       scroll: false,
     });
   }
@@ -349,6 +364,14 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
       <div className="flex w-full gap-3">
         <Button
           disabled={isEdit}
+          onClick={goToFirstCard}
+          className="w-10"
+          variant="outline"
+        >
+          <StepBack className="absolute" />
+        </Button>
+        <Button
+          disabled={isEdit}
           onClick={PreviousCard}
           className="w-10"
           variant="outline"
@@ -362,6 +385,14 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
           variant="outline"
         >
           <ChevronRight className="absolute" />
+        </Button>
+        <Button
+          disabled={isEdit}
+          onClick={goToLastCard}
+          className="w-10"
+          variant="outline"
+        >
+          <StepForward className="absolute" />
         </Button>
         <p className="mt-2.5 text-sm">
           {cardIndex + 1} / {cards.length}
