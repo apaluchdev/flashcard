@@ -53,6 +53,10 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
 
   // State
   const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [isEditTopic, setIsEditTopic] = useState<boolean>(false);
+  const [newTopicTitle, setNewTopicTitle] = useState<string>(
+    decodeURIComponent(topic),
+  );
   const [loading, setLoading] = useState<boolean>(true);
   const [bookmarks, setBookmarks] = useState<String[]>([]);
   const [cards, setCards] = useState<IFlashcard[]>(flashcardData);
@@ -77,6 +81,31 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
     router.push(`?cardIndex=${cardIndex}&flipped=true`, {
       scroll: false,
     });
+  }
+
+  async function onSaveTopicTitle() {
+    handleTopicBlur();
+    let topicToSave = await topicClient.GetTopicByUserIdAndTopicTitle(
+      userId,
+      topic,
+    );
+
+    if (!topicToSave) return;
+
+    let savedTopic = await topicClient.UpsertTopic({
+      ...topicToSave,
+      topicTitle: newTopicTitle,
+    });
+
+    if (savedTopic)
+      toast({
+        variant: "success",
+        description: "Flashcard saved!",
+      });
+
+    router.push(
+      `/flashcard/${userId}/${newTopicTitle}/?cardIndex=${cardIndex}`,
+    );
   }
 
   async function onSaveCard() {
@@ -274,6 +303,14 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
     });
   }
 
+  const handleTopicFocus = () => {
+    setIsEditTopic(true);
+  };
+
+  const handleTopicBlur = () => {
+    setIsEditTopic(false);
+  };
+
   if (loading)
     return (
       <div className="flex h-full w-4/6 max-w-3xl flex-col items-center justify-center">
@@ -298,6 +335,35 @@ const Flashcard: React.FC<Props> = ({ userId, topic, flashcardData }) => {
     <div
       className={`${roboto.className} min-w-content mb-36 flex h-full w-4/5 max-w-3xl flex-col items-center justify-center gap-6`}
     >
+      <div className="w-full align-bottom" onClick={handleTopicFocus}>
+        {topic && (
+          <div className="flex flex-row justify-center gap-4">
+            {isEditTopic ? (
+              <input
+                value={decodeURIComponent(newTopicTitle)}
+                onChange={(event) => {
+                  setNewTopicTitle(event.target.value);
+                }}
+                type="text"
+                className="overflow-wrap mb-8 w-full break-words border-2 text-2xl font-semibold leading-none outline-1 focus:outline-none md:text-5xl"
+              />
+            ) : (
+              <h1 className="mb-8 cursor-pointer text-center text-2xl font-semibold leading-none md:text-5xl">
+                {decodeURIComponent(newTopicTitle)}
+              </h1>
+            )}
+            {isEditTopic && (
+              <Button
+                disabled={!userOwnsDeck} // Api also denies if user not signed in
+                onClick={onSaveTopicTitle}
+                className="w-15 mt-3"
+              >
+                <Save />
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
       <div className="flex w-full justify-between">
         <div className="flex w-full justify-start gap-3">
           <AddDeck />
