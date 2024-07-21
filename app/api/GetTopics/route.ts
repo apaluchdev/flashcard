@@ -9,6 +9,7 @@ export async function GET(
   res: NextResponse,
 ): Promise<NextResponse> {
   try {
+    console.log(`${req.url} triggered GET`);
     const topics = await Topic.find({});
     return NextResponse.json({ topics }, { status: 200 });
   } catch (error) {
