@@ -13,6 +13,7 @@ export async function GET(
     const topics = await Topic.find({});
     return NextResponse.json({ topics }, { status: 200 });
   } catch (error) {
+    console.log(error);
     return NextResponse.json({ msg: "Error fetching topic" }, { status: 500 });
   }
 }
