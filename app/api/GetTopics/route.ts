@@ -9,13 +9,8 @@ export async function GET(
   res: NextResponse,
 ): Promise<NextResponse> {
   try {
-    return NextResponse.json({ msg: "This is a test" }, { status: 200 });
-    // console.log(`${req.url} triggered GET`);
-    // const topics = await Topic.find({});
-    // console.log(`1`);
-    // var result = NextResponse.json({ topics }, { status: 200 });
-    // console.log(`2`);
-    // return result;
+    const topics = await Topic.find({});
+    return NextResponse.json({ topics }, { status: 200 });
   } catch (error) {
     console.log("Encountered an error " + error);
     return NextResponse.json({ msg: "Error fetching topic" }, { status: 500 });
