@@ -1,4 +1,4 @@
-//export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import Topic from "@/models/Topic";
@@ -10,6 +10,7 @@ export async function GET(
 ): Promise<NextResponse> {
   try {
     const topics = await Topic.find({});
+    console.log("Number of topics found " + topics.length);
     return NextResponse.json({ topics }, { status: 200 });
   } catch (error) {
     console.log("Encountered an error " + error);
