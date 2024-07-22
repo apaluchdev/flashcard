@@ -1,7 +1,9 @@
 import FlashcardComponent from "@/components/flashcard-card/flashcard";
 import connect from "@/lib/mongoose-connect";
 import Flashcard, { IFlashcard } from "@/models/Flashcard";
-import Topic, { ITopic } from "@/models/Topic";
+import Topic from "@/models/Topic";
+
+export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: { userId: string; topicTitle: string };
@@ -17,7 +19,13 @@ export default async function Page({
     topicTitle: decodeURIComponent(topicTitle),
   });
 
-  if (!topic) return <div>Something went wrong...</div>;
+  if (!topic)
+    return (
+      <div>
+        Something went wrong trying to find a topic for userId {userId} and
+        topicTitle {decodeURIComponent(topicTitle)}
+      </div>
+    );
 
   const flashcards: IFlashcard[] = JSON.parse(
     JSON.stringify(await Flashcard.find({ topicId: topic._id })),
