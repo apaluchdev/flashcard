@@ -8,7 +8,9 @@ export default function InitializeMongoose() {
   console.log("Mongoose initializing...");
 
   const MONGODB_URI =
-    process.env.MONGODB_KEY || "mongodb://localhost:27017/my-mongo-db"; // Replace with your MongoDB connection string
+    process.env.MONGODB_URI ||
+    process.env.MONGODB_KEY ||
+    "mongodb://localhost:27017/my-mongo-db"; // Replace with your MongoDB connection string
 
   mongoose
     .connect(MONGODB_URI)
