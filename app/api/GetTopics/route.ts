@@ -11,9 +11,12 @@ export async function GET(
   try {
     console.log(`${req.url} triggered GET`);
     const topics = await Topic.find({});
-    return NextResponse.json({ topics }, { status: 200 });
+    console.log(`1`);
+    var result = NextResponse.json({ topics }, { status: 200 });
+    console.log(`2`);
+    return result;
   } catch (error) {
-    console.log(error);
+    console.log("Encountered an error " + error);
     return NextResponse.json({ msg: "Error fetching topic" }, { status: 500 });
   }
 }
