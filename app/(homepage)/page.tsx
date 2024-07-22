@@ -5,11 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { SignInButton } from "@/components/sign-in-button/sign-in-button";
-import { useSession } from "next-auth/react";
 export default function Page() {
-  // const { data: session } = useSession();
-  // console.log(session);
-
   return (
     <main className={`flex min-h-screen flex-col items-center justify-center`}>
       <Title />

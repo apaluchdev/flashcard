@@ -1,10 +1,7 @@
-import InitializeMongoose from "@/lib/mongodb";
 import Flashcard, { IFlashcard } from "@/models/Flashcard";
 import Topic from "@/models/Topic";
 import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
-
-InitializeMongoose();
 
 export async function POST(req: any) {
   try {

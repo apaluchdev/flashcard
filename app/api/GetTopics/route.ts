@@ -10,7 +10,7 @@ export async function GET(
 ): Promise<NextResponse> {
   try {
     const topics = await Topic.find({});
-    console.log("Number of topics found " + topics.length);
+    console.log("Number of topics found " + topics?.length);
     return NextResponse.json({ topics }, { status: 200 });
   } catch (error) {
     console.log("Encountered an error " + error);
