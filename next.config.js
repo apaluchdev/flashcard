@@ -16,7 +16,6 @@ const nextConfig = {
   //   ];
   // },
 };
-
 if (mongoose.connection.readyState === 1) {
   console.log("Mongoose already connected");
   return;
@@ -24,9 +23,9 @@ if (mongoose.connection.readyState === 1) {
 console.log("Mongoose initializing...");
 
 const MONGODB_URI =
-  process.env.MONGODB_URI || process.env.MONGODB_KEY || "mongodb://localhost:27017/my-mongo-db"; // Replace with your MongoDB connection string
+  process.env.MONGODB_URI //|| process.env.MONGODB_KEY || "mongodb://localhost:27017/my-mongo-db"; // Replace with your MongoDB connection string
 
-mongoose
+await mongoose
   .connect(MONGODB_URI)
   .then((result) => console.log("Mongoose connected"))
   .catch((error) => console.log("Mongoose error: " + error));
