@@ -13,7 +13,6 @@ export const metadata = {
   description: "Use and share Flashcard decks",
 };
 
-InitializeMongoose();
 
 export default function RootLayout({
   children,
