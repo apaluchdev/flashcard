@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import Topic from "@/models/Topic";
+import connect from "@/lib/mongoose-connect";
 
 // READ
 export async function GET(
@@ -9,6 +10,7 @@ export async function GET(
   res: NextResponse,
 ): Promise<NextResponse> {
   try {
+    await connect();
     const topics = await Topic.find({});
     console.log("Number of topics found " + topics?.length);
     return NextResponse.json({ topics }, { status: 200 });

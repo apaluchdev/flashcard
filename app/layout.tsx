@@ -6,20 +6,6 @@ const inter = Inter({ subsets: ["latin"], weight: "800" });
 
 import Header from "@/components/header/header";
 import Providers from "@/components/providers/providers";
-import mongoose from "mongoose";
-
-if (mongoose.connection.readyState === 1) {
-  console.log("Mongoose already connected");
-} else {
-  console.log("Mongoose initializing...");
-
-  const MONGODB_URI = process.env.MONGODB_URI || "";
-
-  mongoose
-    .connect(MONGODB_URI)
-    .then((result) => console.log("Mongoose connected"))
-    .catch((error) => console.log("Mongoose error: " + error));
-}
 
 export const metadata = {
   title: "Flashcards",
