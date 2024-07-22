@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig = async () => {
   // async headers() {
   //   return [
   //     {
