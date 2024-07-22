@@ -11,6 +11,7 @@ export async function GET(
 ): Promise<NextResponse> {
   try {
     await connect();
+
     const topics = await Topic.find({});
     console.log("Number of topics found " + topics?.length);
     return NextResponse.json({ topics }, { status: 200 });

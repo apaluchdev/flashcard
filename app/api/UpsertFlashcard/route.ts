@@ -1,3 +1,4 @@
+import connect from "@/lib/mongoose-connect";
 import Flashcard, { IFlashcard } from "@/models/Flashcard";
 import Topic from "@/models/Topic";
 import { getToken } from "next-auth/jwt";
@@ -5,6 +6,8 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: any) {
   try {
+    await connect();
+
     const body: IFlashcard = await req.json();
 
     const secret = process.env.NEXTAUTH_SECRET;

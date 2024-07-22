@@ -1,9 +1,12 @@
+import connect from "@/lib/mongoose-connect";
 import User, { IUser } from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
 
 // READ
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
+    await connect();
+
     const { searchParams } = new URL(req.url);
 
     const username = searchParams.get("username");

@@ -1,3 +1,4 @@
+import connect from "@/lib/mongoose-connect";
 import Flashcard from "@/models/Flashcard";
 import Topic, { ITopic } from "@/models/Topic";
 import { NextRequest, NextResponse } from "next/server";
@@ -5,6 +6,8 @@ import { NextRequest, NextResponse } from "next/server";
 // READ
 export async function GET(req: NextRequest) {
   try {
+    await connect();
+
     const { searchParams } = new URL(req.url);
 
     const userId = searchParams.get("userId");

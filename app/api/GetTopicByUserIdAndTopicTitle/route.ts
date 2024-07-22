@@ -1,9 +1,12 @@
+import connect from "@/lib/mongoose-connect";
 import Topic, { ITopic } from "@/models/Topic";
 import { NextRequest, NextResponse } from "next/server";
 
 // READ
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
+    await connect();
+
     const { searchParams } = new URL(req.url);
 
     const topicTitle = searchParams.get("topicTitle");

@@ -1,9 +1,12 @@
+import connect from "@/lib/mongoose-connect";
 import Topic, { ITopic } from "@/models/Topic";
 import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 
 export async function POST(req: any) {
   try {
+    await connect();
+
     const body: ITopic = await req.json();
 
     const secret = process.env.NEXTAUTH_SECRET;

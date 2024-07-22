@@ -1,6 +1,7 @@
 // const secret = process.env.NEXTAUTH_SECRET;
 // const token = await getToken({ req: request, secret });
 
+import connect from "@/lib/mongoose-connect";
 import User, { IUser } from "@/models/User";
 import { getServerSession } from "next-auth";
 import { getToken } from "next-auth/jwt";
@@ -8,6 +9,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
+    await connect();
+
     const secret = process.env.NEXTAUTH_SECRET;
     const token = await getToken({ req: request, secret });
 

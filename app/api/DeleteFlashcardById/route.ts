@@ -1,9 +1,12 @@
+import connect from "@/lib/mongoose-connect";
 import Flashcard from "@/models/Flashcard";
 import { NextRequest, NextResponse } from "next/server";
 
 // DELETE
 export async function DELETE(req: NextRequest): Promise<NextResponse> {
   try {
+    await connect();
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
 
