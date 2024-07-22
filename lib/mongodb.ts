@@ -1,5 +1,3 @@
-import Flashcard, { IFlashcard } from "@/models/Flashcard";
-import Topic, { ITopic } from "@/models/Topic";
 import mongoose from "mongoose";
 
 export default function InitializeMongoose() {

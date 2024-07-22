@@ -1,4 +1,3 @@
-import Topic, { ITopic } from "@/models/Topic";
 import User, { IUser } from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
 
