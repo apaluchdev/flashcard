@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ChatGPTAPI } from "chatgpt";
 import Flashcard, { IFlashcard } from "@/models/Flashcard";
-import InitializeMongoose from "@/lib/mongodb";
 import { randomUUID } from "crypto";
-
-InitializeMongoose();
 
 // READ
 export async function GET(req: NextRequest) {
@@ -15,14 +12,14 @@ export async function GET(req: NextRequest) {
     const difficulty = searchParams.get("difficulty");
     const numQuestions = Math.min(
       parseInt(searchParams.get("numQuestions") || "20"),
-      50
+      50,
     );
 
     const api = new ChatGPTAPI({
       apiKey: process.env.OPENAI_API_KEY || "",
     });
     const res = await api.sendMessage(
-      `Give me a list of ${numQuestions} numbered questions with answers that can be used to quiz someone on the topic of '${topic}'`
+      `Give me a list of ${numQuestions} numbered questions with answers that can be used to quiz someone on the topic of '${topic}'`,
     );
 
     let response = res.text;
@@ -47,7 +44,7 @@ export async function GET(req: NextRequest) {
       let questionAndAnswer = qa.split("\n");
       // Remove the #._
       let question = questionAndAnswer[0].slice(
-        questionAndAnswer[0].indexOf(" ") + 1
+        questionAndAnswer[0].indexOf(" ") + 1,
       );
       let answer = questionAndAnswer[1];
 
@@ -66,12 +63,12 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(
       { topicId: gentopicId, userId: genUserId, res },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     return NextResponse.json(
       { msg: "Error generating cards" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
