@@ -9,7 +9,7 @@ export default async function Page() {
 
   if (!topics) throw new Error("Could not fetch topics in server code hmm");
 
-  const myTopic = await Topic.findOne({ topicTitle: "CompTIA Security  1.5" });
+  const myTopic = await Topic.findOne({ topicTitle: "CompTIA Security 1.5" });
 
   console.log("Found topics: ", topics);
   return (
