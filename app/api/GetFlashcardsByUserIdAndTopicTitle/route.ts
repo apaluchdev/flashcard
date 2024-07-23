@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function GetFlashcardsByUserIdAndTopicTitleAsync(
+async function GetFlashcardsByUserIdAndTopicTitleAsync(
   userId: string,
   topicTitle: string,
 ) {

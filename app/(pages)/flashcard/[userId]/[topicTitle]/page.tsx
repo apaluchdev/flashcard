@@ -1,4 +1,3 @@
-import { GetFlashcardsByUserIdAndTopicTitleAsync } from "@/app/api/GetFlashcardsByUserIdAndTopicTitle/route";
 import FlashcardComponent from "@/components/flashcard-card/flashcard";
 import Flashcard, { IFlashcard } from "@/models/Flashcard";
 import Topic, { ITopic } from "@/models/Topic";
