@@ -1,5 +1,7 @@
 import { GetFlashcardsByUserIdAndTopicTitleAsync } from "@/app/api/GetFlashcardsByUserIdAndTopicTitle/route";
 import FlashcardComponent from "@/components/flashcard-card/flashcard";
+import Flashcard, { IFlashcard } from "@/models/Flashcard";
+import Topic, { ITopic } from "@/models/Topic";
 
 export const dynamic = "force-dynamic";
 
@@ -10,27 +12,24 @@ interface PageProps {
 export default async function Page({
   params: { userId, topicTitle },
 }: PageProps) {
-  // let topic = await topicClient.GetTopicByUserIdAndTopicTitle(
-  //   userId,
-  //   topicTitle,
-  // );
+  const topic: ITopic | null = await Topic.findOne({
+    userId: userId,
+    topicTitle: decodeURIComponent(topicTitle),
+  });
 
-  // if (!topic)
-  //   return (
-  //     <div>
-  //       Something went wrong trying to find a topic for userId {userId} and
-  //       topicTitle {decodeURIComponent(topicTitle)}
-  //     </div>
-  //   );
+  if (!topic) throw new Error("Could not find topic");
+  const flashcardModels = await Flashcard.find({ topicId: topic._id });
+  flashcardModels.sort((a: any, b: any) =>
+    a.createdAt > b.createdAt ? -1 : 1,
+  );
+  const flashcards = flashcardModels as IFlashcard[];
+
   return (
     <main className="flex h-screen flex-col items-center">
       <FlashcardComponent
         userId={userId}
         topic={decodeURIComponent(topicTitle)}
-        flashcardData={await GetFlashcardsByUserIdAndTopicTitleAsync(
-          userId,
-          decodeURIComponent(topicTitle),
-        )}
+        flashcardData={flashcards}
       />
     </main>
   );
