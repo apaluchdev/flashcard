@@ -1,3 +1,5 @@
+"use client";
+
 import { IFlashcard } from "@/models/Flashcard";
 
 const flashcardClient = {
@@ -19,9 +21,7 @@ const flashcardClient = {
     userId: string,
     topicTitle: string,
   ): Promise<IFlashcard[]> {
-    const response = await fetch(
-      `/api/GetFlashcardsByUserIdAndTopicTitle?userId=${userId}&topicTitle=${topicTitle}`,
-    );
+    const response = await fetch(`/api/GetFlashcardsByUserIdAndTopicTitle`);
     const resultJson = await response.json();
     return resultJson.flashcards;
   },

@@ -1,5 +1,5 @@
 import connect from "@/lib/mongoose-connect";
-import Flashcard from "@/models/Flashcard";
+import Flashcard, { IFlashcard } from "@/models/Flashcard";
 import Topic, { ITopic } from "@/models/Topic";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -14,9 +14,18 @@ export async function GET(req: NextRequest) {
     const topicTitle = searchParams.get("topicTitle");
 
     console.log("Getting flashcards!");
-    if (!userId || !topicTitle) throw new Error("Invalid request");
+    if (!userId || !topicTitle) {
+      return NextResponse.json(
+        { msg: "userId and topicTitle required" },
+        { status: 400 },
+      );
+    }
 
-    return await GetFlashcardsByUserIdAndTopicTitle(userId, topicTitle);
+    const flashcards = await GetFlashcardsByUserIdAndTopicTitleAsync(
+      userId,
+      topicTitle,
+    );
+    return NextResponse.json({ flashcards }, { status: 200 });
   } catch {
     return NextResponse.json(
       { msg: "Error fetching flashcards" },
@@ -25,7 +34,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-async function GetFlashcardsByUserIdAndTopicTitle(
+export async function GetFlashcardsByUserIdAndTopicTitleAsync(
   userId: string,
   topicTitle: string,
 ) {
@@ -36,5 +45,5 @@ async function GetFlashcardsByUserIdAndTopicTitle(
   if (!topic) throw new Error("Could not find topic");
   const flashcards = await Flashcard.find({ topicId: topic._id });
   flashcards.sort((a: any, b: any) => (a.createdAt > b.createdAt ? -1 : 1));
-  return NextResponse.json({ flashcards }, { status: 200 });
+  return flashcards as IFlashcard[];
 }

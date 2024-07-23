@@ -32,7 +32,6 @@ import {
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import userClient from "@/clients/user-client";
-import { Console } from "console";
 
 const roboto = Roboto({
   subsets: ["latin"],

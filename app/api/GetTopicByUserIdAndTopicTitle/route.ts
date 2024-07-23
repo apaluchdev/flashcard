@@ -2,6 +2,8 @@ import connect from "@/lib/mongoose-connect";
 import Topic, { ITopic } from "@/models/Topic";
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 // READ
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {

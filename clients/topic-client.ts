@@ -1,3 +1,5 @@
+"use client";
+
 import { ITopic } from "@/models/Topic";
 
 const topicClient = {
@@ -23,9 +25,9 @@ const topicClient = {
     userId: string,
     topicTitle: string,
   ): Promise<ITopic | null> {
-    const result = await fetch(
-      `/api/GetTopicByUserIdAndTopicTitle?userId=${userId}&topicTitle=${topicTitle}`,
-    );
+    const urlToFetch = `/api/GetTopicByUserIdAndTopicTitle?userId=${userId}&topicTitle=${topicTitle}`;
+    console.log("Fetching from " + urlToFetch);
+    const result = await fetch(urlToFetch);
     const resultJson = await result.json();
     return resultJson.topic;
   },
