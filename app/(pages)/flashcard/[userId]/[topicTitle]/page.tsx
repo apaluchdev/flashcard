@@ -14,6 +14,12 @@ export default async function Page({
 }: PageProps) {
   await connect();
 
+  console.log(
+    "Trying to find a topic for user: ",
+    userId,
+    " and topic: ",
+    decodeURIComponent(topicTitle),
+  );
   const topic: ITopic | null = await Topic.findOne({
     userId: userId,
     topicTitle: decodeURIComponent(topicTitle),
