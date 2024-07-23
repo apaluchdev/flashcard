@@ -1,4 +1,5 @@
 import FlashcardComponent from "@/components/flashcard-card/flashcard";
+import connect from "@/lib/mongoose-connect";
 import Flashcard, { IFlashcard } from "@/models/Flashcard";
 import Topic, { ITopic } from "@/models/Topic";
 
@@ -11,6 +12,8 @@ interface PageProps {
 export default async function Page({
   params: { userId, topicTitle },
 }: PageProps) {
+  await connect();
+
   const topic: ITopic | null = await Topic.findOne({
     userId: userId,
     topicTitle: decodeURIComponent(topicTitle),
