@@ -15,10 +15,12 @@ export default async function Page({
   await connect();
 
   console.log(
-    "Trying to find a topic for user: ",
-    userId,
-    " and topic: ",
+    "Raw Topic Title: ",
+    topicTitle,
+    "| Decoded Topic Title: ",
     decodeURIComponent(topicTitle),
+    "| Decoded 2 Topic Title: ",
+    decodeURI(topicTitle),
   );
   const topic: ITopic | null = await Topic.findOne({
     userId: userId,
