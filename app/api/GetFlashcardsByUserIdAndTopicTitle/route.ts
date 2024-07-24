@@ -1,6 +1,6 @@
 import connect from "@/lib/mongoose-connect";
 import Flashcard, { IFlashcard } from "@/models/Flashcard";
-import Topic, { ITopic } from "@/models/Topic";
+import { ITopic } from "@/models/Topic";
 import { NextRequest, NextResponse } from "next/server";
 
 // READ

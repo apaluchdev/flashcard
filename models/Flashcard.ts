@@ -1,7 +1,7 @@
 import mongoose, { Model } from "mongoose";
 const Schema = mongoose.Schema;
 
-export interface IFlashcard {
+export interface IFlashcard extends Document {
   _id?: string;
   question: string;
   answer: string;
@@ -44,4 +44,5 @@ const flashcardSchema = new Schema<IFlashcard>(
 const Flashcard: Model<IFlashcard> =
   mongoose.models?.Flashcard ||
   mongoose.model<IFlashcard>("Flashcard", flashcardSchema);
+
 export default Flashcard;
