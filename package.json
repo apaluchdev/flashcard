@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@auth/mongodb-adapter": "^3.4.1",
     "@azure/cosmos": "^3.17.3",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
@@ -38,7 +39,7 @@
     "eslint": "8.43.0",
     "eslint-config-next": "13.4.7",
     "lucide-react": "^0.277.0",
-    "mongodb": "^5.7.0",
+    "mongodb": "^6.8.0",
     "mongoose": "^7.4.1",
     "next": "^14.2.5",
     "next-auth": "^4.23.2",

@@ -14,14 +14,6 @@ export default async function Page({
 }: PageProps) {
   await connect();
 
-  console.log(
-    "Raw Topic Title: ",
-    topicTitle,
-    "| Decoded Topic Title: ",
-    decodeURIComponent(topicTitle),
-    "| Decoded 2 Topic Title: ",
-    decodeURI(topicTitle),
-  );
   const topic: ITopic | null = await Topic.findOne({
     userId: userId,
     topicTitle: decodeURIComponent(topicTitle),
