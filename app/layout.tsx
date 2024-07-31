@@ -22,7 +22,7 @@ export default function RootLayout({
       <body className={`${inter.className} fancy-scroll`}>
         <Header />
         <Providers>
-          <div className="h-screen pb-12 pt-12">{children}</div>
+          <div className="h-screen">{children}</div>
         </Providers>
         {/* <Footer /> */}
         <Toaster />

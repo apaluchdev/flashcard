@@ -31,20 +31,20 @@ const CardFace: React.FC<CardFaceProps> = ({ flashcard, topicTitle }) => {
   }, []);
 
   // Temporarily hide the answer when the card changes so that the answer is not revealed during the flip animation
-  // useEffect(() => {
-  //   const htmlDiv = answerRef.current;
+  useEffect(() => {
+    const htmlDiv = answerRef.current;
 
-  //   if (!htmlDiv) return;
+    if (!htmlDiv) return;
 
-  //   htmlDiv.style.opacity = "0";
+    htmlDiv.style.opacity = "0";
 
-  //   const timer = setTimeout(() => {
-  //     htmlDiv.style.opacity = "1";
-  //   }, 50);
+    const timer = setTimeout(() => {
+      htmlDiv.style.opacity = "1";
+    }, 250);
 
-  //   // Cleanup the timer if the component is unmounted
-  //   return () => clearTimeout(timer);
-  // }, [flashcard._id]);
+    // Cleanup the timer if the component is unmounted
+    return () => clearTimeout(timer);
+  }, [flashcard._id]);
 
   return (
     <Card

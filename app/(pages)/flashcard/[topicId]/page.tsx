@@ -20,7 +20,7 @@ export default async function Page({ params: { topicId } }: PageProps) {
   }
 
   return (
-    <main className="flex h-screen flex-col items-center justify-center">
+    <main className="flex h-screen flex-col items-center justify-center pt-20">
       <FlashcardViewer
         topic={JSON.parse(JSON.stringify(topic))}
         flashcardsProp={JSON.parse(JSON.stringify(flashcards)) ?? []}
