@@ -252,24 +252,35 @@ const FlashcardViewer: React.FC<Props> = ({ flashcardsProp, topic }) => {
   function DeleteButton() {
     const userOwnsDeck = true;
 
-    async function DeleteCard() {
-      // var isDeleted = await flashcardClient.DeleteFlashcardById(
-      //   cards[cardIndex]._id || "",
-      // );
-      // if (isDeleted) {
-      //   toast({
-      //     variant: "success",
-      //     description: "Flashcard deleted.",
-      //   });
-      //   LoadCards(Math.max(0, cardIndex - 1));
-      // }
+    async function onDeleteCard() {
+      if (!flashcard?._id) return;
+
+      const response = await fetch(`/api/flashcard/${flashcard._id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const isDeleted = response.ok;
+
+      if (isDeleted) {
+        toast({
+          variant: "success",
+          description: "Flashcard deleted.",
+        });
+      }
+
+      setFlashcards([
+        ...flashcards.filter((card) => card._id !== flashcard._id),
+      ]);
+      onIndexChanged(cardIndex - 1);
     }
 
     return (
       <Button
         className="w-15"
         disabled={!userOwnsDeck || isEditMode}
-        onClick={DeleteCard}
+        onClick={onDeleteCard}
         variant="destructive"
       >
         <Trash2 />
@@ -279,7 +290,7 @@ const FlashcardViewer: React.FC<Props> = ({ flashcardsProp, topic }) => {
 
   return (
     <div className="mb-48 flex w-full flex-col items-center gap-8 pb-8 pt-8">
-      <div className="flex h-[460px] w-5/6 max-w-[800px] flex-col gap-4">
+      <div className="overflow flex h-[460px] w-5/6 max-w-[800px] flex-col gap-4">
         <div className="flex justify-between">
           <AccessoryCardButtons />
         </div>
