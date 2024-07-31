@@ -42,12 +42,12 @@ export default function UpdateUsername() {
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
       try {
-        const user: IUser = {
+        const user = {
           username: values.username,
           email: "", // Retrieved from token on server side
         };
 
-        let savedUser = await userClient.UpsertUser(user);
+        let savedUser = await userClient.UpsertUser(user as IUser);
 
         if (!savedUser) throw new Error("Error occurred adding user");
 

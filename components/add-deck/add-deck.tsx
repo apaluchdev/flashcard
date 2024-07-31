@@ -49,7 +49,7 @@ export default function AddDeck() {
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
       try {
-        const topic: ITopic = {
+        const topic = {
           topicTitle: values.topicTitle,
           userId: "",
         };
@@ -59,7 +59,7 @@ export default function AddDeck() {
           router.push(`/username`);
         }
 
-        let savedTopic = await topicClient.UpsertTopic(topic);
+        let savedTopic = await topicClient.UpsertTopic(topic as ITopic);
         if (!savedTopic) throw new Error("Error occurred adding topic");
         else
           router.push(
