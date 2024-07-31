@@ -26,15 +26,15 @@ import React from "react";
 import AddDeck from "../add-deck/add-deck";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-interface FlashcardTableProps<TData, TValue> {
+interface TopicTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
-export function FlashcardTable<TData, TValue>({
+export function TopicTable<TData, TValue>({
   columns,
   data,
-}: FlashcardTableProps<TData, TValue>) {
+}: TopicTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],

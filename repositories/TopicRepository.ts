@@ -8,13 +8,8 @@ export class TopicRepository implements ITopicRepository {
   }
 
   async getById(id: string): Promise<ITopic | null> {
-    const topics = await Topic.find({ _id: id });
-
-    if (topics.length > 1) {
-      return null;
-    }
-
-    return topics[0];
+    const topic = await Topic.findById(id);
+    return topic;
   }
 
   async getByUserId(userId: string): Promise<ITopic[]> {
@@ -25,15 +20,15 @@ export class TopicRepository implements ITopicRepository {
     return await Topic.find({});
   }
 
-  async add(Topic: ITopic): Promise<void> {
-    throw new Error("Method not implemented.");
+  async insert(topic: ITopic): Promise<ITopic> {
+    return await Topic.create(topic);
   }
 
-  async update(Topic: ITopic): Promise<void> {
-    throw new Error("Method not implemented.");
+  async update(topic: ITopic): Promise<ITopic | null> {
+    return await Topic.findByIdAndUpdate(topic._id, topic);
   }
 
   async delete(id: string): Promise<void> {
-    throw new Error("Method not implemented.");
+    await Topic.findByIdAndDelete(id);
   }
 }

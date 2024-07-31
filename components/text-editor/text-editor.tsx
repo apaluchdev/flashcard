@@ -5,6 +5,12 @@ import styles from "./text-editor.module.css";
 import dynamic from "next/dynamic";
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
+import { Roboto } from "next/font/google";
+
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: "400",
+});
 
 interface Props {
   TextEditorCallback: Function;
@@ -34,7 +40,7 @@ const TextEditor: React.FC<Props> = ({ TextEditorCallback, initialText }) => {
   };
 
   return (
-    <div className={styles.text}>
+    <div className={`${styles.text} ${roboto.className}`}>
       <ReactQuill
         theme="snow"
         value={value}

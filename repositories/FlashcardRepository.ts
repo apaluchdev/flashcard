@@ -20,12 +20,16 @@ export class FlashcardRepository implements IFlashcardRepository {
     return await Flashcard.find({});
   }
 
-  async add(Flashcard: IFlashcard): Promise<void> {
-    throw new Error("Method not implemented.");
+  async insert(flashcard: IFlashcard): Promise<IFlashcard | null> {
+    const insertedFlashcard = await Flashcard.create(flashcard);
+    return insertedFlashcard;
   }
 
-  async update(Flashcard: IFlashcard): Promise<void> {
-    throw new Error("Method not implemented.");
+  async update(flashcard: IFlashcard): Promise<IFlashcard | null> {
+    if (!flashcard._id) return null;
+
+    await Flashcard.findByIdAndUpdate(flashcard._id, flashcard);
+    return this.getById(flashcard._id);
   }
 
   async delete(id: string): Promise<void> {

@@ -1,6 +1,5 @@
 "use client";
 
-import "./styles.css";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";

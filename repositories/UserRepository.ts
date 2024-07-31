@@ -10,7 +10,7 @@ class UserRepository implements IUserRepository {
     return [];
   }
 
-  async add(user: IUser): Promise<void> {
+  async insert(user: IUser): Promise<void> {
     throw new Error("Method not implemented.");
   }
 

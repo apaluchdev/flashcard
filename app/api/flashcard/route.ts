@@ -30,4 +30,37 @@ export async function GET(req: NextRequest) {
   }
 }
 
+export async function POST(req: NextRequest) {
+  try {
+    connect();
 
+    const flashcard: IFlashcard = await req.json();
+
+    var existingFlashcard: IFlashcard | null = null;
+
+    if (flashcard._id) {
+      existingFlashcard = await flashcardRepository.getById(flashcard._id);
+    }
+
+    if (existingFlashcard) {
+      const updatedFlashcard = await flashcardRepository.update(flashcard);
+      return NextResponse.json(
+        { flashcard: updatedFlashcard },
+        { status: HttpStatusCode.Created },
+      );
+    } else {
+      const insertedFlashcard = await flashcardRepository.insert(flashcard);
+      return NextResponse.json(
+        { flashcard: insertedFlashcard },
+        { status: HttpStatusCode.Created },
+      );
+    }
+  } catch (error) {
+    console.log(`Error in API POST for topic ${error}`);
+
+    return NextResponse.json(
+      { msg: "Error inserting topic" },
+      { status: HttpStatusCode.InternalServerError },
+    );
+  }
+}

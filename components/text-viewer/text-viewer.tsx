@@ -15,7 +15,7 @@ const modules = {
 
 const TextViewer: React.FC<Props> = ({ text }) => {
   return (
-    <div className={styles.text}>
+    <div className={`${styles.text}`}>
       <ReactQuill
         theme="bubble"
         modules={modules}
