@@ -2,15 +2,10 @@ import React from "react";
 import { TopicRepository } from "@/repositories/TopicRepository";
 import { TopicTable } from "@/components/topic-table/topic-table";
 import { topicTableColumns } from "@/components/topic-table/topicTableColumns";
-import { ITopic } from "@/models/Topic";
 
 export default async function Page() {
   const topicRepository = new TopicRepository();
   const topics = await topicRepository.getAll();
-  const simpleTopics = JSON.parse(JSON.stringify(topics));
-  simpleTopics.forEach((topic: ITopic) => {
-    topic.topicId = topic._id ?? "";
-  });
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-8">
