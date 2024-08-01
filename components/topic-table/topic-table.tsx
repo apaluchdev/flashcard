@@ -59,9 +59,11 @@ export function TopicTable<TData, TValue>({
       <div className="py-4">
         <Input
           placeholder="Filter topics..."
-          value={(table.getColumn("_id")?.getFilterValue() as string) ?? ""}
+          value={
+            (table.getColumn("topicTitle")?.getFilterValue() as string) ?? ""
+          }
           onChange={(event) => {
-            var column = table.getColumn("_id");
+            var column = table.getColumn("topicTitle");
             column?.setFilterValue(event.target.value);
           }}
           className="max-w-sm"

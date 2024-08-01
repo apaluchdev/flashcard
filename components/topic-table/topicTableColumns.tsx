@@ -8,20 +8,19 @@ import Link from "next/link";
 
 export const topicTableColumns: ColumnDef<ITopic>[] = [
   {
-    accessorKey: "_id",
-    accessorFn: (row) => row, // return the desired value
+    accessorKey: "topicTitle",
     header: ({ column }) => {
       return <div className="flex justify-center">Topic</div>;
     },
     cell: ({ row }) => {
-      const topic: ITopic = row.getValue("_id");
+      const topic: ITopic = row.getValue("topicTitle");
       return (
         <div className="text-center font-medium">
           <Link
             className="text-blue-500 underline visited:text-purple-500 hover:text-blue-800"
-            href={`/flashcard/${topic._id}`}
+            href={`/flashcard/${row.original._id}`}
           >
-            {topic.topicTitle}
+            {row.getValue("topicTitle")}
           </Link>
         </div>
       );

@@ -16,30 +16,34 @@ export function Header() {
   const currentRoute = usePathname();
 
   return (
-    <NavigationMenu className={`fixed z-50`}>
-      <NavigationMenuList>
-        <NavigationMenuItem>
-          <Link href="/" legacyBehavior passHref>
-            <NavigationMenuLink
-              className={`${navigationMenuTriggerStyle()} ${
-                currentRoute == "/" ? "bg-accent" : "bg-inherit"
-              }`}
-            >
-              <p className="text-lg">Home</p>
-            </NavigationMenuLink>
-          </Link>
-          <Link href="/topics" legacyBehavior passHref>
-            <NavigationMenuLink
-              className={`${navigationMenuTriggerStyle()} ${
-                currentRoute == "/topics" ? "bg-accent" : "bg-inherit"
-              }`}
-            >
-              <p className="text-lg">Topics</p>
-            </NavigationMenuLink>
-          </Link>
-        </NavigationMenuItem>
-      </NavigationMenuList>
-    </NavigationMenu>
+    <nav className="flex h-12 items-center bg-gray-900 p-4 text-white transition-colors">
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem className="flex gap-2">
+            <Link href="/" legacyBehavior passHref>
+              <NavigationMenuLink
+                className={`${navigationMenuTriggerStyle()} ${
+                  currentRoute == "/" ? "bg-slate-200 text-black" : "bg-inherit"
+                }`}
+              >
+                <p className="text-lg">Home</p>
+              </NavigationMenuLink>
+            </Link>
+            <Link href="/topics" legacyBehavior passHref>
+              <NavigationMenuLink
+                className={`${navigationMenuTriggerStyle()} ${
+                  currentRoute == "/topics"
+                    ? "bg-slate-200 text-black"
+                    : "bg-inherit"
+                }`}
+              >
+                <p className="text-lg">Topics</p>
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
+    </nav>
   );
 }
 

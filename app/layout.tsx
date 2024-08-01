@@ -1,5 +1,5 @@
 import "./globals.css";
-import { Inter, Open_Sans, Quicksand, Roboto } from "next/font/google";
+import { Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"], weight: "800" });
