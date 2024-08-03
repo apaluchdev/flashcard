@@ -35,7 +35,6 @@ interface Props {
 
 const FlashcardViewer: React.FC<Props> = ({ flashcardsProp, topic }) => {
   const setURLState = useURLState();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const urlCardIndex = parseInt(searchParams?.get("cardIndex") || "0");
 
@@ -45,6 +44,10 @@ const FlashcardViewer: React.FC<Props> = ({ flashcardsProp, topic }) => {
   const [flashcard, setFlashcard] = useState<IFlashcard | undefined>(
     flashcards && flashcards[urlCardIndex],
   );
+  const [flashcardBackup, setFlashcardBackup] = useState<
+    IFlashcard | undefined
+  >(undefined);
+
   if (!flashcard) return <h1 className="text-6xl">No flashcards</h1>;
 
   async function onIndexChanged(newIndex: number) {
@@ -89,6 +92,7 @@ const FlashcardViewer: React.FC<Props> = ({ flashcardsProp, topic }) => {
 
   function onCancelEdit() {
     setIsEditMode(false);
+    setFlashcard(flashcardBackup);
   }
 
   function onShuffleFlashcards() {
@@ -114,6 +118,7 @@ const FlashcardViewer: React.FC<Props> = ({ flashcardsProp, topic }) => {
 
   function onEditCard() {
     const urlUpdate = new Map([["flipped", "true"]]);
+    setFlashcardBackup({ ...flashcard } as IFlashcard);
     setURLState(urlUpdate);
     setIsEditMode(true);
   }
@@ -157,6 +162,7 @@ const FlashcardViewer: React.FC<Props> = ({ flashcardsProp, topic }) => {
     return (
       <div className="flex items-center gap-1">
         <Button
+          size="sm"
           disabled={isEdit}
           onClick={() => onIndexChanged(0)}
           variant="outline"
@@ -164,6 +170,7 @@ const FlashcardViewer: React.FC<Props> = ({ flashcardsProp, topic }) => {
           <StepBack />
         </Button>
         <Button
+          size="sm"
           disabled={isEdit}
           onClick={() => onIndexChanged(cardIndex - 1)}
           variant="outline"
@@ -171,6 +178,7 @@ const FlashcardViewer: React.FC<Props> = ({ flashcardsProp, topic }) => {
           <ChevronLeft />
         </Button>
         <Button
+          size="sm"
           disabled={isEdit}
           onClick={() => onIndexChanged(cardIndex + 1)}
           variant="outline"
@@ -178,13 +186,14 @@ const FlashcardViewer: React.FC<Props> = ({ flashcardsProp, topic }) => {
           <ChevronRight />
         </Button>
         <Button
+          size="sm"
           disabled={isEdit}
           onClick={() => onIndexChanged(Number.POSITIVE_INFINITY)}
           variant="outline"
         >
           <StepForward />
         </Button>
-        <p className="min-w-12 text-right text-sm">
+        <p className="min-w-10 text-right text-sm">
           {cardIndex + 1} / {flashcards.length}
         </p>
       </div>
@@ -283,7 +292,7 @@ const FlashcardViewer: React.FC<Props> = ({ flashcardsProp, topic }) => {
   }
 
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-8 bg-slate-50 pb-8 pt-8">
+    <div className="flex h-full w-full flex-col items-center gap-8 pb-8 pt-8">
       <div className="flex h-[460px] w-5/6 max-w-[800px] flex-col gap-4">
         <div className="flex justify-between">
           <AccessoryCardButtons />
