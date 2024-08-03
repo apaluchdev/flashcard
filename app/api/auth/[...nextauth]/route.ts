@@ -1,5 +1,4 @@
 import client from "@/lib/db";
-import User from "@/models/User";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import { Adapter } from "next-auth/adapters";
 import NextAuth from "next-auth/next";
@@ -10,6 +9,9 @@ const getClient = async () => {
 };
 
 const handler = NextAuth({
+  session: {
+    strategy: "jwt", // Explicit strategy required for Credentials provider
+  },
   adapter: MongoDBAdapter(getClient()) as Adapter,
   providers: [
     GoogleProvider({
@@ -20,19 +22,23 @@ const handler = NextAuth({
 
   callbacks: {
     // Executes on initial authentication
-    async jwt({ token, account, profile }) {
-      const user = await User.findOne({ email: token.email });
-
+    async jwt({ user, token }) {
       if (user) {
-        token.username = user.username;
+        token.id = user.id;
+        token.name = user.name;
       }
       return token;
     },
     // Executes whenever a session is checked
-    async session({ session, token, user }) {
-      // Send properties to the client, like an access_token from a provider.
-      session.user.username = (token as any).username;
-      return session;
+    async session({ session, token }) {
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: token.id, // Getting the user id available into the session: Database id into the JWT, then into session from the JWT
+          name: token.name,
+        },
+      };
     },
   },
 });

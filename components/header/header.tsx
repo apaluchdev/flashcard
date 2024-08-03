@@ -21,10 +21,10 @@ export function Header() {
   const currentRoute = usePathname();
 
   return (
-    <nav className="flex h-12 items-center bg-gray-900 p-4 text-white transition-colors">
+    <nav className="flex h-14 bg-gray-900 text-white transition-colors">
       <NavigationMenu className="w-full">
         <NavigationMenuList>
-          <NavigationMenuItem className="flex w-screen justify-between">
+          <NavigationMenuItem className="flex w-screen items-center justify-between p-4">
             <div className="flex gap-2">
               <Link href="/" legacyBehavior passHref>
                 <NavigationMenuLink
@@ -50,7 +50,7 @@ export function Header() {
               </Link>
             </div>
 
-            <div>
+            <div className=" text-lg ">
               {!session && (
                 <Button
                   onClick={() => signIn()}
@@ -63,9 +63,7 @@ export function Header() {
               {session && (
                 <div className="flex items-center justify-center gap-4">
                   {/* <h2 className="text-sm">{session.user.id}</h2> */}
-                  <h2 className="tracking-tight text-white">
-                    {session.user?.name}
-                  </h2>
+                  <h2 className=" text-white">{session.user?.name}</h2>
                   {image && (
                     <Image
                       src={image}
@@ -77,7 +75,7 @@ export function Header() {
                   )}
                   <Button
                     onClick={() => signOut()}
-                    className="mr-4 bg-transparent p-0 text-xl hover:bg-transparent hover:text-slate-300"
+                    className="mr-4 bg-transparent p-0 text-lg hover:bg-transparent hover:text-slate-300"
                   >
                     Sign Out
                   </Button>
