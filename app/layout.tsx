@@ -19,10 +19,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} fancy-scroll`}>
-        <Header />
+      <body
+        className={`${inter.className} fancy-scroll flex h-screen flex-col`}
+      >
         <Providers>
-          <div className="h-screen">{children}</div>
+          <Header />
+          <div className="flex-1">{children}</div>
         </Providers>
         {/* <Footer /> */}
         <Toaster />

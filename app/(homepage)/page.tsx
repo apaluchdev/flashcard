@@ -4,17 +4,29 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { SignInButton } from "@/components/sign-in-button/sign-in-button";
+import { useSession } from "next-auth/react";
 export default function Page() {
+  const { data: session } = useSession();
+
   return (
-    <main className={`flex min-h-screen flex-col items-center justify-center`}>
+    <main className={`flex h-full flex-col items-center justify-center`}>
       <Title />
-      <div className="mt-12 flex flex-col items-center justify-center gap-5 fade-in">
-        <SignInButton />
-        <Button>
-          {" "}
-          <Link href="/topics">Continue as Guest</Link>
-        </Button>
-      </div>
+      {!session && (
+        <div className="flex flex-col items-center justify-center gap-5 fade-in">
+          <SignInButton />
+          <Button>
+            {" "}
+            <Link href="/topics">Continue as Guest</Link>
+          </Button>
+        </div>
+      )}
+      {session && (
+        <div className="flex flex-col items-center justify-center gap-5 fade-in">
+          <Button>
+            <Link href="/topics">Continue as {session.user.name}</Link>
+          </Button>
+        </div>
+      )}
 
       <h2 className="mt-32 scroll-m-20 border-b pb-2 text-2xl tracking-tight text-gray-800 transition-colors fade-in first:mt-0">
         Created by Adrian Paluch

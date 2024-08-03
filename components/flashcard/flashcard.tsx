@@ -38,7 +38,7 @@ const Flashcard: React.FC<FlashcardProps> = ({ flashcard, topicTitle }) => {
     <div className="group h-full min-h-8 w-full min-w-8 cursor-pointer [perspective:1000px]">
       <div
         onClick={onFlip}
-        className={`relative h-full w-full rounded-xl shadow-xl transition-all duration-500 [transform-style:preserve-3d] ${isFlipped && "[transform:rotateY(180deg)]"}`}
+        className={`relative h-full w-full shadow-xl transition-all duration-500 [transform-style:preserve-3d] ${isFlipped && "[transform:rotateY(180deg)]"}`}
       >
         <Front>
           <CardFace

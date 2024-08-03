@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { IFlashcard, shuffleFlashcards } from "@/models/Flashcard";
 import { ITopic } from "@/models/Topic";
 import Flashcard from "./flashcard";
@@ -60,8 +60,6 @@ const FlashcardViewer: React.FC<Props> = ({ flashcardsProp, topic }) => {
     ]);
 
     setURLState(urlUpdate);
-
-    console.log("Index changed to " + newIndex);
   }
 
   // Actions
@@ -161,34 +159,30 @@ const FlashcardViewer: React.FC<Props> = ({ flashcardsProp, topic }) => {
         <Button
           disabled={isEdit}
           onClick={() => onIndexChanged(0)}
-          className="w-10"
           variant="outline"
         >
-          <StepBack className="absolute" />
+          <StepBack />
         </Button>
         <Button
           disabled={isEdit}
           onClick={() => onIndexChanged(cardIndex - 1)}
-          className="w-10"
           variant="outline"
         >
-          <ChevronLeft className="absolute" />
+          <ChevronLeft />
         </Button>
         <Button
           disabled={isEdit}
           onClick={() => onIndexChanged(cardIndex + 1)}
-          className="w-10"
           variant="outline"
         >
-          <ChevronRight className="absolute" />
+          <ChevronRight />
         </Button>
         <Button
           disabled={isEdit}
           onClick={() => onIndexChanged(Number.POSITIVE_INFINITY)}
-          className="w-10"
           variant="outline"
         >
-          <StepForward className="absolute" />
+          <StepForward />
         </Button>
         <p className="min-w-12 text-right text-sm">
           {cardIndex + 1} / {flashcards.length}
@@ -289,8 +283,8 @@ const FlashcardViewer: React.FC<Props> = ({ flashcardsProp, topic }) => {
   }
 
   return (
-    <div className="mb-48 flex w-full flex-col items-center gap-8 pb-8 pt-8">
-      <div className="overflow flex h-[460px] w-5/6 max-w-[800px] flex-col gap-4">
+    <div className="flex h-full w-full flex-col items-center justify-center gap-8 bg-slate-50 pb-8 pt-8">
+      <div className="flex h-[460px] w-5/6 max-w-[800px] flex-col gap-4">
         <div className="flex justify-between">
           <AccessoryCardButtons />
         </div>
