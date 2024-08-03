@@ -20,7 +20,7 @@ export default async function Page({ params: { topicId } }: PageProps) {
   }
 
   return (
-    <main>
+    <main className="h-full">
       <FlashcardViewer
         topic={JSON.parse(JSON.stringify(topic))}
         flashcardsProp={JSON.parse(JSON.stringify(flashcards)) ?? []}
