@@ -2,12 +2,23 @@ import connect from "@/lib/mongoose-connect";
 import Flashcard, { IFlashcard } from "@/models/Flashcard";
 import { FlashcardRepository } from "@/repositories/FlashcardRepository";
 import { HttpStatusCode } from "axios";
+import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
+import { authOptions } from "../auth/[...nextauth]/route";
+import { TopicRepository } from "@/repositories/TopicRepository";
 
 const flashcardRepository = new FlashcardRepository();
+const topicRepository = new TopicRepository();
 
 export async function GET(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json(
+        { msg: "Unauthorized" },
+        { status: HttpStatusCode.Unauthorized },
+      );
+    }
     await connect();
     const { searchParams } = new URL(req.url);
 
@@ -32,9 +43,39 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json(
+        { msg: "Unauthorized" },
+        { status: HttpStatusCode.Unauthorized },
+      );
+    }
     connect();
 
     const flashcard: IFlashcard = await req.json();
+
+    if (!flashcard.topicId) {
+      return NextResponse.json(
+        { msg: "TopicId required" },
+        { status: HttpStatusCode.BadRequest },
+      );
+    }
+
+    const topic = await topicRepository.getById(flashcard?.topicId);
+
+    if (!topic) {
+      return NextResponse.json(
+        { msg: "Topic for flashcard not found" },
+        { status: HttpStatusCode.NotFound },
+      );
+    }
+
+    if (topic.userId !== session.user.id) {
+      return NextResponse.json(
+        { msg: "Unauthorized to add flashcards to this deck" },
+        { status: HttpStatusCode.Unauthorized },
+      );
+    }
 
     var existingFlashcard: IFlashcard | null = null;
 

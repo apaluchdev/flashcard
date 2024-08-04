@@ -22,7 +22,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { ITopic } from "@/models/Topic";
-import topicClient from "@/clients/topic-client";
+// import topicClient from "@/clients/topic-client";
 import { Roboto } from "next/font/google";
 import { PackagePlus } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -59,12 +59,12 @@ export default function AddDeck() {
           router.push(`/username`);
         }
 
-        let savedTopic = await topicClient.UpsertTopic(topic as ITopic);
-        if (!savedTopic) throw new Error("Error occurred adding topic");
-        else
-          router.push(
-            `/flashcard/${savedTopic.userId}/${savedTopic.topicTitle}`,
-          );
+        // let savedTopic = await topicClient.UpsertTopic(topic as ITopic);
+        // if (!savedTopic) throw new Error("Error occurred adding topic");
+        // else
+        //   router.push(
+        //     `/flashcard/${savedTopic.userId}/${savedTopic.topicTitle}`,
+        //   );
       } catch {
         toast({
           variant: "destructive",

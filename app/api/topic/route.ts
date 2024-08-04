@@ -2,7 +2,9 @@ import connect from "@/lib/mongoose-connect";
 import { ITopic } from "@/models/Topic";
 import { TopicRepository } from "@/repositories/TopicRepository";
 import { HttpStatusCode } from "axios";
+import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
+import { authOptions } from "../auth/[...nextauth]/route";
 
 const topicRepository = new TopicRepository();
 
@@ -33,6 +35,13 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json(
+        { msg: "Unauthorized" },
+        { status: HttpStatusCode.Unauthorized },
+      );
+    }
     connect();
 
     const topic: ITopic = await req.json();
@@ -44,12 +53,20 @@ export async function POST(req: NextRequest) {
     }
 
     if (existingTopic) {
+      if (existingTopic.userId !== session.user.id) {
+        return NextResponse.json(
+          { msg: "Unauthorized" },
+          { status: HttpStatusCode.Unauthorized },
+        );
+      }
+
       const updatedTopic = await topicRepository.update(topic);
       return NextResponse.json(
         { topic: updatedTopic },
         { status: HttpStatusCode.Created },
       );
     } else {
+      topic.userId = session.user.id;
       const insertedTopic = await topicRepository.insert(topic);
       return NextResponse.json(
         { topic: insertedTopic },

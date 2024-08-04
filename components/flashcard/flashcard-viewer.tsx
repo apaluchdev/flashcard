@@ -5,7 +5,7 @@ import { IFlashcard, shuffleFlashcards } from "@/models/Flashcard";
 import { ITopic } from "@/models/Topic";
 import Flashcard from "./flashcard";
 import { useURLState } from "@/hooks/useURLState";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Button } from "../ui/button";
 import {
   ChevronLeft,
@@ -24,6 +24,7 @@ import { toast } from "../ui/use-toast";
 import TextEditor from "../text-editor/text-editor";
 import { Input } from "../ui/input";
 import { Roboto } from "next/font/google";
+import { useSession } from "next-auth/react";
 
 const robotoStandard = Roboto({ subsets: ["latin"], weight: "400" });
 const robotoBold = Roboto({ subsets: ["latin"], weight: "500" });
@@ -37,6 +38,8 @@ const FlashcardViewer: React.FC<Props> = ({ flashcardsProp, topic }) => {
   const setURLState = useURLState();
   const searchParams = useSearchParams();
   const urlCardIndex = parseInt(searchParams?.get("cardIndex") || "0");
+  const { data: session } = useSession();
+  const userOwnsDeck = session?.user.id === topic.userId;
 
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [cardIndex, setCardIndex] = useState<number>(urlCardIndex);
@@ -201,8 +204,6 @@ const FlashcardViewer: React.FC<Props> = ({ flashcardsProp, topic }) => {
   }
 
   function MainCardButtons() {
-    const userOwnsDeck = true;
-
     // TODO - Disallow users editing cards they don't own
     if (isEditMode)
       return (
@@ -233,8 +234,6 @@ const FlashcardViewer: React.FC<Props> = ({ flashcardsProp, topic }) => {
   }
 
   function AccessoryCardButtons() {
-    const userOwnsDeck = true;
-
     if (!isEditMode)
       return (
         <div className="flex gap-2">
@@ -253,8 +252,6 @@ const FlashcardViewer: React.FC<Props> = ({ flashcardsProp, topic }) => {
   }
 
   function DeleteButton() {
-    const userOwnsDeck = true;
-
     async function onDeleteCard() {
       if (!flashcard?._id) return;
 

@@ -3,6 +3,8 @@ import Flashcard, { IFlashcard } from "@/models/Flashcard";
 import { FlashcardRepository } from "@/repositories/FlashcardRepository";
 import { HttpStatusCode } from "axios";
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../auth/[...nextauth]/route";
 
 const flashcardRepository = new FlashcardRepository();
 
@@ -11,6 +13,14 @@ export async function DELETE(
   context: { params: { id: string } },
 ) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json(
+        { msg: "Unauthorized" },
+        { status: HttpStatusCode.Unauthorized },
+      );
+    }
+
     await connect();
 
     const { id } = context.params;
@@ -19,6 +29,23 @@ export async function DELETE(
       return NextResponse.json(
         { msg: "Id required" },
         { status: HttpStatusCode.BadRequest },
+      );
+    }
+
+    const flashcardToDelete = await flashcardRepository.getById(id);
+
+    if (!flashcardToDelete) {
+      return NextResponse.json(
+        {
+          msg: "Flashcard not found",
+        },
+        { status: HttpStatusCode.NotFound },
+      );
+    }
+    if (flashcardToDelete.userId !== session.user.id) {
+      return NextResponse.json(
+        { msg: "Unauthorized" },
+        { status: HttpStatusCode.Unauthorized },
       );
     }
 

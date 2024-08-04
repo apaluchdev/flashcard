@@ -1,13 +1,25 @@
 import connect from "@/lib/mongoose-connect";
 import Topic, { ITopic } from "@/models/Topic";
 import { HttpStatusCode } from "axios";
+import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
+import { authOptions } from "../../auth/[...nextauth]/route";
+import { TopicRepository } from "@/repositories/TopicRepository";
+
+const topicRepository = new TopicRepository();
 
 export async function GET(
   req: NextRequest,
   context: { params: { id: string } },
 ) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json(
+        { msg: "Unauthorized" },
+        { status: HttpStatusCode.Unauthorized },
+      );
+    }
     await connect();
 
     const { id } = context.params;
@@ -39,6 +51,13 @@ export async function DELETE(
   context: { params: { id: string } },
 ) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json(
+        { msg: "Unauthorized" },
+        { status: HttpStatusCode.Unauthorized },
+      );
+    }
     await connect();
 
     const { id } = context.params;
@@ -50,14 +69,23 @@ export async function DELETE(
       );
     }
 
-    const deletedTopic = await Topic.findByIdAndDelete(id);
+    const topic = await topicRepository.getById(id);
 
-    if (!deletedTopic) {
+    if (!topic) {
       return NextResponse.json(
         { msg: "Topic not found" },
         { status: HttpStatusCode.NotFound },
       );
     }
+
+    if (topic.userId !== session.user.id) {
+      return NextResponse.json(
+        { msg: "Unauthorized" },
+        { status: HttpStatusCode.Unauthorized },
+      );
+    }
+
+    await topicRepository.delete(id);
 
     return NextResponse.json(
       { msg: "Topic deleted successfully" },

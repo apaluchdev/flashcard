@@ -1,5 +1,6 @@
 import client from "@/lib/db";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
+import { AuthOptions } from "next-auth";
 import { Adapter } from "next-auth/adapters";
 import NextAuth from "next-auth/next";
 import GoogleProvider from "next-auth/providers/google";
@@ -8,7 +9,7 @@ const getClient = async () => {
   return client;
 };
 
-const handler = NextAuth({
+export const authOptions: AuthOptions = {
   session: {
     strategy: "jwt", // Explicit strategy required for Credentials provider
   },
@@ -41,6 +42,8 @@ const handler = NextAuth({
       };
     },
   },
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
