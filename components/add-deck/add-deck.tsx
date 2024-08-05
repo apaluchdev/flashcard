@@ -22,7 +22,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { ITopic } from "@/models/Topic";
-// import topicClient from "@/clients/topic-client";
 import { Roboto } from "next/font/google";
 import { PackagePlus } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -53,18 +52,20 @@ export default function AddDeck() {
           topicTitle: values.topicTitle,
           userId: "",
         };
-
-        // Fix for middleware not redirecting - TODO, DEBUG THAT
-        if (!session?.user.username) {
-          router.push(`/username`);
-        }
-
-        // let savedTopic = await topicClient.UpsertTopic(topic as ITopic);
-        // if (!savedTopic) throw new Error("Error occurred adding topic");
-        // else
-        //   router.push(
-        //     `/flashcard/${savedTopic.userId}/${savedTopic.topicTitle}`,
-        //   );
+        //   // Fix for middleware not redirecting - TODO, DEBUG THAT
+        //   // if (!session?.user.username) {
+        //   //   router.push(`/username`);
+        //   // }
+        const response = await fetch(`/api/topic`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(topic),
+        });
+        const insertedTopic: ITopic = (await response.json()).topic;
+        if (!insertedTopic) throw new Error("Error occurred adding topic");
+        else router.push(`/flashcard/${insertedTopic._id}`);
       } catch {
         toast({
           variant: "destructive",
@@ -104,11 +105,7 @@ export default function AddDeck() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button
-          disabled={!Boolean(session?.user)}
-          className="w-15"
-          variant="outline"
-        >
+        <Button disabled={!Boolean(session?.user)} variant="outline">
           <PackagePlus />
         </Button>
       </PopoverTrigger>

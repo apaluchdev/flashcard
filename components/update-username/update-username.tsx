@@ -18,7 +18,6 @@ import { Roboto } from "next/font/google";
 import { toast } from "../ui/use-toast";
 import { IUser } from "@/models/User";
 //import { useSession } from "next-auth/react";
-import userClient from "@/clients/user-client";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -47,7 +46,7 @@ export default function UpdateUsername() {
           email: "", // Retrieved from token on server side
         };
 
-        let savedUser = await userClient.UpsertUser(user as IUser);
+        let savedUser = null; //await userClient.UpsertUser(user as IUser);
 
         if (!savedUser) throw new Error("Error occurred adding user");
 

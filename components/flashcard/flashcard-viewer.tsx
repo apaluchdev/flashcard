@@ -25,6 +25,7 @@ import TextEditor from "../text-editor/text-editor";
 import { Input } from "../ui/input";
 import { Roboto } from "next/font/google";
 import { useSession } from "next-auth/react";
+import AddDeck from "../add-deck/add-deck";
 
 const robotoStandard = Roboto({ subsets: ["latin"], weight: "400" });
 const robotoBold = Roboto({ subsets: ["latin"], weight: "500" });
@@ -51,7 +52,16 @@ const FlashcardViewer: React.FC<Props> = ({ flashcardsProp, topic }) => {
     IFlashcard | undefined
   >(undefined);
 
-  if (!flashcard) return <h1 className="text-6xl">No flashcards</h1>;
+  if (!flashcard)
+    return (
+      <div className="flex h-full w-3/5 flex-col items-center gap-8 pt-8">
+        <h1 className=" text-center text-5xl">{topic.topicTitle}</h1>
+        <h2 className=" text-center text-3xl text-slate-600">No flashcards</h2>
+        <Button size="lg" className="max-w-72 text-xl" onClick={onAddCard}>
+          Add a flashcard
+        </Button>
+      </div>
+    );
 
   async function onIndexChanged(newIndex: number) {
     if (newIndex < 0) newIndex = 0;
@@ -127,6 +137,7 @@ const FlashcardViewer: React.FC<Props> = ({ flashcardsProp, topic }) => {
   }
 
   async function onSaveCard() {
+    // TODO - Replace with React Query
     const response = await fetch(`/api/flashcard`, {
       method: "POST",
       headers: {
@@ -247,6 +258,7 @@ const FlashcardViewer: React.FC<Props> = ({ flashcardsProp, topic }) => {
           >
             <Shuffle />
           </Button>
+          <AddDeck />
         </div>
       );
   }
