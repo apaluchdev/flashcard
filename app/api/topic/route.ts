@@ -1,10 +1,10 @@
+import { authOptions } from "@/lib/auth";
 import connect from "@/lib/mongoose-connect";
 import { ITopic } from "@/models/Topic";
 import { TopicRepository } from "@/repositories/TopicRepository";
 import { HttpStatusCode } from "axios";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-import { authOptions } from "../auth/[...nextauth]/route";
 
 const topicRepository = new TopicRepository();
 
