@@ -3,7 +3,7 @@ import { TopicRepository } from "@/repositories/TopicRepository";
 import { TopicTable } from "@/components/topic-table/topic-table";
 import { topicTableColumns } from "@/components/topic-table/topicTableColumns";
 
-export const fetchCache = "no-store, must-revalidate";
+export const fetchCache = "force-no-store";
 
 export default async function Page() {
   const topicRepository = new TopicRepository();
