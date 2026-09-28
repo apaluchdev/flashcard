@@ -1,8 +1,9 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { PencilIcon, PlusIcon } from "lucide-react"
+import { ChevronDownIcon, PencilIcon, PlusIcon } from "lucide-react"
 
+import { CardViewer } from "@/components/card-viewer"
 import { VisibilityBadge } from "@/components/visibility-badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { buttonVariants } from "@/components/ui/button"
@@ -69,21 +70,30 @@ export default async function DeckPage({ params }: PageProps<"/decks/[id]">) {
           )}
         </div>
       ) : (
-        // Phase 4 replaces this list with the flip-card study viewer.
-        <ol className="flex flex-col gap-3">
-          {deck.cards.map((card, index) => (
-            <li key={card.id} className="grid gap-2 rounded-lg border p-4 sm:grid-cols-2">
-              <p className="whitespace-pre-line">
-                <span className="sr-only">Card {index + 1} front: </span>
-                {card.front}
-              </p>
-              <p className="whitespace-pre-line text-muted-foreground">
-                <span className="sr-only">Back: </span>
-                {card.back}
-              </p>
-            </li>
-          ))}
-        </ol>
+        <>
+          <CardViewer cards={deck.cards} />
+
+          <details className="group mt-10 rounded-lg border">
+            <summary className="flex cursor-pointer list-none items-center justify-between p-4 font-medium [&::-webkit-details-marker]:hidden">
+              All cards ({deck.cards.length})
+              <ChevronDownIcon className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
+            </summary>
+            <ol className="flex flex-col divide-y border-t">
+              {deck.cards.map((card, index) => (
+                <li key={card.id} className="grid gap-2 p-4 sm:grid-cols-2">
+                  <p className="whitespace-pre-line break-words">
+                    <span className="sr-only">Card {index + 1} question: </span>
+                    {card.front}
+                  </p>
+                  <p className="whitespace-pre-line break-words text-muted-foreground">
+                    <span className="sr-only">Answer: </span>
+                    {card.back}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </details>
+        </>
       )}
     </div>
   )

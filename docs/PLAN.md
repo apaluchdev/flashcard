@@ -224,7 +224,9 @@ Each phase ends with something that runs and can be committed. Tests are written
 5. Owner-only "Edit" button on the viewer page.
 6. **Done when:** a user can create a deck with cards, edit them, reorder them, delete the deck, and cannot reach or submit edits to another user's deck (checked by a test that calls the action directly with a different user).
 
-### Phase 4 — Study viewer (F7, F8)
+### Phase 4 — Study viewer (F7, F8) ✅
+
+> **As built:** the share button (step 1) moved to Phase 5 with the rest of sharing. Also added: swipe left/right on touch screens, 44px controls on touch devices, and a collapsible "All cards" list below the viewer. Shuffle always starts again at card 1, both when turning it on and off. For 2+ cards, shuffling never returns the saved order unchanged.
 1. `/decks/[id]/page.tsx` (server component) loads the deck with `getDeckForView` and shows the title, description, owner, card count and share button, then renders `<CardViewer cards={…} />`.
 2. `card-viewer.tsx` (client):
    - State: `order` (array of indexes), `current`, `flipped`.
