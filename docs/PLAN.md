@@ -198,7 +198,7 @@ Each phase ends with something that runs and can be committed. Tests are written
 7. `proxy.ts`: if there's no session cookie on `/decks/new` or `/decks/*/edit`, redirect to `/sign-in`. This is only a convenience check (see §3).
 8. **Done when:** you can sign in with GitHub and with Google, reloading keeps you signed in, and signing out works.
 
-### Phase 2 — Deck and card schema
+### Phase 2 — Deck and card schema ✅
 1. Update `src/db/schema.ts`: `visibility` enum, `owner_id`, `card_count`, indexes, `pg_trgm` extension (in a custom migration).
 2. Generate and apply the migration (`npm run db:generate`, then `npm run db:migrate`). The starter tables are empty, so adding the NOT NULL `owner_id` column is safe.
 3. `src/lib/validation.ts`: `cardInput`, `deckInput` (with `cards: cardInput[]`) and `deckImportFile`, all built from the same base schemas.
