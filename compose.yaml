@@ -16,18 +16,35 @@ services:
       timeout: 5s
       retries: 10
 
+  # Applies pending Drizzle migrations, then exits.
+  migrate:
+    build:
+      context: .
+      target: migrator
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-flashcard}:${POSTGRES_PASSWORD:-flashcard}@db:5432/${POSTGRES_DB:-flashcard}
+    depends_on:
+      db:
+        condition: service_healthy
+
   # Production build of the Next.js app. For day-to-day development, run only
-  # the database (`docker compose up -d db`) and use `npm run dev` on the host.
+  # the database (`npm run db:up`) and use `npm run dev` on the host.
   app:
     build: .
     restart: unless-stopped
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-flashcard}:${POSTGRES_PASSWORD:-flashcard}@db:5432/${POSTGRES_DB:-flashcard}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
     ports:
       - "3000:3000"
     depends_on:
-      db:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
 volumes:
   db-data:

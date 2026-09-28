@@ -14,6 +14,12 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
+# One-shot database migrations (used by the `migrate` service in compose.yaml)
+FROM deps AS migrator
+COPY drizzle.config.ts ./
+COPY drizzle ./drizzle
+CMD ["npx", "drizzle-kit", "migrate"]
+
 # Minimal runtime image using Next.js standalone output
 FROM base AS runner
 WORKDIR /app

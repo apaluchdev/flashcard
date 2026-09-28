@@ -179,10 +179,10 @@ Non-owners opening `/decks/{id}/edit` get a 404 page, not a 403, so the edit pag
 
 Each phase ends with something that runs and can be committed. Tests are written in the phase that adds the code they test.
 
-### Phase 0 — Foundations
+### Phase 0 — Foundations ✅
 1. Install `zod`, `better-auth`, `vitest`, `@playwright/test`. Add the shadcn components listed in §2.
 2. **Switch from `db:push` to generated migrations** (`drizzle-kit generate`, then commit `drizzle/`, then `drizzle-kit migrate`). Migrations are reviewable and reproducible across machines and deploys.
-3. Add a `migrate` service to `compose.yaml`. It uses the Dockerfile's `builder` stage to run `drizzle-kit migrate`, and `app` waits for it with `depends_on: condition: service_completed_successfully`. The production image stays small because it doesn't include drizzle-kit.
+3. Add a `migrate` service to `compose.yaml`. It uses a small `migrator` stage in the Dockerfile to run `drizzle-kit migrate`, and `app` waits for it with `depends_on: condition: service_completed_successfully`. The production image stays small because it doesn't include drizzle-kit.
 4. Extend `.env.example` with `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `GITHUB_CLIENT_ID/SECRET`, `GOOGLE_CLIENT_ID/SECRET`. Pass them to `app` in compose.
 5. App shell: `layout.tsx` with a header (logo, "Browse", "New deck", user menu placeholder), toaster, and a `container` width. Replace the Next.js starter `page.tsx`.
 
@@ -200,7 +200,7 @@ Each phase ends with something that runs and can be committed. Tests are written
 
 ### Phase 2 — Deck and card schema
 1. Update `src/db/schema.ts`: `visibility` enum, `owner_id`, `card_count`, indexes, `pg_trgm` extension (in a custom migration).
-2. Generate and apply the migration. Because the existing starter tables are empty, reset the database with `docker compose down -v` before this first migration.
+2. Generate and apply the migration (`npm run db:generate`, then `npm run db:migrate`). The starter tables are empty, so adding the NOT NULL `owner_id` column is safe.
 3. `src/lib/validation.ts`: `cardInput`, `deckInput` (with `cards: cardInput[]`) and `deckImportFile`, all built from the same base schemas.
 4. Unit tests for the validation limits.
 
