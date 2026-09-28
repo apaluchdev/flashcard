@@ -257,7 +257,9 @@ Each phase ends with something that runs and can be committed. Tests are written
 4. Serve an example file at `public/deck-example.json` and link to it.
 5. Unit tests: valid file, missing title, empty cards, 1,001 cards, extra fields ignored, wrong types.
 
-### Phase 7 — Search and browse (F6)
+### Phase 7 — Search and browse (F6) ✅
+
+> **As built:** the list page lives in the `app/decks/(browse)/` route group so its loading skeleton doesn't show for `/decks/[id]` or `/decks/new`. Results are ranked title matches first, then by `similarity()`, then newest. `%` and `_` in queries match literally. The search box is also a plain GET form, so it works before JavaScript loads. Invalid `scope`/`page` values fall back to Public, page 1.
 1. `searchDecks({ q, scope, userId, page })` in the data access layer:
    - `scope=public`: `visibility = 'public'`
    - `scope=mine`: `owner_id = userId` (requires sign-in; guests see a sign-in prompt)
@@ -309,7 +311,7 @@ Each phase ends with something that runs and can be committed. Tests are written
 - Copy someone else's deck into your own account
 - Study progress, spaced repetition, "mark as known"
 - Images or rich text / Markdown on cards
-- JSON / CSV export (a natural counterpart to import)
+- CSV import/export (JSON import and export are done in Phase 6)
 - Drag-and-drop card reordering (`@dnd-kit`)
 - Regenerating a share link to revoke access to a private deck
 - Tags or categories and sorting by popularity

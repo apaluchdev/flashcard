@@ -12,6 +12,7 @@ import {
   deleteDeckForUser,
   getDeckForEdit,
   getDeckForView,
+  searchDecks,
   setDeckVisibilityForUser,
   updateDeckForUser,
 } from "./decks"
@@ -174,6 +175,88 @@ describe("visibility", () => {
 
   it("returns false for malformed ids", async () => {
     expect(await setDeckVisibilityForUser("nope", owner.id, "public")).toBe(false)
+  })
+})
+
+describe("search", () => {
+  // A unique word keeps these tests independent of other decks in the test DB.
+  const token = `zq${randomUUID().slice(0, 8)}`
+  const ids: Record<string, string> = {}
+
+  beforeAll(async () => {
+    const make = (userId: string, title: string, extra: Partial<DeckInput> = {}) =>
+      createDeckForUser(userId, input({ title, cards: [], ...extra }))
+    ids.ownerPublic = await make(owner.id, `Alpha ${token}`, { visibility: "public" })
+    ids.ownerPrivate = await make(owner.id, `Beta ${token}`, { visibility: "private" })
+    ids.otherPublic = await make(other.id, `Gamma deck`, {
+      visibility: "public",
+      description: `mentions ${token} in the description`,
+    })
+    ids.otherPrivate = await make(other.id, `Delta ${token}`, { visibility: "private" })
+    ids.wildcard = await make(owner.id, `100% ${token}_done`, { visibility: "public" })
+  })
+
+  const titles = (rows: { title: string }[]) => rows.map((r) => r.title)
+
+  it("public scope lists only public decks from everyone", async () => {
+    const { decks: rows } = await searchDecks({ scope: "public", query: token })
+    expect(rows.map((r) => r.id).sort()).toEqual(
+      [ids.ownerPublic, ids.otherPublic, ids.wildcard].sort()
+    )
+    expect(rows.every((r) => r.visibility === "public")).toBe(true)
+  })
+
+  it("mine scope lists only the user's decks, public and private", async () => {
+    const { decks: rows } = await searchDecks({ scope: "mine", userId: owner.id, query: token })
+    expect(rows.map((r) => r.id).sort()).toEqual(
+      [ids.ownerPublic, ids.ownerPrivate, ids.wildcard].sort()
+    )
+    expect(rows.every((r) => r.owner.id === owner.id)).toBe(true)
+  })
+
+  it("mine scope without a user returns nothing", async () => {
+    expect(await searchDecks({ scope: "mine", query: token })).toEqual({ decks: [], hasMore: false })
+  })
+
+  it("matches case-insensitively in title or description, title matches first", async () => {
+    const { decks: rows } = await searchDecks({ scope: "public", query: token.toUpperCase() })
+    expect(rows).toHaveLength(3)
+    // "Gamma deck" only matches in its description, so it ranks last.
+    expect(titles(rows).at(-1)).toBe("Gamma deck")
+  })
+
+  it("treats % and _ literally", async () => {
+    const percent = await searchDecks({ scope: "public", query: `100% ${token}` })
+    expect(percent.decks.map((r) => r.id)).toEqual([ids.wildcard])
+    const underscore = await searchDecks({ scope: "public", query: `${token}_done` })
+    expect(underscore.decks.map((r) => r.id)).toEqual([ids.wildcard])
+    // "_" must not act as a single-character wildcard.
+    expect((await searchDecks({ scope: "public", query: `${token}xdone` })).decks).toEqual([])
+  })
+
+  it("orders by most recently updated when there is no query", async () => {
+    await setDeckVisibilityForUser(ids.ownerPublic, owner.id, "public") // bumps updatedAt
+    const { decks: rows } = await searchDecks({ scope: "mine", userId: owner.id })
+    expect(rows[0]!.id).toBe(ids.ownerPublic)
+    const times = rows.map((r) => r.updatedAt.getTime())
+    expect(times).toEqual([...times].sort((a, b) => b - a))
+  })
+
+  it("paginates with hasMore", async () => {
+    const all = await searchDecks({ scope: "mine", userId: owner.id, query: token })
+    const first = await searchDecks({ scope: "mine", userId: owner.id, query: token, pageSize: 2 })
+    const second = await searchDecks({
+      scope: "mine",
+      userId: owner.id,
+      query: token,
+      pageSize: 2,
+      page: 2,
+    })
+
+    expect(first).toMatchObject({ hasMore: true })
+    expect(first.decks).toHaveLength(2)
+    expect(second).toMatchObject({ hasMore: false })
+    expect([...first.decks, ...second.decks].map((r) => r.id)).toEqual(all.decks.map((r) => r.id))
   })
 })
 

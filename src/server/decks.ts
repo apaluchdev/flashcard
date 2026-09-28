@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray } from "drizzle-orm"
+import { and, asc, desc, eq, ilike, inArray, or, sql } from "drizzle-orm"
 import { z } from "zod"
 
 import { db } from "@/db"
@@ -184,9 +184,50 @@ export async function deleteDeckForUser(id: string, userId: string) {
   return deleted.length > 0
 }
 
-/** The user's decks, newest first. Replaced by full search in Phase 7. */
-export async function listDecksForUser(userId: string) {
-  return db
+export const SEARCH_PAGE_SIZE = 24
+export const SEARCH_MAX_QUERY = 100
+
+export type SearchScope = "public" | "mine"
+
+/** Escapes LIKE wildcards so "100%" matches literally. */
+const escapeLike = (text: string) => text.replace(/[\\%_]/g, "\\$&")
+
+/**
+ * Public decks, or the user's own decks (both visibilities), optionally
+ * filtered by a case-insensitive substring of title or description (served
+ * by the trigram indexes). With a query, title matches rank first, then by
+ * similarity; otherwise newest first. Returns one page plus `hasMore`.
+ */
+export async function searchDecks({
+  scope,
+  userId,
+  query = "",
+  page = 1,
+  pageSize = SEARCH_PAGE_SIZE,
+}: {
+  scope: SearchScope
+  userId?: string
+  query?: string
+  page?: number
+  pageSize?: number
+}) {
+  if (scope === "mine" && !userId) return { decks: [], hasMore: false }
+
+  const q = query.trim().slice(0, SEARCH_MAX_QUERY)
+  const pattern = `%${escapeLike(q)}%`
+  const filters = [
+    scope === "public" ? eq(decks.visibility, "public") : eq(decks.ownerId, userId!),
+    q ? or(ilike(decks.title, pattern), ilike(decks.description, pattern)) : undefined,
+  ]
+  const order = q
+    ? [
+        sql`(${decks.title} ilike ${pattern}) desc`,
+        sql`similarity(${decks.title}, ${q}) desc`,
+        desc(decks.updatedAt),
+      ]
+    : [desc(decks.updatedAt)]
+
+  const rows = await db
     .select({
       id: decks.id,
       title: decks.title,
@@ -194,8 +235,17 @@ export async function listDecksForUser(userId: string) {
       visibility: decks.visibility,
       cardCount: decks.cardCount,
       updatedAt: decks.updatedAt,
+      owner: { id: user.id, name: user.name, image: user.image },
     })
     .from(decks)
-    .where(eq(decks.ownerId, userId))
-    .orderBy(desc(decks.updatedAt))
+    .innerJoin(user, eq(user.id, decks.ownerId))
+    .where(and(...filters))
+    .orderBy(...order, desc(decks.id))
+    // Fetch one extra row to know whether there is a next page.
+    .limit(pageSize + 1)
+    .offset((Math.max(1, page) - 1) * pageSize)
+
+  return { decks: rows.slice(0, pageSize), hasMore: rows.length > pageSize }
 }
+
+export type DeckSummary = Awaited<ReturnType<typeof searchDecks>>["decks"][number]
