@@ -10,8 +10,10 @@ import {
   visibilitySchema,
 } from "@/lib/validation"
 import {
+  DECK_CREATION_LIMIT,
   createDeckForUser,
   deleteDeckForUser,
+  isDeckCreationRateLimited,
   setDeckVisibilityForUser,
   updateDeckForUser,
 } from "@/server/decks"
@@ -23,10 +25,18 @@ import { requireUser } from "@/server/session"
 
 export type ActionResult = { ok: false; errors: string[] }
 
+const rateLimited: ActionResult = {
+  ok: false,
+  errors: [
+    `You've created ${DECK_CREATION_LIMIT.max} decks in the last hour. Please wait a bit before creating more.`,
+  ],
+}
+
 export async function createDeck(payload: unknown): Promise<ActionResult> {
   const user = await requireUser("/decks/new")
   const parsed = deckInput.safeParse(payload)
   if (!parsed.success) return { ok: false, errors: formatIssues(parsed.error) }
+  if (await isDeckCreationRateLimited(user.id)) return rateLimited
 
   const id = await createDeckForUser(user.id, parsed.data)
   revalidatePath("/decks")
@@ -38,6 +48,7 @@ export async function importDeck(payload: unknown): Promise<ActionResult> {
   const user = await requireUser("/decks/new?tab=import")
   const parsed = deckImportFile.safeParse(payload)
   if (!parsed.success) return { ok: false, errors: formatIssues(parsed.error) }
+  if (await isDeckCreationRateLimited(user.id)) return rateLimited
 
   const id = await createDeckForUser(user.id, parsed.data)
   revalidatePath("/decks")

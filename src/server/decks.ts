@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, ilike, inArray, or, sql } from "drizzle-orm"
+import { and, asc, count, desc, eq, gte, ilike, inArray, or, sql } from "drizzle-orm"
 import { z } from "zod"
 
 import { db } from "@/db"
@@ -51,6 +51,19 @@ export async function getDeckForEdit(id: string, userId: string) {
     .orderBy(asc(cards.position))
 
   return { ...deck, cards: deckCards }
+}
+
+/** Creating + importing combined, per user. Generous for people, stops scripts. */
+export const DECK_CREATION_LIMIT = { max: 30, windowMinutes: 60 }
+
+/** True when the user has created too many decks recently. */
+export async function isDeckCreationRateLimited(userId: string) {
+  const since = new Date(Date.now() - DECK_CREATION_LIMIT.windowMinutes * 60_000)
+  const [row] = await db
+    .select({ count: count() })
+    .from(decks)
+    .where(and(eq(decks.ownerId, userId), gte(decks.createdAt, since)))
+  return (row?.count ?? 0) >= DECK_CREATION_LIMIT.max
 }
 
 /** Creates a deck owned by `userId`. Returns the new deck id. */

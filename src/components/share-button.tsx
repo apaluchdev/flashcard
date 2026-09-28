@@ -4,6 +4,7 @@ import { Share2Icon } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
+import { touchTarget } from "@/lib/touch"
 import type { Visibility } from "@/lib/validation"
 
 type ShareButtonProps = {
@@ -43,7 +44,7 @@ export function ShareButton({ deckId, title, visibility }: ShareButtonProps) {
   }
 
   return (
-    <Button variant="outline" onClick={share}>
+    <Button variant="outline" onClick={share} className={touchTarget}>
       <Share2Icon />
       Share
     </Button>

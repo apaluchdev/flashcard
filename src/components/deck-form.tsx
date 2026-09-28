@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
+import { touchTarget } from "@/lib/touch"
 import { LIMITS, deckInput, type Visibility } from "@/lib/validation"
 import { createDeck, updateDeck } from "@/server/deck-actions"
 
@@ -249,6 +250,7 @@ export function DeckForm({ mode, initial, deckId }: DeckFormProps) {
                     type="button"
                     variant="ghost"
                     size="icon-sm"
+                    className={touchTarget}
                     aria-label={`Move card ${index + 1} up`}
                     disabled={index === 0}
                     onClick={() => moveCard(index, -1)}
@@ -259,6 +261,7 @@ export function DeckForm({ mode, initial, deckId }: DeckFormProps) {
                     type="button"
                     variant="ghost"
                     size="icon-sm"
+                    className={touchTarget}
                     aria-label={`Move card ${index + 1} down`}
                     disabled={index === cards.length - 1}
                     onClick={() => moveCard(index, 1)}
@@ -269,6 +272,7 @@ export function DeckForm({ mode, initial, deckId }: DeckFormProps) {
                     type="button"
                     variant="ghost"
                     size="icon-sm"
+                    className={touchTarget}
                     aria-label={`Delete card ${index + 1}`}
                     onClick={() => removeCard(card.key)}
                   >

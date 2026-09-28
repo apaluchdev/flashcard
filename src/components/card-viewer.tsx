@@ -10,12 +10,10 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { shuffledOrder } from "@/lib/shuffle"
+import { touchTarget } from "@/lib/touch"
 import { cn } from "cn"
 
 type ViewerCard = { id: string; front: string; back: string }
-
-// 44px controls on touch screens; the regular sizes with a mouse.
-const touchTarget = "[@media(pointer:coarse)]:h-11 [@media(pointer:coarse)]:min-w-11"
 
 const savedOrder = (length: number) => Array.from({ length }, (_, i) => i)
 

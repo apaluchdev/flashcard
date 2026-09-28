@@ -16,6 +16,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
+import { touchTarget } from "@/lib/touch"
 import { deleteDeck } from "@/server/deck-actions"
 
 export function DeleteDeckButton({
@@ -37,7 +38,7 @@ export function DeleteDeckButton({
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger render={<Button variant="destructive" />}>
+      <AlertDialogTrigger render={<Button variant="destructive" className={touchTarget} />}>
         <Trash2Icon />
         Delete deck
       </AlertDialogTrigger>

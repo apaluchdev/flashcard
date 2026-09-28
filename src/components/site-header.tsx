@@ -3,6 +3,7 @@ import { LayersIcon, PlusIcon } from "lucide-react"
 
 import { buttonVariants } from "@/components/ui/button"
 import { UserMenu } from "@/components/user-menu"
+import { touchTarget } from "@/lib/touch"
 import { getCurrentUser } from "@/server/session"
 
 export async function SiteHeader() {
@@ -15,15 +16,15 @@ export async function SiteHeader() {
           <LayersIcon className="size-5" />
           Flashcards
         </Link>
-        <nav className="flex items-center gap-1 text-sm">
-          <Link href="/decks" className={buttonVariants({ variant: "ghost" })}>
+        <nav aria-label="Main" className="flex items-center gap-1 text-sm">
+          <Link href="/decks" className={buttonVariants({ variant: "ghost", className: touchTarget })}>
             Browse
           </Link>
         </nav>
         <div className="ml-auto flex items-center gap-2">
           <Link
             href="/decks/new"
-            className={buttonVariants({ variant: "outline" })}
+            className={buttonVariants({ variant: "outline", className: touchTarget })}
           >
             <PlusIcon />
             <span className="sr-only sm:not-sr-only">New deck</span>
@@ -31,7 +32,7 @@ export async function SiteHeader() {
           {user ? (
             <UserMenu user={user} />
           ) : (
-            <Link href="/sign-in" className={buttonVariants()}>
+            <Link href="/sign-in" className={buttonVariants({ className: touchTarget })}>
               Sign in
             </Link>
           )}

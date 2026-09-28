@@ -10,6 +10,7 @@ import { VisibilityBadge } from "@/components/visibility-badge"
 import { VisibilityMenu } from "@/components/visibility-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { buttonVariants } from "@/components/ui/button"
+import { touchTarget } from "@/lib/touch"
 import { getDeckForView } from "@/server/decks"
 import { getCurrentUser } from "@/server/session"
 
@@ -64,7 +65,7 @@ export default async function DeckPage({ params }: PageProps<"/decks/[id]">) {
             <a
               href={`/decks/${deck.id}/export`}
               download
-              className={buttonVariants({ variant: "outline" })}
+              className={buttonVariants({ variant: "outline", className: touchTarget })}
               aria-label="Export as JSON"
               title="Export as JSON"
             >
@@ -74,7 +75,7 @@ export default async function DeckPage({ params }: PageProps<"/decks/[id]">) {
             {isOwner && (
               <Link
                 href={`/decks/${deck.id}/edit`}
-                className={buttonVariants({ variant: "outline" })}
+                className={buttonVariants({ variant: "outline", className: touchTarget })}
               >
                 <PencilIcon />
                 Edit

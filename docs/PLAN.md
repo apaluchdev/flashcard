@@ -269,7 +269,16 @@ Each phase ends with something that runs and can be committed. Tests are written
 3. Everything lives in the URL (`?scope=mine&q=spanish&page=2`), so search results can be bookmarked and shared.
 4. The landing page shows the latest public decks and a hero with "Create a deck" and "Browse".
 
-### Phase 8 — Polish and hardening
+### Phase 8 — Polish and hardening ✅
+
+> **As built:**
+> - **CSP:** a nonce-based Content Security Policy set per request in `src/proxy.ts`, which now runs on all pages. Scripts are nonce-only; `style-src` allows `'unsafe-inline'` because React style attributes can't carry nonces. `upgrade-insecure-requests` is added only when `BETTER_AUTH_URL` is https.
+> - **Other headers:** static security headers are set in `next.config.ts`. HSTS is left to the HTTPS reverse proxy in production.
+> - **Rate limit:** 30 deck creations/imports per user per hour, counted in the database.
+> - **Error pages:** global `not-found`, `error` and `global-error` pages. They use Next 16's `retry()`, which re-fetches data, rather than `reset()`.
+> - **Other additions:** a deck/edit loading skeleton, a skip-to-content link, and 44px touch targets on coarse pointers (`src/lib/touch.ts`).
+> - **Verified in the production Docker build:** strict CSP with no violations; a friendly error page, and recovery via "Try again", while Postgres was stopped.
+> - **Build log note:** the Docker build logs Better Auth's "default secret" error because `.env` is excluded from the image. The runtime container receives the real secret from compose.
 1. `not-found.tsx` and `error.tsx` for `/decks/[id]`, and `loading.tsx` skeletons.
 2. Responsive pass (phone width), dark-mode check, keyboard and focus check.
 3. Rate-limit the create and import actions per user (Better Auth has a rate limiter; a simple per-user limit inside the actions is enough).

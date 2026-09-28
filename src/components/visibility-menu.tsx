@@ -58,7 +58,7 @@ export function VisibilityMenu({
       <DropdownMenuTrigger
         aria-label={`Visibility: ${label}. Change visibility`}
         className={cn(
-          "inline-flex h-6 items-center gap-1 rounded-4xl border px-2 text-xs font-medium outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50",
+          "inline-flex h-6 items-center gap-1 rounded-4xl border px-2 text-xs font-medium outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 [@media(pointer:coarse)]:h-9 [@media(pointer:coarse)]:px-3",
           optimistic === "public" && "border-transparent bg-secondary text-secondary-foreground"
         )}
       >

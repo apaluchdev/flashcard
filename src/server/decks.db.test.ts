@@ -8,8 +8,10 @@ import { cards, decks, user } from "@/db/schema"
 import { deckInput, type DeckInput } from "@/lib/validation"
 
 import {
+  DECK_CREATION_LIMIT,
   createDeckForUser,
   deleteDeckForUser,
+  isDeckCreationRateLimited,
   getDeckForEdit,
   getDeckForView,
   searchDecks,
@@ -257,6 +259,35 @@ describe("search", () => {
     expect(first.decks).toHaveLength(2)
     expect(second).toMatchObject({ hasMore: false })
     expect([...first.decks, ...second.decks].map((r) => r.id)).toEqual(all.decks.map((r) => r.id))
+  })
+})
+
+describe("creation rate limit", () => {
+  const busy = { id: `test-busy-${randomUUID()}`, name: "Busy" }
+
+  beforeAll(async () => {
+    await db.insert(user).values({ ...busy, email: `${busy.id}@example.test` })
+  })
+  afterAll(async () => {
+    await db.delete(user).where(eq(user.id, busy.id))
+  })
+
+  it("allows up to the limit within the window, then blocks", async () => {
+    for (let i = 0; i < DECK_CREATION_LIMIT.max - 1; i++) {
+      await createDeckForUser(busy.id, input({ title: `Deck ${i}`, cards: [] }))
+    }
+    expect(await isDeckCreationRateLimited(busy.id)).toBe(false)
+
+    await createDeckForUser(busy.id, input({ title: "One more", cards: [] }))
+    expect(await isDeckCreationRateLimited(busy.id)).toBe(true)
+    // Other users are unaffected.
+    expect(await isDeckCreationRateLimited(other.id)).toBe(false)
+  })
+
+  it("only counts decks created within the window", async () => {
+    const old = new Date(Date.now() - (DECK_CREATION_LIMIT.windowMinutes + 1) * 60_000)
+    await db.update(decks).set({ createdAt: old }).where(eq(decks.ownerId, busy.id))
+    expect(await isDeckCreationRateLimited(busy.id)).toBe(false)
   })
 })
 
