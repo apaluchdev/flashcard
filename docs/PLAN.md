@@ -248,7 +248,9 @@ Each phase ends with something that runs and can be committed. Tests are written
 3. `setVisibility(id, visibility)`, an owner-only server action, so the owner can switch it from the viewer page without opening the editor.
 4. `generateMetadata` on `/decks/[id]` gives shared links a proper title and description in chat and social previews. Private decks get `robots: noindex`.
 
-### Phase 6 — JSON import (F2)
+### Phase 6 — JSON import and export (F2) ✅
+
+> **As built:** also added **export**: `GET /decks/{id}/export` downloads any viewable deck in the same format, with a `"version": 1` field. Only the owner's export includes `visibility`, so other people's copies re-import as private. Parsing and serializing live in `src/lib/deck-json.ts`, with round-trip tests. Server Actions accept bodies up to 2 MB (`next.config.ts`) so a full 1 MB file fits. The import preview lets you change public/private before importing. Drag-and-drop is supported.
 1. The `/decks/new` page gets tabs: **Build** (deck-form) and **Import JSON**.
 2. `import-form.tsx`: file input (`accept=".json,application/json"`), size check, `JSON.parse` with a readable error message, `deckImportFile.safeParse`, a preview card showing title, card count and the first 3 cards, and the list of errors.
 3. `importDeck(data)` server action: `requireUser()`, parse the data again with zod, reuse the `createDeck` insert logic, redirect to the new deck.

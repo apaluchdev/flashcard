@@ -3,7 +3,12 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
-import { deckInput, formatIssues, visibilitySchema } from "@/lib/validation"
+import {
+  deckImportFile,
+  deckInput,
+  formatIssues,
+  visibilitySchema,
+} from "@/lib/validation"
 import {
   createDeckForUser,
   deleteDeckForUser,
@@ -21,6 +26,17 @@ export type ActionResult = { ok: false; errors: string[] }
 export async function createDeck(payload: unknown): Promise<ActionResult> {
   const user = await requireUser("/decks/new")
   const parsed = deckInput.safeParse(payload)
+  if (!parsed.success) return { ok: false, errors: formatIssues(parsed.error) }
+
+  const id = await createDeckForUser(user.id, parsed.data)
+  revalidatePath("/decks")
+  redirect(`/decks/${id}`)
+}
+
+/** Creates a new deck from an uploaded .json file (already parsed by the client). */
+export async function importDeck(payload: unknown): Promise<ActionResult> {
+  const user = await requireUser("/decks/new?tab=import")
+  const parsed = deckImportFile.safeParse(payload)
   if (!parsed.success) return { ok: false, errors: formatIssues(parsed.error) }
 
   const id = await createDeckForUser(user.id, parsed.data)

@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { cache } from "react"
-import { ChevronDownIcon, PencilIcon, PlusIcon } from "lucide-react"
+import { ChevronDownIcon, DownloadIcon, PencilIcon, PlusIcon } from "lucide-react"
 
 import { CardViewer } from "@/components/card-viewer"
 import { ShareButton } from "@/components/share-button"
@@ -60,6 +60,17 @@ export default async function DeckPage({ params }: PageProps<"/decks/[id]">) {
           </div>
           <div className="flex gap-2">
             <ShareButton deckId={deck.id} title={deck.title} visibility={deck.visibility} />
+            {/* Plain link: the route handler replies with a file download. */}
+            <a
+              href={`/decks/${deck.id}/export`}
+              download
+              className={buttonVariants({ variant: "outline" })}
+              aria-label="Export as JSON"
+              title="Export as JSON"
+            >
+              <DownloadIcon />
+              <span className="hidden sm:inline">Export</span>
+            </a>
             {isOwner && (
               <Link
                 href={`/decks/${deck.id}/edit`}
