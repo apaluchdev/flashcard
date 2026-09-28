@@ -204,7 +204,10 @@ Each phase ends with something that runs and can be committed. Tests are written
 3. `src/lib/validation.ts`: `cardInput`, `deckInput` (with `cards: cardInput[]`) and `deckImportFile`, all built from the same base schemas.
 4. Unit tests for the validation limits.
 
-### Phase 3 — Create and edit decks (F1, F5)
+### Phase 3 — Create and edit decks (F1, F5) ✅
+
+> **As built:** writes live in `src/server/decks.ts` as `createDeckForUser` / `updateDeckForUser` / `deleteDeckForUser`, which take an explicit `userId`; the Server Actions are thin wrappers. The ownership rules are covered by integration tests in `src/server/decks.db.test.ts`, which run against a separate `flashcard_test` database that the Vitest `db` project creates and migrates. `npm test` therefore needs Postgres running (`npm run db:up`). An interim deck page and "My decks" list exist so decks can be reached; Phases 4 and 7 replace them.
+
 1. **Data access layer** (`src/server/decks.ts`):
    - `getDeckForView(id)` returns the deck, its cards ordered by position, and the owner's name/avatar, or null. No permission check is needed because any deck is viewable by link.
    - `getDeckForEdit(id, userId)`: `WHERE id = $1 AND owner_id = $2`, so a non-owner gets null and then 404.
