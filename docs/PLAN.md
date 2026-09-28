@@ -240,7 +240,9 @@ Each phase ends with something that runs and can be committed. Tests are written
 3. Empty-deck state (0 cards): a message, plus a link to add cards if the viewer is the owner.
 4. Unit test for `shuffle` (keeps all items, returns a new array, doesn't mutate its input).
 
-### Phase 5 — Sharing and visibility (F3, F4)
+### Phase 5 — Sharing and visibility (F3, F4) ✅
+
+> **As built:** also added a generated Open Graph image (`decks/[id]/opengraph-image.tsx`) so shared links show a card-style preview, `metadataBase` from `BETTER_AUTH_URL`, and `noindex` on the edit page. The owner's visibility control is a menu on the badge; other visitors see a read-only badge.
 1. `share-button.tsx` copies `{origin}/decks/{id}` to the clipboard with a toast. It uses the native share sheet (`navigator.share`) on mobile when available.
 2. A visibility badge on the viewer and on search tiles ("Public" / "Private — only people with the link").
 3. `setVisibility(id, visibility)`, an owner-only server action, so the owner can switch it from the viewer page without opening the editor.

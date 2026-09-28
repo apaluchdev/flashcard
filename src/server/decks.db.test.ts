@@ -12,6 +12,7 @@ import {
   deleteDeckForUser,
   getDeckForEdit,
   getDeckForView,
+  setDeckVisibilityForUser,
   updateDeckForUser,
 } from "./decks"
 
@@ -149,6 +150,30 @@ describe("update", () => {
     expect(deck.cards.map((c) => c.front)).toEqual(["Hola", "Duplicate"])
     expect(deck.cards[0]!.id).toBe(first.id)
     expect(deck.cards[1]!.id).not.toBe(first.id)
+  })
+})
+
+describe("visibility", () => {
+  it("only lets the owner change visibility", async () => {
+    const id = await createDeckForUser(owner.id, input())
+
+    expect(await setDeckVisibilityForUser(id, other.id, "public")).toBe(false)
+    expect((await getDeckForView(id))!.visibility).toBe("private")
+
+    expect(await setDeckVisibilityForUser(id, owner.id, "public")).toBe(true)
+    expect((await getDeckForView(id))!.visibility).toBe("public")
+
+    expect(await setDeckVisibilityForUser(id, owner.id, "private")).toBe(true)
+    expect((await getDeckForView(id))!.visibility).toBe("private")
+  })
+
+  it("keeps private decks viewable by link", async () => {
+    const id = await createDeckForUser(owner.id, input({ visibility: "private" }))
+    expect(await getDeckForView(id)).toMatchObject({ id, visibility: "private" })
+  })
+
+  it("returns false for malformed ids", async () => {
+    expect(await setDeckVisibilityForUser("nope", owner.id, "public")).toBe(false)
   })
 })
 

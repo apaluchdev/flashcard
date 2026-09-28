@@ -1,20 +1,45 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { cache } from "react"
 import { ChevronDownIcon, PencilIcon, PlusIcon } from "lucide-react"
 
 import { CardViewer } from "@/components/card-viewer"
+import { ShareButton } from "@/components/share-button"
 import { VisibilityBadge } from "@/components/visibility-badge"
+import { VisibilityMenu } from "@/components/visibility-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { buttonVariants } from "@/components/ui/button"
 import { getDeckForView } from "@/server/decks"
 import { getCurrentUser } from "@/server/session"
 
-export const metadata: Metadata = { title: "Deck" }
+// One query per request, shared by generateMetadata and the page.
+const getDeck = cache(getDeckForView)
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/decks/[id]">): Promise<Metadata> {
+  const deck = await getDeck((await params).id)
+  if (!deck) return { title: "Deck not found" }
+
+  const cardsText = `${deck.cardCount} ${deck.cardCount === 1 ? "card" : "cards"}`
+  const description = deck.description
+    ? deck.description.slice(0, 200)
+    : `A flashcard deck with ${cardsText} by ${deck.owner.name}.`
+
+  return {
+    title: deck.title,
+    description,
+    openGraph: { title: deck.title, description, type: "website", url: `/decks/${deck.id}` },
+    twitter: { card: "summary_large_image", title: deck.title, description },
+    // Private decks are unlisted: shareable by link, but kept out of search engines.
+    robots: deck.visibility === "private" ? { index: false, follow: false } : undefined,
+  }
+}
 
 export default async function DeckPage({ params }: PageProps<"/decks/[id]">) {
   const { id } = await params
-  const [deck, user] = await Promise.all([getDeckForView(id), getCurrentUser()])
+  const [deck, user] = await Promise.all([getDeck(id), getCurrentUser()])
   if (!deck) notFound()
 
   const isOwner = user?.id === deck.owner.id
@@ -33,15 +58,18 @@ export default async function DeckPage({ params }: PageProps<"/decks/[id]">) {
               </p>
             )}
           </div>
-          {isOwner && (
-            <Link
-              href={`/decks/${deck.id}/edit`}
-              className={buttonVariants({ variant: "outline" })}
-            >
-              <PencilIcon />
-              Edit
-            </Link>
-          )}
+          <div className="flex gap-2">
+            <ShareButton deckId={deck.id} title={deck.title} visibility={deck.visibility} />
+            {isOwner && (
+              <Link
+                href={`/decks/${deck.id}/edit`}
+                className={buttonVariants({ variant: "outline" })}
+              >
+                <PencilIcon />
+                Edit
+              </Link>
+            )}
+          </div>
         </div>
         <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
           <span className="flex items-center gap-2">
@@ -55,7 +83,11 @@ export default async function DeckPage({ params }: PageProps<"/decks/[id]">) {
           <span>
             {deck.cardCount} {deck.cardCount === 1 ? "card" : "cards"}
           </span>
-          <VisibilityBadge visibility={deck.visibility} />
+          {isOwner ? (
+            <VisibilityMenu deckId={deck.id} visibility={deck.visibility} />
+          ) : (
+            <VisibilityBadge visibility={deck.visibility} />
+          )}
         </div>
       </header>
 

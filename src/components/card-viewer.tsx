@@ -33,8 +33,14 @@ function isTypingTarget(target: EventTarget | null) {
   )
 }
 
-function isInteractive(target: EventTarget | null) {
-  return target instanceof HTMLElement && !!target.closest("button, a, [role=button]")
+// Elements that handle Space/Enter themselves.
+const WIDGETS =
+  "button, a[href], summary, [role=button], [role^=menuitem], [role=option], [role=tab], [role=switch], [role=checkbox], [role=radio], [role=slider], [role=combobox]"
+// While focus is in one of these, no shortcut applies (e.g. menu typeahead on "S").
+const POPUPS = "[role=menu], [role=dialog], [role=alertdialog], [role=listbox]"
+
+function closest(target: EventTarget | null, selector: string) {
+  return target instanceof Element && !!target.closest(selector)
 }
 
 export function CardViewer({ cards }: { cards: ViewerCard[] }) {
@@ -85,13 +91,14 @@ export function CardViewer({ cards }: { cards: ViewerCard[] }) {
   // Keyboard: Space/Enter flip, ←/→ navigate, S toggles shuffle.
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
+      if (event.defaultPrevented) return // already handled by another control
       if (event.ctrlKey || event.metaKey || event.altKey) return
-      if (isTypingTarget(event.target)) return
+      if (isTypingTarget(event.target) || closest(event.target, POPUPS)) return
       switch (event.key) {
         case " ":
         case "Enter":
-          // A focused button already handles these natively.
-          if (isInteractive(event.target)) return
+          // A focused control already handles these natively.
+          if (closest(event.target, WIDGETS)) return
           event.preventDefault()
           flip()
           break

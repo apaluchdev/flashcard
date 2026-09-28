@@ -6,7 +6,10 @@ import { DeleteDeckButton } from "@/components/delete-deck-button"
 import { getDeckForEdit } from "@/server/decks"
 import { requireUser } from "@/server/session"
 
-export const metadata: Metadata = { title: "Edit deck" }
+export const metadata: Metadata = {
+  title: "Edit deck",
+  robots: { index: false, follow: false },
+}
 
 export default async function EditDeckPage({
   params,

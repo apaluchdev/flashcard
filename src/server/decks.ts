@@ -3,7 +3,7 @@ import { z } from "zod"
 
 import { db } from "@/db"
 import { cards, decks, user } from "@/db/schema"
-import type { DeckInput } from "@/lib/validation"
+import type { DeckInput, Visibility } from "@/lib/validation"
 
 // Data access layer for decks. Every write is scoped by owner in its WHERE
 // clause, so callers cannot edit another user's deck even with a forged id.
@@ -157,6 +157,21 @@ export async function updateDeckForUser(
 
     return true
   })
+}
+
+/** Changes public/private. Returns false if the deck isn't the user's. */
+export async function setDeckVisibilityForUser(
+  id: string,
+  userId: string,
+  visibility: Visibility
+) {
+  if (!isUuid(id)) return false
+  const updated = await db
+    .update(decks)
+    .set({ visibility, updatedAt: new Date() })
+    .where(and(eq(decks.id, id), eq(decks.ownerId, userId)))
+    .returning({ id: decks.id })
+  return updated.length > 0
 }
 
 /** Deletes the deck (cards cascade). Returns false if it isn't the user's. */
