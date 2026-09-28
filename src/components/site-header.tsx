@@ -2,8 +2,12 @@ import Link from "next/link"
 import { LayersIcon, PlusIcon } from "lucide-react"
 
 import { buttonVariants } from "@/components/ui/button"
+import { UserMenu } from "@/components/user-menu"
+import { getCurrentUser } from "@/server/session"
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const user = await getCurrentUser()
+
   return (
     <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
       <div className="container mx-auto flex h-14 max-w-5xl items-center gap-4 px-4">
@@ -24,10 +28,13 @@ export function SiteHeader() {
             <PlusIcon />
             <span className="sr-only sm:not-sr-only">New deck</span>
           </Link>
-          {/* Replaced by the user menu in Phase 1 (authentication). */}
-          <Link href="/sign-in" className={buttonVariants()}>
-            Sign in
-          </Link>
+          {user ? (
+            <UserMenu user={user} />
+          ) : (
+            <Link href="/sign-in" className={buttonVariants()}>
+              Sign in
+            </Link>
+          )}
         </div>
       </div>
     </header>

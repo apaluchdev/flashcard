@@ -186,12 +186,12 @@ Each phase ends with something that runs and can be committed. Tests are written
 4. Extend `.env.example` with `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `GITHUB_CLIENT_ID/SECRET`, `GOOGLE_CLIENT_ID/SECRET`. Pass them to `app` in compose.
 5. App shell: `layout.tsx` with a header (logo, "Browse", "New deck", user menu placeholder), toaster, and a `container` width. Replace the Next.js starter `page.tsx`.
 
-### Phase 1 — Authentication (OAuth)
+### Phase 1 — Authentication (OAuth) ✅
 1. Register OAuth apps:
    - GitHub: Settings → Developer settings → OAuth Apps. Callback URL: `http://localhost:3000/api/auth/callback/github`
    - Google Cloud Console → Credentials → OAuth client. Redirect URI: `http://localhost:3000/api/auth/callback/google`
 2. `src/lib/auth.ts`: Better Auth with the Drizzle adapter (Postgres) and the GitHub and Google social providers.
-3. Generate the auth tables with the Better Auth CLI into `src/db/auth-schema.ts`, then create a migration.
+3. Define the auth tables in `src/db/auth-schema.ts`, then create a migration. The Better Auth CLI (`@better-auth/cli`) is deprecated and stuck at 1.4, so the tables are written by hand from the field definitions in `@better-auth/core` (`db/get-tables`). Re-check them when upgrading better-auth.
 4. `app/api/auth/[...all]/route.ts`: mount the handler.
 5. `src/server/session.ts`: `getCurrentUser()` (wrapped in React `cache`) and `requireUser()`, which redirects to `/sign-in?next=…`.
 6. `/sign-in` page with provider buttons; the user menu shows avatar, name and "Sign out".
