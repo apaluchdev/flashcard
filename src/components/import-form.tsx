@@ -10,6 +10,7 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 
+import { AiPromptPanel } from "@/components/ai-prompt-panel"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
@@ -77,6 +78,8 @@ export function ImportForm() {
           if (file) void load(file)
         }}
       />
+
+      {state.status !== "ready" && <AiPromptPanel />}
 
       {state.status !== "ready" && (
         <div
