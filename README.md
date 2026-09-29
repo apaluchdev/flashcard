@@ -80,6 +80,24 @@ Sign-in uses OAuth. Each provider is enabled only when both of its keys are set 
 
 Use `http://localhost:3000` exactly: `127.0.0.1` counts as a different origin. For a real domain, set `BETTER_AUTH_URL` to it (for example `https://flashcards.example.com`) and register that domain's callback URLs as well.
 
+## Serving over HTTPS
+
+The ports in `compose.yaml` are bound to `127.0.0.1`, so the app is only reachable through a reverse proxy on the same machine. [deploy/nginx-flashcard.conf](deploy/nginx-flashcard.conf) is a host nginx site that proxies to `127.0.0.1:3000`, with a Let's Encrypt certificate from certbot:
+
+1. Point the domain's DNS at the server and forward ports 80 and 443 to it. Port 80 must stay open for certificate renewal.
+2. Set `BETTER_AUTH_URL=https://your.domain` in `.env` and run `docker compose up -d --build`.
+3. Install the site (edit `server_name` first if your domain differs) and get a certificate:
+
+   ```bash
+   sudo cp deploy/nginx-flashcard.conf /etc/nginx/sites-available/flashcard
+   sudo ln -s /etc/nginx/sites-available/flashcard /etc/nginx/sites-enabled/flashcard
+   sudo nginx -t && sudo systemctl reload nginx
+   sudo certbot --nginx -d your.domain
+   ```
+
+   certbot adds the TLS lines and an HTTP-to-HTTPS redirect to the live file, and its systemd timer renews the certificate automatically.
+4. Register `https://your.domain/api/auth/callback/github` and `https://your.domain/api/auth/callback/google` with the OAuth apps.
+
 ## Local development
 
 For day-to-day work, run only the database in Docker and the app on your machine, which gives fast hot reload. The Next.js docs advise against running the dev server inside Docker on Windows and macOS.
