@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { enabledProviders } from "@/lib/auth-providers"
 import { safeRedirectPath } from "@/lib/safe-redirect"
 import { getCurrentUser } from "@/server/session"
 
@@ -21,6 +22,7 @@ export default async function SignInPage({
   const callbackURL = safeRedirectPath(typeof next === "string" ? next : null)
 
   if (await getCurrentUser()) redirect(callbackURL)
+  const providers = enabledProviders()
 
   return (
     <div className="flex flex-1 items-center justify-center px-4 py-16">
@@ -32,7 +34,22 @@ export default async function SignInPage({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <SignInButtons callbackURL={callbackURL} />
+          {providers.length > 0 ? (
+            <SignInButtons callbackURL={callbackURL} providers={providers} />
+          ) : (
+            <div
+              role="alert"
+              className="flex flex-col gap-2 rounded-lg border border-dashed p-4 text-sm text-muted-foreground"
+            >
+              <p className="font-medium text-foreground">Sign-in isn&apos;t set up yet</p>
+              <p>
+                Add OAuth keys for GitHub (<code>GITHUB_CLIENT_ID</code>,{" "}
+                <code>GITHUB_CLIENT_SECRET</code>) and/or Google (<code>GOOGLE_CLIENT_ID</code>,{" "}
+                <code>GOOGLE_CLIENT_SECRET</code>) to <code>.env</code>, then restart the app. See
+                the README for step-by-step instructions.
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

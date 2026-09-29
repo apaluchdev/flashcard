@@ -4,19 +4,12 @@ import { nextCookies } from "better-auth/next-js"
 
 import { db } from "@/db"
 import * as schema from "@/db/schema"
+import { socialProvidersConfig } from "@/lib/auth-providers"
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, { provider: "pg", schema }),
-  socialProviders: {
-    github: {
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-    },
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    },
-  },
+  // Only providers with both keys set in the environment (see .env.example).
+  socialProviders: socialProvidersConfig(),
   account: {
     // Signing in with GitHub and Google using the same verified email
     // lands on one user instead of creating two.

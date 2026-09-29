@@ -7,15 +7,21 @@ import { toast } from "sonner"
 import { GitHubIcon, GoogleIcon } from "@/components/provider-icons"
 import { Button } from "@/components/ui/button"
 import { authClient } from "@/lib/auth-client"
+import type { Provider } from "@/lib/auth-providers"
 
-type Provider = "github" | "google"
-
-const providers: { id: Provider; label: string; Icon: typeof GitHubIcon }[] = [
+const buttons: { id: Provider; label: string; Icon: typeof GitHubIcon }[] = [
   { id: "github", label: "Continue with GitHub", Icon: GitHubIcon },
   { id: "google", label: "Continue with Google", Icon: GoogleIcon },
 ]
 
-export function SignInButtons({ callbackURL }: { callbackURL: string }) {
+export function SignInButtons({
+  callbackURL,
+  providers,
+}: {
+  callbackURL: string
+  /** Providers configured on the server; others are hidden. */
+  providers: Provider[]
+}) {
   const [pending, setPending] = useState<Provider | null>(null)
 
   async function signIn(provider: Provider) {
@@ -30,7 +36,9 @@ export function SignInButtons({ callbackURL }: { callbackURL: string }) {
 
   return (
     <div className="flex flex-col gap-3">
-      {providers.map(({ id, label, Icon }) => (
+      {buttons
+        .filter(({ id }) => providers.includes(id))
+        .map(({ id, label, Icon }) => (
         <Button
           key={id}
           variant="outline"
