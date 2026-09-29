@@ -2,9 +2,9 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { cache } from "react"
-import { ChevronDownIcon, DownloadIcon, PencilIcon, PlusIcon } from "lucide-react"
+import { DownloadIcon, PencilIcon, PlusIcon } from "lucide-react"
 
-import { CardViewer } from "@/components/card-viewer"
+import { DeckStudy } from "@/components/deck-study"
 import { ShareButton } from "@/components/share-button"
 import { VisibilityBadge } from "@/components/visibility-badge"
 import { VisibilityMenu } from "@/components/visibility-menu"
@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { buttonVariants } from "@/components/ui/button"
 import { touchTarget } from "@/lib/touch"
 import { getDeckForView } from "@/server/decks"
+import { getRetiredCardIds } from "@/server/retirements"
 import { getCurrentUser } from "@/server/session"
 
 // One query per request, shared by generateMetadata and the page.
@@ -44,6 +45,7 @@ export default async function DeckPage({ params }: PageProps<"/decks/[id]">) {
   if (!deck) notFound()
 
   const isOwner = user?.id === deck.owner.id
+  const retiredIds = user ? await getRetiredCardIds(user.id, deck.id) : []
 
   return (
     <div className="container mx-auto w-full max-w-3xl px-4 py-8">
@@ -114,30 +116,13 @@ export default async function DeckPage({ params }: PageProps<"/decks/[id]">) {
           )}
         </div>
       ) : (
-        <>
-          <CardViewer cards={deck.cards} />
-
-          <details className="group mt-10 rounded-lg border">
-            <summary className="flex cursor-pointer list-none items-center justify-between p-4 font-medium [&::-webkit-details-marker]:hidden">
-              All cards ({deck.cards.length})
-              <ChevronDownIcon className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
-            </summary>
-            <ol className="flex flex-col divide-y border-t">
-              {deck.cards.map((card, index) => (
-                <li key={card.id} className="grid gap-2 p-4 sm:grid-cols-2">
-                  <p className="whitespace-pre-line break-words">
-                    <span className="sr-only">Card {index + 1} question: </span>
-                    {card.front}
-                  </p>
-                  <p className="whitespace-pre-line break-words text-muted-foreground">
-                    <span className="sr-only">Answer: </span>
-                    {card.back}
-                  </p>
-                </li>
-              ))}
-            </ol>
-          </details>
-        </>
+        <DeckStudy
+          deckId={deck.id}
+          cards={deck.cards}
+          initialRetiredIds={retiredIds}
+          canRetire={!!user}
+          signInHref={`/sign-in?next=${encodeURIComponent(`/decks/${deck.id}`)}`}
+        />
       )}
     </div>
   )

@@ -3,6 +3,7 @@ import {
   integer,
   pgEnum,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uuid,
@@ -62,6 +63,31 @@ export const cards = pgTable(
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("cards_deck_position_idx").on(t.deckId, t.position)]
+)
+
+/**
+ * Cards a user has retired (memorized) — per user, so everyone who studies
+ * a shared deck keeps their own progress. `deckId` is denormalized from the
+ * card so one deck's retirements load with a single index lookup.
+ */
+export const cardRetirements = pgTable(
+  "card_retirements",
+  {
+    userId: text()
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    cardId: uuid()
+      .notNull()
+      .references(() => cards.id, { onDelete: "cascade" }),
+    deckId: uuid()
+      .notNull()
+      .references(() => decks.id, { onDelete: "cascade" }),
+    retiredAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.userId, t.cardId] }),
+    index("card_retirements_user_deck_idx").on(t.userId, t.deckId),
+  ]
 )
 
 export type Deck = typeof decks.$inferSelect

@@ -318,7 +318,7 @@ Each phase ends with something that runs and can be committed. Tests are written
 ## 9. Later / out of scope
 
 - Copy someone else's deck into your own account
-- Study progress, spaced repetition, "mark as known"
+- Study progress beyond retiring cards, e.g. spaced repetition. (Per-user "retired" cards with an Unretired / Retired / All filter were added after Phase 8; see the `card_retirements` table.)
 - Images or rich text / Markdown on cards
 - CSV import/export (JSON import and export are done in Phase 6)
 - Drag-and-drop card reordering (`@dnd-kit`)
