@@ -31,7 +31,7 @@ export function AiPromptPanel() {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
       toast.success("Prompt copied", {
-        description: "Paste it into your AI assistant, then import the JSON it returns.",
+        description: "Paste it into your AI assistant, then import the .json file it creates.",
       })
     } catch {
       // Clipboard blocked: select the text so it can be copied manually.
@@ -101,7 +101,7 @@ export function AiPromptPanel() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <ol className="list-inside list-decimal text-sm text-muted-foreground">
             <li>Copy the prompt and paste it into your AI assistant.</li>
-            <li>Save its reply as a <code>.json</code> file.</li>
+            <li>Download the <code>.json</code> file it creates.</li>
             <li>Import the file below.</li>
           </ol>
           <Button type="button" onClick={copy} className={touchTarget}>

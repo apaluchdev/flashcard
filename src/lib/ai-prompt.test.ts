@@ -36,6 +36,12 @@ describe("buildDeckPrompt", () => {
     expect(buildDeckPrompt({ topic: "   " })).toContain("[DESCRIBE THE TOPIC")
   })
 
+  it("asks for a real .json file rather than JSON text", () => {
+    const prompt = buildDeckPrompt()
+    expect(prompt).toContain("Create an actual downloadable .json file")
+    expect(prompt).toContain("Do not just print JSON text in the chat")
+  })
+
   it("keeps JSON escaping instructions intact", () => {
     const prompt = buildDeckPrompt()
     expect(prompt).toContain(String.raw`escape double quotes as \" and backslashes as \\`)

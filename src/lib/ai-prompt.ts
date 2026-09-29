@@ -50,7 +50,10 @@ Create a deck of exactly ${n(count)} flashcards about:
 ${subject}
 
 ## Output format
-- Reply with ONLY the JSON object: no explanation before or after it, no Markdown code fences, no comments. Your entire reply will be saved as a .json file.
+- Create an actual downloadable .json file and attach it to your reply. Do not just print JSON text in the chat. Use whatever file-creation tool you have (code execution, a file or artifact tool, or similar) to write the file, then give me the download link.
+- Name the file after the deck title in lowercase with hyphens, for example "photosynthesis-basics.json".
+- The file must contain ONLY the JSON object: no Markdown code fences, no explanation, no comments. Save it as UTF-8 text.
+- Only if you truly cannot create files, reply with the JSON object alone in a single \`\`\`json code block so it can be copied into a .json file, and say that you couldn't create the file.
 - The JSON must be valid: double quotes around all keys and string values, no trailing commas, no comments, and UTF-8 text.
 - Inside strings, escape double quotes as \\" and backslashes as \\\\. Write line breaks as \\n (never a raw line break inside a string).
 
@@ -91,7 +94,7 @@ Other rules the importer enforces:
 ${JSON.stringify(AI_PROMPT_EXAMPLE, null, 2)}
 
 ## Before you reply, check that
-- the reply is one JSON object and nothing else;
+- you created a real .json file (not just JSON text in the chat) and it contains one JSON object and nothing else;
 - "title" is present and at most ${n(LIMITS.title)} characters;
 - "cards" contains exactly ${n(count)} objects, each with a non-empty "front" and "back" of at most ${n(LIMITS.cardText)} characters;
 - the JSON parses without errors.`
